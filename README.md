@@ -34,6 +34,12 @@ CDN; nothing else is external. See
 [`examples/fraunces-libre-franklin-specimen.html`](examples/fraunces-libre-franklin-specimen.html)
 for a sample.
 
+The repo also ships with four pre-built specimens under
+[`seed/`](seed/). On first run — when your Library is still empty — the app
+copies them into `data/` so you open to a populated Library without spending
+anything (it's a plain file copy; the agent never runs for these). Your own
+generations append alongside them.
+
 ## Setup
 
 You need two API keys, both free to obtain:

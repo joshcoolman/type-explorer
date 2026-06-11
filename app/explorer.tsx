@@ -40,6 +40,15 @@ export default function Explorer() {
     refreshSpecimens();
   }, [refreshSpecimens]);
 
+  // Poor-man's polling: while any specimen is still generating, re-fetch the list
+  // on a timer so statuses flip (running → done/error) without a manual refresh,
+  // even when the live log panel isn't open. Stops as soon as nothing is running.
+  useEffect(() => {
+    if (!specimens.some((s) => s.status === "running")) return;
+    const t = setInterval(refreshSpecimens, 4000);
+    return () => clearInterval(t);
+  }, [specimens, refreshSpecimens]);
+
   const toggleSelect = useCallback((family: FontFamily) => {
     setSelected((prev) => {
       const exists = prev.some((f) => f.family === family.family);
@@ -54,9 +63,16 @@ export default function Explorer() {
     setView("brief");
   }, []);
 
-  // Kick off a generation job and jump to the library to watch it.
+  // Kick off a generation job. Returns the created record (or null on failure)
+  // and adds it to the specimen list — but does NOT change the view. Callers
+  // decide what to do next: Browse jumps to the Library, Brief stays put.
   const startGeneration = useCallback(
-    async (display: string, text: string, brief?: string, paletteMood?: string) => {
+    async (
+      display: string,
+      text: string,
+      brief?: string,
+      paletteMood?: string,
+    ): Promise<SpecimenMeta | null> => {
       try {
         const res = await fetch("/api/jobs", {
           method: "POST",
@@ -66,11 +82,19 @@ export default function Explorer() {
         const meta = (await res.json()) as SpecimenMeta;
         if (!res.ok) throw new Error((meta as { error?: string }).error ?? "Failed to start");
         setSpecimens((prev) => [meta, ...prev]);
-        setActiveSpecimen(meta.id);
-        setView("library");
+        return meta;
       } catch (err) {
         alert(err instanceof Error ? err.message : "Failed to start generation");
+        return null;
       }
+    },
+    [],
+  );
+
+  const deleteSpecimen = useCallback(
+    (id: string) => {
+      setSpecimens((prev) => prev.filter((s) => s.id !== id));
+      setActiveSpecimen((cur) => (cur === id ? null : cur));
     },
     [],
   );
@@ -115,14 +139,23 @@ export default function Explorer() {
               selected={selected}
               onToggleSelect={toggleSelect}
               onFindPartner={findPartner}
-              onGenerate={(d, t) => startGeneration(d.family, t.family)}
+              onGenerate={async (d, t) => {
+                const meta = await startGeneration(d.family, t.family);
+                if (meta) {
+                  setActiveSpecimen(meta.id);
+                  setView("library");
+                }
+              }}
             />
           )}
           {view === "brief" && (
             <BriefView
               lockedFont={lockedFont}
               onClearLock={() => setLockedFont(null)}
+              specimens={specimens}
               onGenerate={startGeneration}
+              onJobDone={refreshSpecimens}
+              onDeleted={deleteSpecimen}
             />
           )}
           {view === "library" && (
@@ -130,10 +163,7 @@ export default function Explorer() {
               specimens={specimens}
               activeId={activeSpecimen}
               onJobDone={refreshSpecimens}
-              onDeleted={(id) => {
-                setSpecimens((prev) => prev.filter((s) => s.id !== id));
-                if (activeSpecimen === id) setActiveSpecimen(null);
-              }}
+              onDeleted={deleteSpecimen}
             />
           )}
         </div>

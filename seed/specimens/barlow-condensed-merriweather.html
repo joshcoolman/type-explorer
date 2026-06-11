@@ -1,0 +1,360 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Barlow Condensed × Merriweather — Type Specimen</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Merriweather:ital,opsz,wdth,wght@0,18..144,87..112,300..900;1,18..144,87..112,300..900&display=swap" />
+
+  <style>
+    /* ----- palette: Warm editorial (paper + vermilion) — ink & paper ----- */
+    :root {
+      --background: 42 38% 97%;
+      --foreground: 30 9% 11%;
+      --card: 42 30% 99%;
+      --muted: 40 20% 92%;
+      --muted-foreground: 30 5% 40%;
+      --border: 34 14% 84%;
+      --signal: 8 76% 49%;
+      --signal-foreground: 42 38% 97%;
+      --ring: 8 76% 49%;
+      --radius: 0.25rem;
+
+      --font-display: "Barlow Condensed", "Arial Narrow", sans-serif;
+      --font-text: "Merriweather", Georgia, serif;
+    }
+    .dark {
+      --background: 30 8% 7%;
+      --foreground: 40 24% 91%;
+      --card: 30 8% 9%;
+      --muted: 30 7% 14%;
+      --muted-foreground: 38 8% 60%;
+      --border: 34 7% 18%;
+      --signal: 10 84% 60%;
+      --signal-foreground: 30 8% 7%;
+      --ring: 10 84% 60%;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { margin: 0; }
+    body {
+      background: hsl(var(--background));
+      color: hsl(var(--foreground));
+      font-family: var(--font-text);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+    ::selection { background: hsl(var(--signal)); color: hsl(var(--signal-foreground)); }
+
+    .wrap { max-width: 1100px; margin: 0 auto; padding: 0 24px; }
+    section { padding: 72px 0; border-top: 1px solid hsl(var(--border)); }
+    section:first-of-type { border-top: 0; }
+
+    .label {
+      font-family: var(--font-display);
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: hsl(var(--muted-foreground));
+      margin: 0 0 20px;
+    }
+    .label .num { color: hsl(var(--signal)); margin-right: 10px; }
+    .display { font-family: var(--font-display); }
+    .text { font-family: var(--font-text); }
+    .muted { color: hsl(var(--muted-foreground)); }
+    .tnum { font-variant-numeric: tabular-nums; font-feature-settings: "tnum" 1; }
+    a { color: hsl(var(--signal)); text-decoration-thickness: 1px; text-underline-offset: 2px; }
+
+    /* sticky header / nav */
+    header.bar {
+      position: sticky; top: 0; z-index: 10;
+      display: flex; align-items: center; gap: 18px;
+      padding: 12px 24px;
+      background: hsl(var(--background) / 0.92);
+      backdrop-filter: blur(8px);
+      border-bottom: 1px solid hsl(var(--border));
+    }
+    header.bar .title { font-family: var(--font-display); font-weight: 600; font-size: 18px; letter-spacing: 0.02em; }
+    header.bar nav { display: flex; flex-wrap: wrap; gap: 4px 14px; margin-left: auto; }
+    header.bar nav a {
+      font-family: var(--font-display);
+      font-size: 13px; letter-spacing: 0.04em; color: hsl(var(--muted-foreground));
+      text-decoration: none;
+    }
+    header.bar nav a:hover { color: hsl(var(--foreground)); }
+    .toggle {
+      font-family: var(--font-display); font-size: 13px; cursor: pointer;
+      background: hsl(var(--muted)); color: hsl(var(--foreground));
+      border: 1px solid hsl(var(--border)); border-radius: var(--radius);
+      padding: 6px 12px;
+    }
+
+    /* hero */
+    .hero h1 { font-family: var(--font-display); font-weight: 700; font-size: clamp(56px, 14vw, 150px); line-height: 0.92; margin: 0; letter-spacing: -0.01em; text-transform: uppercase; }
+    .hero .pair { display: flex; flex-wrap: wrap; gap: 8px 28px; margin-top: 28px; }
+    .hero .pair .face { font-family: var(--font-display); font-weight: 600; font-size: clamp(28px, 5vw, 56px); }
+    .hero .pair .face.t { font-family: var(--font-text); font-weight: 400; }
+    .hero .pair .role { display: block; font-family: var(--font-display); font-size: 13px; letter-spacing: 0.16em; text-transform: uppercase; color: hsl(var(--muted-foreground)); }
+    .hero p.lede { font-size: clamp(16px, 2.2vw, 21px); max-width: 60ch; margin-top: 28px; line-height: 1.7; }
+
+    /* colophon */
+    dl.colophon { display: grid; grid-template-columns: 200px 1fr; gap: 0; margin: 0; }
+    dl.colophon > div { display: contents; }
+    dl.colophon dt { padding: 12px 0; border-top: 1px solid hsl(var(--border)); color: hsl(var(--muted-foreground)); font-family: var(--font-display); letter-spacing: 0.08em; text-transform: uppercase; font-size: 13px; }
+    dl.colophon dd { padding: 12px 0; border-top: 1px solid hsl(var(--border)); margin: 0; }
+
+    /* weight ladder */
+    .ladder .row { display: flex; align-items: baseline; gap: 20px; padding: 10px 0; border-top: 1px solid hsl(var(--border)); }
+    .ladder .row .w { width: 130px; flex: none; font-family: var(--font-display); font-size: 13px; letter-spacing: 0.04em; text-transform: uppercase; color: hsl(var(--muted-foreground)); }
+    .ladder .row .sample { font-size: clamp(28px, 4.5vw, 48px); line-height: 1.05; }
+
+    /* controls (tester) */
+    .panel { background: hsl(var(--card)); border: 1px solid hsl(var(--border)); border-radius: var(--radius); padding: 28px; }
+    .control { display: grid; grid-template-columns: 120px 1fr 64px; align-items: center; gap: 16px; margin-bottom: 14px; }
+    .control label { font-family: var(--font-display); font-size: 13px; letter-spacing: 0.08em; text-transform: uppercase; color: hsl(var(--muted-foreground)); }
+    .control output { font-family: var(--font-display); font-size: 14px; text-align: right; color: hsl(var(--foreground)); }
+    input[type="range"] { width: 100%; accent-color: hsl(var(--signal)); }
+
+    /* tester */
+    .tester input[type="text"] { width: 100%; font: inherit; font-size: 16px; padding: 12px 14px; border: 1px solid hsl(var(--border)); border-radius: var(--radius); background: hsl(var(--background)); color: hsl(var(--foreground)); margin-bottom: 18px; }
+    #testerDisplay { font-family: var(--font-display); line-height: 1.05; }
+    #testerText { font-family: var(--font-text); margin-top: 14px; line-height: 1.2; }
+
+    /* in context */
+    .spread h2 { font-family: var(--font-display); font-weight: 700; font-size: clamp(40px, 8vw, 92px); line-height: 0.98; margin: 0 0 8px; text-transform: uppercase; letter-spacing: -0.005em; }
+    .spread .standfirst { font-size: clamp(18px, 2.4vw, 24px); color: hsl(var(--muted-foreground)); max-width: 62ch; margin: 0 0 28px; line-height: 1.6; }
+    .spread .body { columns: 2; column-gap: 40px; font-size: 16px; line-height: 1.7; }
+    .spread .body p { margin: 0 0 1em; }
+    .spread .body p:first-child::first-letter { font-family: var(--font-display); font-weight: 700; float: left; font-size: 4em; line-height: 0.72; padding: 6px 12px 0 0; color: hsl(var(--signal)); }
+    @media (max-width: 720px) { .spread .body { columns: 1; } dl.colophon { grid-template-columns: 1fr; } dl.colophon dt { border-top: 1px solid hsl(var(--border)); padding-bottom: 0; } dl.colophon dd { border-top: 0; padding-top: 2px; } }
+
+    /* body specimen */
+    .running { font-size: 17px; max-width: 66ch; line-height: 1.75; }
+
+    /* glyph grid */
+    .glyphs { display: grid; grid-template-columns: repeat(auto-fill, minmax(56px, 1fr)); gap: 1px; background: hsl(var(--border)); border: 1px solid hsl(var(--border)); border-radius: var(--radius); overflow: hidden; }
+    .glyphs .g { background: hsl(var(--card)); aspect-ratio: 1; display: flex; align-items: center; justify-content: center; font-family: var(--font-display); font-size: 30px; transition: background 0.12s, color 0.12s; }
+    .glyphs .g:hover { background: hsl(var(--signal)); color: hsl(var(--signal-foreground)); }
+
+    /* type scale */
+    .scale .row { display: flex; align-items: baseline; gap: 18px; padding: 6px 0; }
+    .scale .row .px { width: 64px; flex: none; font-family: var(--font-display); font-size: 13px; color: hsl(var(--muted-foreground)); text-align: right; }
+    .scale .row .s { font-family: var(--font-display); font-weight: 600; line-height: 1.1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-transform: uppercase; }
+
+    footer.colofooter { padding: 40px 0 80px; color: hsl(var(--muted-foreground)); font-size: 13px; font-family: var(--font-display); letter-spacing: 0.04em; }
+  </style>
+</head>
+<body>
+  <header class="bar">
+    <span class="title">Barlow Condensed × Merriweather</span>
+    <nav>
+      <a href="#hero">01 Hero</a>
+      <a href="#colophon">02 Colophon</a>
+      <a href="#ladder">03 Weights</a>
+      <a href="#tester">06 Tester</a>
+      <a href="#context">07 In context</a>
+      <a href="#bodyspec">08 Body</a>
+      <a href="#glyphs">09 Glyphs</a>
+      <a href="#scale">10 Scale</a>
+    </nav>
+    <button class="toggle" id="themeToggle" type="button">Dark</button>
+  </header>
+
+  <div class="wrap">
+
+    <!-- 1. HERO -->
+    <section id="hero" class="hero">
+      <h1 class="display">Margins &amp; Mastheads</h1>
+      <div class="pair">
+        <span class="face">Barlow Condensed<span class="role">Display</span></span>
+        <span class="face t">Merriweather<span class="role">Text</span></span>
+      </div>
+      <p class="lede">A design journal of print, pixels, and the space between them. Barlow Condensed sets the column heads tight and tall; Merriweather carries the reading with quiet, sturdy authority.</p>
+    </section>
+
+    <!-- 2. COLOPHON -->
+    <section id="colophon">
+      <p class="label"><span class="num">02</span>Colophon</p>
+      <dl class="colophon">
+        <div><dt>Display</dt><dd>Barlow Condensed — condensed humanist sans-serif, by Jeremy Tribby</dd></div>
+        <div><dt>Text</dt><dd>Merriweather — workhorse transitional serif, by Sorkin Type (Eben Sorkin)</dd></div>
+        <div><dt>Styles</dt><dd>Display: 9 weights (100–900) + matching italics. Text: variable serif, roman &amp; italic.</dd></div>
+        <div><dt>Variable axes</dt><dd>Barlow Condensed is static. Merriweather is variable: opsz 18–144, wdth 87–112, wght 300–900.</dd></div>
+        <div><dt>License</dt><dd>Both under the SIL Open Font License 1.1 (OFL)</dd></div>
+        <div><dt>Source</dt><dd>
+          <a href="https://fonts.google.com/specimen/Barlow+Condensed" target="_blank" rel="noreferrer">Barlow Condensed</a>,
+          <a href="https://fonts.google.com/specimen/Merriweather" target="_blank" rel="noreferrer">Merriweather</a> on Google Fonts
+        </dd></div>
+      </dl>
+    </section>
+
+    <!-- 3. WEIGHT LADDER (display) -->
+    <section id="ladder">
+      <p class="label"><span class="num">03</span>Weight ladder · Barlow Condensed</p>
+      <div class="ladder">
+        <div class="row"><span class="w">100 · Thin</span><span class="sample display" style="font-weight: 100">Layout</span></div>
+        <div class="row"><span class="w">200 · ExtraLight</span><span class="sample display" style="font-weight: 200">Kerning</span></div>
+        <div class="row"><span class="w">300 · Light</span><span class="sample display" style="font-weight: 300">Baseline</span></div>
+        <div class="row"><span class="w">400 · Regular</span><span class="sample display" style="font-weight: 400">Gridlines</span></div>
+        <div class="row"><span class="w">500 · Medium</span><span class="sample display" style="font-weight: 500">Whitespace</span></div>
+        <div class="row"><span class="w">600 · SemiBold</span><span class="sample display" style="font-weight: 600">Typeface</span></div>
+        <div class="row"><span class="w">700 · Bold</span><span class="sample display" style="font-weight: 700">Masthead</span></div>
+        <div class="row"><span class="w">800 · ExtraBold</span><span class="sample display" style="font-weight: 800">Editorial</span></div>
+        <div class="row"><span class="w">900 · Black</span><span class="sample display" style="font-weight: 900">Headline</span></div>
+      </div>
+    </section>
+
+    <!-- 6. LIVE TESTER -->
+    <section id="tester" class="tester">
+      <p class="label"><span class="num">06</span>Live tester</p>
+      <div class="panel">
+        <input type="text" id="testerInput" value="The form follows the feeling" />
+        <div class="control">
+          <label for="testerSize">Size</label>
+          <input type="range" id="testerSize" min="16" max="120" value="56" />
+          <output for="testerSize">56px</output>
+        </div>
+        <div class="control">
+          <label for="testerWeight">Weight</label>
+          <input type="range" id="testerWeight" min="100" max="900" value="400" step="1" />
+          <output for="testerWeight">400</output>
+        </div>
+        <div id="testerDisplay">The form follows the feeling</div>
+        <div id="testerText">The form follows the feeling</div>
+      </div>
+    </section>
+
+    <!-- 7. IN CONTEXT -->
+    <section id="context" class="spread">
+      <p class="label"><span class="num">07</span>In context</p>
+      <h2 class="display">The Return of the Centered Layout</h2>
+      <p class="standfirst text">After a decade of brutalist edges and full-bleed grids, designers are quietly rediscovering symmetry, generous margins, and the patience of a measured column.</p>
+      <div class="body text">
+        <p>Every few seasons the discipline turns on itself. The asymmetry that felt radical in 2015 now reads as a default, and defaults are exactly what good designers love to break. The newest editorial sites lean into something older: a centered masthead, a single column of well-set text, and the confidence to leave the rest of the page empty.</p>
+        <p>What makes it work is contrast at the type level. A condensed sans like Barlow Condensed compresses a headline into a tight vertical band, leaving air on either side. Below it, a serif built for screens — Merriweather, with its tall x-height and sturdy slabs — does the slow work of being read for paragraphs at a stretch.</p>
+        <p>The lesson is not that symmetry is back, exactly. It is that the grid was never the point. The point was rhythm: the cadence of a heading against body, of a figure against its caption, of ink against the paper it sits on. Get the pairing right and the layout almost designs itself.</p>
+      </div>
+    </section>
+
+    <!-- 8. BODY SPECIMEN (text face) -->
+    <section id="bodyspec">
+      <p class="label"><span class="num">08</span>Body specimen · Merriweather</p>
+      <div class="ladder">
+        <div class="row"><span class="w">400 · Regular</span><span class="sample text" style="font-size:24px;font-weight:400">Readable at any column width</span></div>
+        <div class="row"><span class="w">700 · Bold</span><span class="sample text" style="font-size:24px;font-weight:700">Emphasis without shouting</span></div>
+      </div>
+      <p class="running text" style="margin-top:28px">Merriweather was drawn for the screen first — a transitional serif with a generous x-height, open apertures, and a robust, slightly condensed body that holds its color from captions up to running text. Set at sixteen or seventeen pixels it stays comfortable across long passages, which is why it has become a quiet standard for blogs, journals, and long-form reading apps where the reader is meant to forget the type and simply read.</p>
+      <p class="text tnum" style="margin-top:18px;font-size:20px">0123456789 · $1,234.56 · 09:45 · (2024–2025)</p>
+      <p class="text" style="margin-top:8px;letter-spacing:.12em">ABCDEFGHIJKLMNOPQRSTUVWXYZ</p>
+    </section>
+
+    <!-- 9. GLYPH GRID (display face) — populated by JS. -->
+    <section id="glyphs">
+      <p class="label"><span class="num">09</span>Glyphs · Barlow Condensed</p>
+      <div class="glyphs" id="glyphGrid"></div>
+    </section>
+
+    <!-- 10. TYPE SCALE (display face) — populated by JS. -->
+    <section id="scale" class="scale">
+      <p class="label"><span class="num">10</span>Type scale · Barlow Condensed</p>
+      <div id="scaleRows"></div>
+    </section>
+
+    <footer class="colofooter">
+      Barlow Condensed × Merriweather — a Type Explorer specimen. Fonts served by Google Fonts.
+    </footer>
+  </div>
+
+  <script>
+    // ----- theme toggle (persists to localStorage) -----
+    (function () {
+      var root = document.documentElement;
+      var btn = document.getElementById("themeToggle");
+      var saved = null;
+      try { saved = localStorage.getItem("specimen-theme"); } catch (e) {}
+      var dark = saved ? saved === "dark"
+        : (window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches);
+      function apply() {
+        root.classList.toggle("dark", dark);
+        if (btn) btn.textContent = dark ? "Light" : "Dark";
+      }
+      apply();
+      if (btn) btn.addEventListener("click", function () {
+        dark = !dark;
+        try { localStorage.setItem("specimen-theme", dark ? "dark" : "light"); } catch (e) {}
+        apply();
+      });
+    })();
+
+    // ----- live tester -----
+    (function () {
+      var input = document.getElementById("testerInput");
+      var size = document.getElementById("testerSize");
+      var weight = document.getElementById("testerWeight");
+      var disp = document.getElementById("testerDisplay");
+      var text = document.getElementById("testerText");
+      if (!input) return;
+      function update() {
+        var t = input.value || " ";
+        disp.textContent = t;
+        text.textContent = t;
+        var px = size.value + "px";
+        disp.style.fontSize = px;
+        text.style.fontSize = px;
+        disp.style.fontWeight = weight.value;
+        text.style.fontWeight = weight.value;
+        size.parentNode.querySelector("output").textContent = px;
+        weight.parentNode.querySelector("output").textContent = weight.value;
+      }
+      [input, size, weight].forEach(function (el) {
+        el.addEventListener("input", update);
+      });
+      update();
+    })();
+
+    // ----- glyph grid -----
+    (function () {
+      var grid = document.getElementById("glyphGrid");
+      if (!grid) return;
+      var sets = [
+        "ABCDEFGHIJKLMNOPQRSTUVWXYZ",
+        "abcdefghijklmnopqrstuvwxyz",
+        "0123456789",
+        "&@#%$.,;:!?'\"()[]{}/—–-*+="
+      ];
+      sets.join("").split("").forEach(function (ch) {
+        var d = document.createElement("div");
+        d.className = "g";
+        d.textContent = ch;
+        grid.appendChild(d);
+      });
+    })();
+
+    // ----- type scale (modular ramp ~13 → 76) -----
+    (function () {
+      var rows = document.getElementById("scaleRows");
+      if (!rows) return;
+      var sizes = [13, 16, 20, 25, 31, 39, 49, 61, 76];
+      var word = "Editorial";
+      sizes.forEach(function (px) {
+        var row = document.createElement("div");
+        row.className = "row";
+        var label = document.createElement("span");
+        label.className = "px";
+        label.textContent = px + "px";
+        var s = document.createElement("span");
+        s.className = "s";
+        s.style.fontSize = px + "px";
+        s.textContent = word;
+        row.appendChild(label);
+        row.appendChild(s);
+        rows.appendChild(row);
+      });
+    })();
+  </script>
+<!-- type-explorer-footer --><div style="font:12px ui-monospace,SFMono-Regular,Menlo,monospace;opacity:.6;padding:14px 16px;text-align:center">Generated 2026-06-11 · 1m 53s · $0.574 API cost · Type Explorer · https://github.com/joshcoolman/type-explorer</div></body>
+</html>

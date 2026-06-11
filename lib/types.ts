@@ -54,6 +54,18 @@ export interface PairingProposal {
   sampleBody: string;
 }
 
+/**
+ * A proposal persisted to localStorage (the Brief "pairing history"). Carries the
+ * brief that produced it and, once generated, a link to its specimen.
+ */
+export interface SavedPairing extends PairingProposal {
+  id: string; // `${display}|${text}` lowercased — same dedupe key as the proposals call
+  brief: string; // the brief that produced this pairing
+  lockedFont?: string; // the locked display constraint, if any
+  createdAt: string; // ISO timestamp
+  specimenId?: string; // set when a generation job is started from this pairing
+}
+
 /** Progress events streamed from a running specimen generation job. */
 export type ProgressEvent =
   | { type: "status"; text: string } // high-level headline

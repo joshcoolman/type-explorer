@@ -1,0 +1,50 @@
+[
+  {
+    "id": "playfair-display-lato",
+    "title": "Playfair Display × Lato",
+    "display": "Playfair Display",
+    "text": "Lato",
+    "brief": "Warm, trustworthy editorial look for a financial advice blog",
+    "paletteMood": "warm parchment & deep navy",
+    "createdAt": "2026-06-11T18:08:30.159Z",
+    "status": "done",
+    "costUsd": 0.502841,
+    "durationMs": 118375
+  },
+  {
+    "id": "bitter-nunito",
+    "title": "Bitter × Nunito",
+    "display": "Bitter",
+    "text": "Nunito",
+    "brief": "Yoga studio in San Francisco",
+    "paletteMood": "terracotta & soft white",
+    "createdAt": "2026-06-11T18:05:21.148Z",
+    "status": "done",
+    "costUsd": 0.45479,
+    "durationMs": 101374
+  },
+  {
+    "id": "bungee-oswald",
+    "title": "Bungee × Oswald",
+    "display": "Bungee",
+    "text": "Oswald",
+    "brief": "Edgy tattoo shop in Portland — biker bar energy, bold and urban",
+    "paletteMood": "neon on brick",
+    "createdAt": "2026-06-11T17:47:51.092Z",
+    "status": "done",
+    "costUsd": 0.515356,
+    "durationMs": 94148
+  },
+  {
+    "id": "barlow-condensed-merriweather",
+    "title": "Barlow Condensed × Merriweather",
+    "display": "Barlow Condensed",
+    "text": "Merriweather",
+    "brief": "Design blog covering print, web, and visual design trends",
+    "paletteMood": "ink & paper editorial",
+    "createdAt": "2026-06-11T17:40:18.634Z",
+    "status": "done",
+    "costUsd": 0.5743475,
+    "durationMs": 113301
+  }
+]

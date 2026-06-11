@@ -56,7 +56,10 @@ function toAxes(item: WebfontItem): FontAxis[] | undefined {
   }));
 }
 
-async function fetchSorted(sort: string, capability?: string): Promise<WebfontItem[]> {
+async function fetchSorted(
+  sort: string,
+  capabilities: string[] = [],
+): Promise<WebfontItem[]> {
   const key = process.env.GOOGLE_FONTS_API_KEY;
   if (!key) {
     throw new Error(
@@ -64,7 +67,8 @@ async function fetchSorted(sort: string, capability?: string): Promise<WebfontIt
     );
   }
   const params = new URLSearchParams({ key, sort });
-  if (capability) params.set("capability", capability);
+  // `capability` is a repeated enum param — one entry each, never comma-joined.
+  for (const c of capabilities) params.append("capability", c);
   const res = await fetch(`${WEBFONTS_ENDPOINT}?${params.toString()}`);
   if (!res.ok) {
     const body = await res.text().catch(() => "");
@@ -80,7 +84,7 @@ async function fetchSorted(sort: string, capability?: string): Promise<WebfontIt
 async function fetchCatalog(): Promise<Catalog> {
   // One call carries the families + axes in popularity order; a second supplies trending ranks.
   const [base, trending] = await Promise.all([
-    fetchSorted("popularity", "WOFF2,VF"),
+    fetchSorted("popularity", ["WOFF2", "VF"]),
     fetchSorted("trending").catch(() => [] as WebfontItem[]),
   ]);
 
