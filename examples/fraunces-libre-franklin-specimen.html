@@ -1,0 +1,431 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Fraunces × Libre Franklin — Type Specimen</title>
+
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght,SOFT,WONK@0,9..144,100..900,0..100,0..1;1,9..144,100..900,0..100,0..1&family=Libre+Franklin:ital,wght@0,100;0,300;0,400;0,700;1,100;1,300;1,400;1,700&display=swap" />
+
+  <style>
+    /* Warm editorial palette */
+    :root {
+      --background: 42 38% 97%;
+      --foreground: 30 9% 11%;
+      --card: 42 30% 99%;
+      --muted: 40 20% 92%;
+      --muted-foreground: 30 5% 40%;
+      --border: 34 14% 84%;
+      --signal: 8 76% 49%;
+      --signal-foreground: 42 38% 97%;
+      --ring: 8 76% 49%;
+      --radius: 0.25rem;
+
+      /* The two faces — set these to the pairing's family names. */
+      --font-display: "Fraunces", Georgia, serif;
+      --font-text: "Libre Franklin", system-ui, sans-serif;
+    }
+    .dark {
+      --background: 30 8% 7%;
+      --foreground: 40 24% 91%;
+      --card: 30 8% 9%;
+      --muted: 30 7% 14%;
+      --muted-foreground: 38 8% 60%;
+      --border: 34 7% 18%;
+      --signal: 10 84% 60%;
+      --signal-foreground: 30 8% 7%;
+      --ring: 10 84% 60%;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { margin: 0; }
+    body {
+      background: hsl(var(--background));
+      color: hsl(var(--foreground));
+      font-family: var(--font-text);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+    ::selection { background: hsl(var(--signal)); color: hsl(var(--signal-foreground)); }
+
+    .wrap { max-width: 1100px; margin: 0 auto; padding: 0 24px; }
+    section { padding: 72px 0; border-top: 1px solid hsl(var(--border)); }
+    section:first-of-type { border-top: 0; }
+
+    .label {
+      font-family: var(--font-text);
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: hsl(var(--muted-foreground));
+      margin: 0 0 20px;
+    }
+    .label .num { color: hsl(var(--signal)); margin-right: 10px; }
+    .display { font-family: var(--font-display); }
+    .text { font-family: var(--font-text); }
+    .muted { color: hsl(var(--muted-foreground)); }
+    .tnum { font-variant-numeric: tabular-nums; font-feature-settings: "tnum" 1; }
+    a { color: hsl(var(--signal)); text-decoration-thickness: 1px; text-underline-offset: 2px; }
+
+    /* sticky header / nav */
+    header.bar {
+      position: sticky; top: 0; z-index: 10;
+      display: flex; align-items: center; gap: 18px;
+      padding: 12px 24px;
+      background: hsl(var(--background) / 0.92);
+      backdrop-filter: blur(8px);
+      border-bottom: 1px solid hsl(var(--border));
+    }
+    header.bar .title { font-family: var(--font-display); font-size: 16px; }
+    header.bar nav { display: flex; flex-wrap: wrap; gap: 4px 14px; margin-left: auto; }
+    header.bar nav a {
+      font-size: 12px; letter-spacing: 0.04em; color: hsl(var(--muted-foreground));
+      text-decoration: none;
+    }
+    header.bar nav a:hover { color: hsl(var(--foreground)); }
+    .toggle {
+      font: inherit; font-size: 12px; cursor: pointer;
+      background: hsl(var(--muted)); color: hsl(var(--foreground));
+      border: 1px solid hsl(var(--border)); border-radius: var(--radius);
+      padding: 6px 10px;
+    }
+
+    /* hero */
+    .hero h1 { font-family: var(--font-display); font-weight: 600; font-size: clamp(40px, 9vw, 104px); line-height: 1.02; margin: 0; }
+    .hero .pair { display: flex; flex-wrap: wrap; gap: 8px 28px; margin-top: 28px; }
+    .hero .pair .face { font-family: var(--font-display); font-size: clamp(28px, 5vw, 56px); }
+    .hero .pair .face.t { font-family: var(--font-text); }
+    .hero .pair .role { display: block; font-family: var(--font-text); font-size: 12px; letter-spacing: 0.16em; text-transform: uppercase; color: hsl(var(--muted-foreground)); }
+    .hero p.lede { font-size: clamp(16px, 2.2vw, 20px); max-width: 60ch; margin-top: 28px; }
+
+    /* colophon */
+    dl.colophon { display: grid; grid-template-columns: 200px 1fr; gap: 0; margin: 0; }
+    dl.colophon > div { display: contents; }
+    dl.colophon dt { padding: 12px 0; border-top: 1px solid hsl(var(--border)); color: hsl(var(--muted-foreground)); font-size: 13px; letter-spacing: 0.04em; }
+    dl.colophon dd { padding: 12px 0; border-top: 1px solid hsl(var(--border)); margin: 0; }
+
+    /* weight ladder */
+    .ladder .row { display: flex; align-items: baseline; gap: 20px; padding: 10px 0; border-top: 1px solid hsl(var(--border)); }
+    .ladder .row .w { width: 110px; flex: none; font-family: var(--font-text); font-size: 12px; color: hsl(var(--muted-foreground)); }
+    .ladder .row .sample { font-size: clamp(26px, 4vw, 40px); line-height: 1.1; }
+
+    /* controls (axis playground + tester) */
+    .panel { background: hsl(var(--card)); border: 1px solid hsl(var(--border)); border-radius: var(--radius); padding: 28px; }
+    .control { display: grid; grid-template-columns: 120px 1fr 64px; align-items: center; gap: 16px; margin-bottom: 14px; }
+    .control label { font-family: var(--font-text); font-size: 12px; letter-spacing: 0.06em; text-transform: uppercase; color: hsl(var(--muted-foreground)); }
+    .control output { font-family: var(--font-text); font-size: 13px; text-align: right; color: hsl(var(--foreground)); }
+    input[type="range"] { width: 100%; accent-color: hsl(var(--signal)); }
+    .preview-line { font-family: var(--font-display); font-size: clamp(34px, 6vw, 72px); line-height: 1.05; margin-top: 24px; }
+
+    .switch { display: inline-flex; align-items: center; gap: 8px; font-family: var(--font-text); font-size: 12px; letter-spacing: 0.06em; text-transform: uppercase; color: hsl(var(--muted-foreground)); }
+
+    /* optical size demo */
+    .opsz-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 28px; }
+    .opsz-grid .cell { border: 1px solid hsl(var(--border)); border-radius: var(--radius); padding: 24px; }
+    .opsz-grid .cell .phrase { font-family: var(--font-display); font-size: clamp(28px, 4.5vw, 52px); line-height: 1.05; }
+
+    /* tester */
+    .tester input[type="text"] { width: 100%; font: inherit; font-size: 16px; padding: 12px 14px; border: 1px solid hsl(var(--border)); border-radius: var(--radius); background: hsl(var(--background)); color: hsl(var(--foreground)); margin-bottom: 18px; }
+    #testerDisplay { font-family: var(--font-display); }
+    #testerText { font-family: var(--font-text); margin-top: 14px; }
+
+    /* in context */
+    .spread h2 { font-family: var(--font-display); font-weight: 600; font-size: clamp(34px, 6vw, 72px); line-height: 1.04; margin: 0 0 8px; }
+    .spread .standfirst { font-size: clamp(18px, 2.4vw, 24px); color: hsl(var(--muted-foreground)); max-width: 62ch; margin: 0 0 28px; }
+    .spread .body { columns: 2; column-gap: 40px; font-size: 16px; }
+    .spread .body p { margin: 0 0 1em; }
+    .spread .body p:first-child::first-letter { font-family: var(--font-display); float: left; font-size: 3.4em; line-height: 0.8; padding: 6px 10px 0 0; color: hsl(var(--signal)); }
+    @media (max-width: 720px) { .spread .body { columns: 1; } .opsz-grid { grid-template-columns: 1fr; } dl.colophon { grid-template-columns: 1fr; } dl.colophon dt { border-top: 1px solid hsl(var(--border)); padding-bottom: 0; } dl.colophon dd { border-top: 0; padding-top: 2px; } }
+
+    /* body specimen */
+    .running { font-size: 16px; max-width: 66ch; }
+
+    /* glyph grid */
+    .glyphs { display: grid; grid-template-columns: repeat(auto-fill, minmax(56px, 1fr)); gap: 1px; background: hsl(var(--border)); border: 1px solid hsl(var(--border)); border-radius: var(--radius); overflow: hidden; }
+    .glyphs .g { background: hsl(var(--card)); aspect-ratio: 1; display: flex; align-items: center; justify-content: center; font-family: var(--font-display); font-size: 28px; transition: background 0.12s, color 0.12s; }
+    .glyphs .g:hover { background: hsl(var(--signal)); color: hsl(var(--signal-foreground)); }
+
+    /* type scale */
+    .scale .row { display: flex; align-items: baseline; gap: 18px; padding: 6px 0; }
+    .scale .row .px { width: 64px; flex: none; font-family: var(--font-text); font-size: 12px; color: hsl(var(--muted-foreground)); text-align: right; }
+    .scale .row .s { font-family: var(--font-display); line-height: 1.1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+    footer.colofooter { padding: 40px 0 80px; color: hsl(var(--muted-foreground)); font-size: 13px; }
+  </style>
+</head>
+<body>
+  <header class="bar">
+    <span class="title">Fraunces × Libre Franklin</span>
+    <nav>
+      <a href="#hero">01 Hero</a>
+      <a href="#colophon">02 Colophon</a>
+      <a href="#ladder">03 Weights</a>
+      <a href="#axes">04 Axes</a>
+      <a href="#opsz">05 Optical</a>
+      <a href="#tester">06 Tester</a>
+      <a href="#context">07 In context</a>
+      <a href="#bodyspec">08 Body</a>
+      <a href="#glyphs">09 Glyphs</a>
+      <a href="#scale">10 Scale</a>
+    </nav>
+    <button class="toggle" id="themeToggle" type="button">Dark</button>
+  </header>
+
+  <div class="wrap">
+
+    <!-- 1. HERO -->
+    <section id="hero" class="hero">
+      <h1 class="display">A serif with a little wonk</h1>
+      <div class="pair">
+        <span class="face">Fraunces<span class="role">Display</span></span>
+        <span class="face t">Libre Franklin<span class="role">Text</span></span>
+      </div>
+      <p class="lede">Fraunces brings old-style contrast and a touch of mischief to the headline; Libre Franklin keeps the running text even and quietly legible. Editorial warmth up top, calm clarity in the body.</p>
+    </section>
+
+    <!-- 2. COLOPHON -->
+    <section id="colophon">
+      <p class="label"><span class="num">02</span>Colophon</p>
+      <dl class="colophon">
+        <div><dt>Display</dt><dd>Fraunces — old-style display serif, variable</dd></div>
+        <div><dt>Text</dt><dd>Libre Franklin — grotesque sans, variable</dd></div>
+        <div><dt>Styles</dt><dd>Display 100–900 + italics · Text 100–900 + italics</dd></div>
+        <div><dt>Variable axes</dt><dd>Fraunces: opsz 9–144, wght 100–900, SOFT 0–100, WONK 0–1, ital</dd></div>
+        <div><dt>License</dt><dd>SIL Open Font License 1.1 (both families)</dd></div>
+        <div><dt>Source</dt><dd>
+          <a href="https://fonts.google.com/specimen/Fraunces" target="_blank" rel="noreferrer">Fraunces</a>,
+          <a href="https://fonts.google.com/specimen/Libre+Franklin" target="_blank" rel="noreferrer">Libre Franklin</a> on Google Fonts
+        </dd></div>
+      </dl>
+    </section>
+
+    <!-- 3. WEIGHT LADDER (display) -->
+    <section id="ladder">
+      <p class="label"><span class="num">03</span>Weight ladder · Fraunces</p>
+      <div class="ladder">
+        
+        <div class="row"><span class="w">300</span><span class="sample display" style="font-weight: 300">Light & airy</span></div>
+        <div class="row"><span class="w">500</span><span class="sample display" style="font-weight: 500">Steady medium</span></div>
+        <div class="row"><span class="w">800</span><span class="sample display" style="font-weight: 800">Bold statement</span></div>
+      </div>
+    </section>
+
+    <!-- 4. AXIS PLAYGROUND -->
+    <section id="axes">
+      <p class="label"><span class="num">04</span>Axis playground · Fraunces</p>
+      <div class="panel">
+        <div class="control">
+          <label for="ax-wght">Weight (wght)</label>
+          <input type="range" id="ax-wght" data-axis="wght" min="100" max="900" value="460" step="1" />
+          <output for="ax-wght">460</output>
+        </div>
+        <div class="control">
+          <label for="ax-opsz">Optical (opsz)</label>
+          <input type="range" id="ax-opsz" data-axis="opsz" min="9" max="144" value="80" step="1" />
+          <output for="ax-opsz">80</output>
+        </div>
+        <div class="control">
+          <label for="ax-SOFT">Softness (SOFT)</label>
+          <input type="range" id="ax-SOFT" data-axis="SOFT" min="0" max="100" value="0" step="1" />
+          <output for="ax-SOFT">0</output>
+        </div>
+        <div class="control">
+          <label for="ax-WONK">Wonk (WONK)</label>
+          <input type="range" id="ax-WONK" data-axis="WONK" min="0" max="1" value="0" step="1" />
+          <output for="ax-WONK">0</output>
+        </div>
+        
+        <label class="switch"><input type="checkbox" id="ax-ital" data-axis-ital /> Italic</label>
+        <div class="preview-line" id="axisPreview">Move every axis</div>
+      </div>
+    </section>
+
+    <!-- 5. OPTICAL SIZE DEMO -->
+    <section id="opsz">
+      <p class="label"><span class="num">05</span>Optical size · Fraunces</p>
+      <div class="opsz-grid">
+        <div class="cell">
+          <p class="muted" style="font-size:12px;letter-spacing:.08em;text-transform:uppercase">opsz 9</p>
+          <div class="phrase" style="font-variation-settings: 'opsz' 9">Fine print, grand display</div>
+        </div>
+        <div class="cell">
+          <p class="muted" style="font-size:12px;letter-spacing:.08em;text-transform:uppercase">opsz 144</p>
+          <div class="phrase" style="font-variation-settings: 'opsz' 144">Fine print, grand display</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 6. LIVE TESTER -->
+    <section id="tester" class="tester">
+      <p class="label"><span class="num">06</span>Live tester</p>
+      <div class="panel">
+        <input type="text" id="testerInput" value="Pack my box with five dozen liquor jugs" />
+        <div class="control">
+          <label for="testerSize">Size</label>
+          <input type="range" id="testerSize" min="16" max="120" value="56" />
+          <output for="testerSize">56px</output>
+        </div>
+        <div class="control">
+          <label for="testerWeight">Weight</label>
+          <input type="range" id="testerWeight" min="100" max="900" value="400" step="1" />
+          <output for="testerWeight">400</output>
+        </div>
+        <div id="testerDisplay">Pack my box with five dozen liquor jugs</div>
+        <div id="testerText">Pack my box with five dozen liquor jugs</div>
+      </div>
+    </section>
+
+    <!-- 7. IN CONTEXT -->
+    <section id="context" class="spread">
+      <p class="label"><span class="num">07</span>In context</p>
+      <h2 class="display">The pairing, proven on the page</h2>
+      <p class="standfirst text">A display serif carries the voice; an even sans does the patient work of the paragraph. Set them together and the page reads as considered, not loud.</p>
+      <div class="body text">
+        <p>Pairing a characterful serif with a neutral sans is one of the oldest moves in typography, and it endures because the two faces are doing genuinely different jobs. The headline wants personality and contrast; the body wants to disappear into legibility.</p>
+        <p>Fraunces supplies the contrast and the slightly antique warmth that makes a headline feel authored. Its optical-size axis lets the same family run from delicate text to a heavy, high-impact display cut without ever changing fonts.</p>
+        <p>Libre Franklin answers with a calm, modern grotesque that holds its color across a full column. The result is a layout with a clear hierarchy and a single, coherent voice — exactly what an editorial spread is after.</p>
+      </div>
+    </section>
+
+    <!-- 8. BODY SPECIMEN (text face) -->
+    <section id="bodyspec">
+      <p class="label"><span class="num">08</span>Body specimen · Libre Franklin</p>
+      <div class="ladder">
+        <div class="row"><span class="w">400</span><span class="sample text" style="font-size:24px;font-weight:400">Regular for body copy</span></div>
+        <div class="row"><span class="w">700</span><span class="sample text" style="font-size:24px;font-weight:700">Bold for emphasis</span></div>
+      </div>
+      <p class="running text" style="margin-top:28px">This block is set in Libre Franklin at body size to show how the text face holds up across a real paragraph. What matters here is not any single glyph but the rhythm, spacing, and even color of the type as it fills a measure — the quiet qualities that decide whether a reader stays.</p>
+      <p class="text tnum" style="margin-top:18px;font-size:20px">0123456789 · $1,234.56 · 09:45 · (2024–2025)</p>
+      <p class="text" style="margin-top:8px;letter-spacing:.12em">ABCDEFGHIJKLMNOPQRSTUVWXYZ</p>
+    </section>
+
+    <!-- 9. GLYPH GRID (display face) — populated by JS. -->
+    <section id="glyphs">
+      <p class="label"><span class="num">09</span>Glyphs · Fraunces</p>
+      <div class="glyphs" id="glyphGrid"></div>
+    </section>
+
+    <!-- 10. TYPE SCALE (display face) — populated by JS. -->
+    <section id="scale" class="scale">
+      <p class="label"><span class="num">10</span>Type scale · Fraunces</p>
+      <div id="scaleRows"></div>
+    </section>
+
+    <footer class="colofooter">
+      Fraunces × Libre Franklin — a Type Explorer specimen. Fonts served by Google Fonts.
+    </footer>
+  </div>
+
+  <script>
+    // ----- theme toggle (persists to localStorage) -----
+    (function () {
+      var root = document.documentElement;
+      var btn = document.getElementById("themeToggle");
+      var saved = null;
+      try { saved = localStorage.getItem("specimen-theme"); } catch (e) {}
+      var dark = saved ? saved === "dark"
+        : (window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches);
+      function apply() {
+        root.classList.toggle("dark", dark);
+        if (btn) btn.textContent = dark ? "Light" : "Dark";
+      }
+      apply();
+      if (btn) btn.addEventListener("click", function () {
+        dark = !dark;
+        try { localStorage.setItem("specimen-theme", dark ? "dark" : "light"); } catch (e) {}
+        apply();
+      });
+    })();
+
+    // ----- axis playground: compose font-variation-settings from every [data-axis] -----
+    (function () {
+      var preview = document.getElementById("axisPreview");
+      if (!preview) return; // section deleted for static fonts
+      var sliders = Array.prototype.slice.call(document.querySelectorAll("#axes [data-axis]"));
+      var italToggle = document.querySelector("#axes [data-axis-ital]");
+      function update() {
+        var parts = sliders.map(function (s) {
+          var out = s.parentNode.querySelector("output");
+          if (out) out.textContent = s.value;
+          return "'" + s.getAttribute("data-axis") + "' " + s.value;
+        });
+        preview.style.fontVariationSettings = parts.join(", ");
+        preview.style.fontStyle = italToggle && italToggle.checked ? "italic" : "normal";
+      }
+      sliders.forEach(function (s) { s.addEventListener("input", update); });
+      if (italToggle) italToggle.addEventListener("change", update);
+      update();
+    })();
+
+    // ----- live tester -----
+    (function () {
+      var input = document.getElementById("testerInput");
+      var size = document.getElementById("testerSize");
+      var weight = document.getElementById("testerWeight");
+      var disp = document.getElementById("testerDisplay");
+      var text = document.getElementById("testerText");
+      if (!input) return;
+      function update() {
+        var t = input.value || " ";
+        disp.textContent = t;
+        text.textContent = t;
+        var px = size.value + "px";
+        disp.style.fontSize = px;
+        text.style.fontSize = px;
+        disp.style.fontWeight = weight.value;
+        text.style.fontWeight = weight.value;
+        size.parentNode.querySelector("output").textContent = px;
+        weight.parentNode.querySelector("output").textContent = weight.value;
+      }
+      [input, size, weight].forEach(function (el) {
+        el.addEventListener("input", update);
+      });
+      update();
+    })();
+
+    // ----- glyph grid -----
+    (function () {
+      var grid = document.getElementById("glyphGrid");
+      if (!grid) return;
+      var sets = [
+        "ABCDEFGHIJKLMNOPQRSTUVWXYZ",
+        "abcdefghijklmnopqrstuvwxyz",
+        "0123456789",
+        "&@#%$.,;:!?'\"()[]{}/—–-*+="
+      ];
+      sets.join("").split("").forEach(function (ch) {
+        var d = document.createElement("div");
+        d.className = "g";
+        d.textContent = ch;
+        grid.appendChild(d);
+      });
+    })();
+
+    // ----- type scale (modular ramp ~13 → 76) -----
+    (function () {
+      var rows = document.getElementById("scaleRows");
+      if (!rows) return;
+      var sizes = [13, 16, 20, 25, 31, 39, 49, 61, 76];
+      var word = "Fraunces";
+      sizes.forEach(function (px) {
+        var row = document.createElement("div");
+        row.className = "row";
+        var label = document.createElement("span");
+        label.className = "px";
+        label.textContent = px + "px";
+        var s = document.createElement("span");
+        s.className = "s";
+        s.style.fontSize = px + "px";
+        s.textContent = word;
+        row.appendChild(label);
+        row.appendChild(s);
+        rows.appendChild(row);
+      });
+    })();
+  </script>
+</body>
+</html>
