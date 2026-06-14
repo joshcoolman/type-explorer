@@ -2,117 +2,105 @@
 
 ## Where we are
 
-**type-explorer** is fully built and working live. All four SPEC.md phases are
-done, plus a persistent-pairings feature, several UI refinements, and a
-seed-on-first-run system. The app has been verified end-to-end in the browser
-(catalog, proposals, generation, the new Brief workspace). The user has **more
-changes coming** and is picking this up with fresh context.
+**type-explorer** (runs on **http://localhost:3001**; user runs the server, house
+rule: never `npm run dev`). This session did a lot: a palette/theme system, a
+lightweight card grid, an emoji guard, a Brief log fix, and — the big one — a
+**complete rewrite of tier-2 specimen generation** plus a **radically leaner
+specimen**. All green: `npm run build` clean, `npm run lint` clean, `npm test`
+**29 passing** (10 css2-url + 9 palette + 10 specimen-render). Everything verified
+live in the browser.
 
-Dev server note: **type-explorer runs on http://localhost:3001** — `:3000` is a
-different project (repo-explorer). The user runs the server themselves (house
-rule: never run `npm run dev`). Both API keys are present in `.env.local`
-(ANTHROPIC_API_KEY + GOOGLE_FONTS_API_KEY).
+## The big change this session: generation + lean specimen
 
-## What exists (the whole app)
+Old: the Agent SDK (opus) rewrote the entire ~515-line `template.html` every time
+(~$0.5, ~100s). New: **code renders the scaffold from the catalog; one tiny Sonnet
+call returns just the copy.** And the specimen itself was cut down hard.
 
-Phases 1–4 from `SPEC.md` are complete: catalog layer (`lib/catalog.ts`, cached
-to `data/fonts.json`), `lib/css2-url.ts` (10 passing unit tests — the one fiddly
-pure fn), Browse view, tier-1 proposals (`lib/propose.ts`, plain Anthropic SDK,
-forced tool use, catalog-validated), tier-2 generation (`lib/generate.ts`, Agent
-SDK + vendored `.claude/skills/type-specimen/` skill with a hand-written
-`template.html`), jobs/store/SSE infra, and the API routes. Models:
-`claude-sonnet-4-6` (proposals), `claude-opus-4-8` (generation).
+**Lean specimen (the only sections now):**
+- Header bar: just the `Display × Text` title in a **monospace** stack (var
+  `--font-mono`, NOT either specimen face) + the light/dark toggle. **No nav.**
+- **1. In context** (now the first section) — editorial spread, drop cap.
+- **2. Type scale** — **interactive**: Display/Text tabs + a weight button per real
+  weight; clicking a weight reflows the whole ramp. Driven by injected
+  `window.__scaleData = {display:{name,weights}, text:{name,weights}}`.
+- **Cut entirely:** Hero, Colophon, Weight ladder, Axis playground, Optical size,
+  Live tester, Body specimen, **Glyph grid**.
 
-## Work done in the most recent session (ALL UNCOMMITTED)
+**New generation pipeline:**
+- `lib/specimen-render.ts` (NEW, pure, **unit-tested** `lib/specimen-render.test.ts`)
+  — `renderSpecimen({display,text,copy,palette})`. Reads `template.html` (module
+  cached), computes each face's weight list (`weightList`: static → `parseVariants`
+  upright weights; variable → 100–900 steps ∩ wght axis range), builds css2 URL via
+  `pairingCss2Url`, bakes palette via `derivePaletteCss` into a `<style
+  id="palette-baked">`, substitutes `{{…}}` tokens. Escapes HTML in copy and JS in
+  `scaleWord`.
+- `lib/specimen-copy.ts` (NEW) — `getSpecimenCopy({display,text,brief})`, a plain
+  `@anthropic-ai/sdk` forced-tool Sonnet call (mirrors `lib/propose.ts`) returning
+  `SpecimenCopy { contextHeadline, contextStandfirst, contextBody[], scaleWord }`.
+  Emoji/symbol-banned. **Never throws** — `fallbackCopy(display,text)` gives generic
+  lorem on any failure (so a $0 path exists).
+- `lib/generate.ts` — `runGeneration` rewritten: `findFamily → getSpecimenCopy →
+  renderSpecimen → writeFile`. **Agent SDK dropped.** Removed `appRoot` from
+  `GenerateOptions` (and from the `lib/jobs.ts` call). `paletteMood` kept on the
+  interface but unused.
+- `lib/types.ts` — added `SpecimenCopy`.
+- `SKILL.md`/`palettes.md` are now **reference-only** (generation no longer reads
+  them or loads the skill).
 
-Everything below is uncommitted on top of commit `bfb88c7` (the initial commit).
+**GOTCHA fixed this session:** never put a `{{PLACEHOLDER}}` inside the `<style>`
+block's CSS comments — substituting a value containing `</style>` there prematurely
+closes the stylesheet. There's a render test guarding `<style>`/`</style>` balance.
 
-1. **Catalog `capability` fix** (`lib/catalog.ts`) — the Webfonts API wants
-   `capability` as repeated params (`&capability=WOFF2&capability=VF`), not
-   comma-joined. Was causing a 400. Fixed + verified live (1945 families, 557
-   with VF axes).
+## Other changes this session (all also done)
 
-2. **Persistent pairings + non-blocking Brief** (the big feature):
-   - `lib/types.ts` — added `SavedPairing` (PairingProposal + id/brief/lockedFont/
-     createdAt/specimenId).
-   - `lib/pairings-store.ts` (NEW) — SSR-safe localStorage CRUD, key
-     `type-explorer:pairings`, dedupe by `${display}|${text}` lowercased.
-   - Extracted `ProgressPanel.tsx` and `SpecimenViewer.tsx` (NEW) out of
-     `LibraryView.tsx` so both Library and Brief reuse them.
-   - `app/explorer.tsx` — `startGeneration` now returns the SpecimenMeta and does
-     NOT change the view (Browse navigates to Library itself; Brief stays put).
-     Added **poor-man's polling**: while any specimen is `running`, re-poll
-     `/api/specimens` every 4s so statuses flip running→done without manual
-     refresh. Added `deleteSpecimen` shared handler.
-   - `app/components/BriefView.tsx` — rewritten as a split-pane workspace:
-     persisted pairing cards (right), an active log/specimen pane (left). Hydrates
-     pairings from localStorage on mount; accumulates across briefs; "More
-     options" excludes shown pairs. Status per card derived from the linked
-     specimen (deleting a specimen reverts its card to "Generate" for free).
+- **Palette/theme system** (earlier in session): `lib/palette.ts` (+test) — `Palette`
+  type (re-exported from types), `DEFAULT_PALETTE`, localStorage CRUD (key
+  `type-explorer:palette`), `hexToHsl`/`deriveTokens`/`derivePaletteCss`/
+  `swatchColors`. `lib/specimen-control.ts` — `SpecimenControl`, `specimenSrc`,
+  `postControl`, `useSpecimenControl`. Specimens are sandboxed iframes driven by
+  `?theme=`/`?pal=` URL params (first paint) + `postMessage` (live). `SettingsPanel`
+  (3 color pickers + swatch preview), `mode/palette/paletteEnabled/gridMode` state in
+  `app/explorer.tsx`, header grid + settings icons. Default mode **light**, custom
+  palette **ON**.
+- **Card grid is lightweight** (`app/components/SpecimenCard.tsx`): NO iframe — a
+  display-font headline + lorem paragraph colored from `swatchColors(palette,mode)`;
+  body uses `c.mutedForeground` (NOT `c.muted`, which is a near-background fill — that
+  was a contrast bug, fixed). `GridView.tsx` keeps the Display/Text… no, keeps the
+  light/dark `ModeToggle` + expand-to-full-`SpecimenViewer`.
+- **Emoji guard** in `lib/propose.ts` (proposal copy) and `lib/specimen-copy.ts`.
+- **Brief log fix** (`BriefView.tsx`): `generate()` sets `autoFocused.current = true`
+  so starting the first job in an empty library no longer auto-opens the log; it just
+  flips the card to "View progress".
 
-3. **UI refinements (all verified in-browser):**
-   - Pairing card leads with a small muted **pill** `Display / Text` (display
-     first, text second by convention); sample headline + body render
-     uninterrupted below (no inline name labels).
-   - **Generate is non-blocking** — clicking it flips the card to a "View
-     progress" button + "GENERATING" badge; it does NOT auto-open the log. The
-     user clicks "View progress" to open the left pane.
-   - `SpecimenViewer` — replaced the "Open raw" text with an **open-in-new-tab
-     icon** and added a **download icon** (saves `<slug>-specimen.html`). Inline
-     SVGs, no emoji (house rule). Delete stayed a text button.
-   - Left pane's "← Back to ideas" replaced with an **X close icon** (top-right).
+## Library / data state
 
-4. **Seed-on-first-run** (just finished):
-   - `seed/` (NEW, tracked) — `seed/index.json` + `seed/specimens/*.html`, four
-     curated pre-built specimens: playfair-display-lato, bitter-nunito,
-     bungee-oswald, barlow-condensed-merriweather (dropped the duplicate
-     Bitter × Lato for variety; ids are slugs matching the filenames).
-   - `lib/store.ts` — `seedIfEmpty()` runs once on first `readIndex()`: if
-     `data/index.json` is absent, copies the seed HTML into `data/specimens/` and
-     writes the manifest. Pure file copy, **no agent, no cost**. Never overwrites
-     existing data. Verified in a temp dir (empty data/ → 4 specimens copied).
-   - README updated to document it.
+`data/` was reset and re-seeded with the **4 re-rendered lean seeds**
+(`seed/specimens/*.html`, regenerated via the new renderer with per-pairing palettes
++ canned copy, $0). `data/index.json` + the 4 slug-named HTML files are present and
+served. `seedIfEmpty` (`lib/store.ts`) re-copies seeds only when `data/index.json` is
+absent (cached per process → needs a server restart to re-trigger; not needed now
+since data is populated).
 
-## Conventions / gotchas
+## Outstanding / next steps
 
-- `data/` is gitignored (runtime state); `seed/`, `examples/`, and `.env.example`
-  are tracked.
-- All font metadata flows through `lib/catalog.ts`; the agent never invents axes.
-  `lib/css2-url.ts` is the only unit-tested pure fn — extend its tests when
-  touching axis rules.
-- New React-compiler lint rules (`react-hooks/set-state-in-effect`,
-  `purity`) are strict; mount/one-time-fetch effects carry scoped
-  `eslint-disable` lines. `Date.now()` must not be called in render (only in
-  effects).
-- The TS language-server intermittently reports spurious "Cannot find module
-  'react'/'fs'" diagnostics — ignore them; `npm run build` is the source of truth.
-
-## Status checks (all green)
-
-`npm run build` clean · `npm run lint` clean · `npm test` 10/10.
-
-## Outstanding
-
-- The user has **additional changes** to request next — wait for direction.
-- **Nothing is committed since `bfb88c7`.** When ready, suggested grouping:
-  (1) catalog capability fix, (2) persistent pairings + non-blocking Brief +
-  extracted components + polling, (3) UI polish (pill, viewer icons, close icon),
-  (4) seed-on-first-run + README. Or squash to taste.
-- Stray untracked `pnpm-lock.yaml` in the tree (project uses npm /
-  `package-lock.json`) — probably wants deleting or gitignoring; confirm with the
-  user.
-- End-to-end generation, proposals, browse, the split-pane log, polling, viewer
-  icons, and seeding have all been verified live this session.
+- **Restart the dev server** when convenient so it loads the new `generate.ts` for new
+  generations (in-memory job registry + seedChecked persist across HMR).
+- The **copy call** (`getSpecimenCopy`) wasn't exercised live yet — generate one from
+  Brief to confirm the Sonnet copy looks good (render half is fully verified via the
+  seeds).
+- `costUsd` is no longer reported for generations (Sonnet call cost not computed) —
+  fine, UI tolerates undefined; add token→USD estimate later if wanted.
+- Stray untracked `pnpm-lock.yaml` may still want deleting (project uses npm).
+- **Nothing committed** — all work sits uncommitted on `2e3d7f9`.
 
 ## Git state
 
-Branch `main`, one commit `bfb88c7`. No remote. Working tree has the uncommitted
-changes listed above:
-- Modified: README.md, lib/catalog.ts, lib/store.ts, lib/types.ts,
-  app/explorer.tsx, app/components/{BriefView,LibraryView}.tsx
-- New: lib/pairings-store.ts, app/components/{ProgressPanel,SpecimenViewer}.tsx,
-  seed/
-- Untracked stray: pnpm-lock.yaml
+Branch `main`, last commit `2e3d7f9 initial commit`, no remote. Modified: SKILL.md,
+template.html, app/api/jobs/route.ts, BriefView/LibraryView/SpecimenViewer/explorer,
+lib/{generate,jobs,propose,types}.ts, the 4 seed HTMLs. New (untracked):
+GridView/SettingsPanel/SpecimenCard.tsx, lib/{palette,palette.test,specimen-control,
+specimen-copy,specimen-render,specimen-render.test}.ts. All uncommitted.
 
-Last files edited: `lib/store.ts` (seeding), `seed/` (pre-built specimens),
-`README.md`.
+Last files edited: `.claude/skills/type-specimen/template.html`,
+`lib/specimen-render.ts`, `lib/specimen-copy.ts`, `lib/generate.ts`,
+`seed/specimens/*.html`.

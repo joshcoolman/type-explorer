@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import type { FontFamily, SavedPairing, SpecimenMeta } from "@/lib/types";
+import type { SpecimenControl } from "@/lib/specimen-control";
 import { fontStackByName, loadFontByName } from "@/lib/font-loader";
 import {
   addPairings,
@@ -25,6 +26,7 @@ interface BriefViewProps {
   ) => Promise<SpecimenMeta | null>;
   onJobDone: () => void;
   onDeleted: (id: string) => void;
+  control: SpecimenControl;
 }
 
 const PLACEHOLDER =
@@ -39,6 +41,7 @@ export default function BriefView({
   onGenerate,
   onJobDone,
   onDeleted,
+  control,
 }: BriefViewProps) {
   const [brief, setBrief] = useState("");
   const [pairings, setPairings] = useState<SavedPairing[]>([]);
@@ -107,6 +110,11 @@ export default function BriefView({
   };
 
   const generate = async (p: SavedPairing) => {
+    // The user explicitly started this job — keep it non-blocking (button flips to
+    // "View progress"; the log opens only on click). Mark the on-mount auto-focus
+    // as satisfied so starting the first job in an empty library doesn't trip it
+    // into opening the log immediately.
+    autoFocused.current = true;
     const meta = await onGenerate(p.display, p.text, p.brief, p.paletteMood);
     if (meta) {
       // Tag the pairing and let its card flip to "View progress". We deliberately
@@ -213,6 +221,7 @@ export default function BriefView({
               ) : (
                 <SpecimenViewer
                   meta={activeSpecimen}
+                  control={control}
                   onDeleted={(id) => {
                     onDeleted(id);
                     setActiveId(null);

@@ -28,6 +28,30 @@ export interface Catalog {
   families: FontFamily[];
 }
 
+/**
+ * The user-controlled specimen palette: three source colours. Lives here (not in
+ * the client-only `lib/palette.ts`) so server code — the generation prompt — can
+ * import the type. Derivation of the other tokens stays in `lib/palette.ts`.
+ */
+export interface Palette {
+  light: string; // paper / light-mode background, hex
+  dark: string; // ink / light-mode foreground, hex
+  accent: string; // signal, hex
+}
+
+/**
+ * The brief-tailored copy a specimen needs — everything that genuinely requires
+ * words. Produced by `lib/specimen-copy.ts` (a tiny LLM call) and substituted into
+ * the template by `lib/specimen-render.ts`. Everything else is derived from the
+ * catalog in code.
+ */
+export interface SpecimenCopy {
+  contextHeadline: string; // the in-context display headline
+  contextStandfirst: string; // a one-line standfirst under it
+  contextBody: string[]; // 2-3 short body paragraphs (text face)
+  scaleWord: string; // the word/short phrase shown down the type-scale ramp
+}
+
 export type SpecimenStatus = "running" | "done" | "error";
 
 export interface SpecimenMeta {

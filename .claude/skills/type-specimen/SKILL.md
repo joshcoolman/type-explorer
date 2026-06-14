@@ -28,7 +28,10 @@ the source of truth.
 1. **Read this file's `template.html` and `palettes.md`.**
 2. **Pick a palette.** Match the supplied palette mood to the closest set in
    `palettes.md` (blend if it helps). Drop its `:root` and `.dark` token values
-   into the template's token blocks.
+   into the template's token blocks. **Exception:** if the prompt supplies three
+   fixed source colours (light/dark/accent), do NOT use `palettes.md` — set
+   `--background`/`--foreground`/`--signal` from them and derive the rest, as the
+   prompt describes.
 3. **Set the fonts.** Replace the `{{CSS2_URL}}` with the URL from the prompt
    verbatim. Set `--font-display` and `--font-text` to the two family names.
    Fill every name/role placeholder.

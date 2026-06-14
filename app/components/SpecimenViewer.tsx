@@ -1,8 +1,14 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import type { SpecimenMeta } from "@/lib/types";
 import { fmtCost, fmtDuration } from "@/lib/format";
+import {
+  postControl,
+  specimenSrc,
+  useSpecimenControl,
+  type SpecimenControl,
+} from "@/lib/specimen-control";
 
 /**
  * Renders a finished specimen in a sandboxed iframe with open-in-new-tab,
@@ -10,15 +16,26 @@ import { fmtCost, fmtDuration } from "@/lib/format";
  * sliders, tester, and theme toggle are interactive); there is no
  * `allow-same-origin`, so scripts run in an opaque origin. Used by both the
  * Library and the Brief split-pane.
+ *
+ * `control` sets the initial theme/palette via the iframe `src` (no flash) and
+ * pushes live changes over postMessage without reloading.
  */
 export default function SpecimenViewer({
   meta,
   onDeleted,
+  control,
 }: {
   meta: SpecimenMeta;
   onDeleted: (id: string) => void;
+  control: SpecimenControl;
 }) {
   const fileName = `${slug(meta.title)}-specimen.html`;
+  const iframeRef = useRef<HTMLIFrameElement>(null);
+  // Freeze the src at mount so live control changes don't reload the iframe;
+  // postMessage handles updates. `key={meta.id}` remounts on specimen change.
+  const [src] = useState(() => specimenSrc(meta.id, control));
+  useSpecimenControl(iframeRef, control);
+
   return (
     <div className="flex h-full flex-col">
       <div className="flex flex-wrap items-center gap-3 border-b border-border px-6 py-3">
@@ -52,7 +69,9 @@ export default function SpecimenViewer({
       </div>
       <iframe
         key={meta.id}
-        src={`/api/specimens/${meta.id}`}
+        ref={iframeRef}
+        src={src}
+        onLoad={() => postControl(iframeRef.current?.contentWindow, control)}
         sandbox="allow-scripts allow-popups"
         className="min-h-0 flex-1 border-0 bg-white"
         title={meta.title}

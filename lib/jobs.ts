@@ -8,7 +8,7 @@ import {
   writeSpecimenHtml,
 } from "./store";
 import { fmtCost, fmtDuration } from "./format";
-import type { ProgressEvent, SpecimenMeta } from "./types";
+import type { Palette, ProgressEvent, SpecimenMeta } from "./types";
 
 const MAX_CONCURRENT = 2; // specimen jobs are expensive; a couple at once is plenty
 const FOOTER_MARKER = "<!-- type-explorer-footer -->";
@@ -19,11 +19,13 @@ export interface StartJobInput {
   text: string;
   brief?: string;
   paletteMood?: string;
+  palette?: Palette; // fixed source colours (baked into the file); not persisted in meta
 }
 
 interface Job {
   id: string;
   meta: SpecimenMeta;
+  palette?: Palette; // transient — only needed while the job runs
   events: ProgressEvent[]; // buffered for late subscribers
   emitter: EventEmitter;
   done: boolean;
@@ -68,7 +70,14 @@ export function startJob(input: StartJobInput): SpecimenMeta {
     status: "running",
   };
 
-  const job: Job = { id, meta, events: [], emitter: new EventEmitter(), done: false };
+  const job: Job = {
+    id,
+    meta,
+    palette: input.palette,
+    events: [],
+    emitter: new EventEmitter(),
+    done: false,
+  };
   job.emitter.setMaxListeners(0);
   registry.jobs.set(id, job);
 
@@ -117,8 +126,8 @@ async function runJob(job: Job): Promise<void> {
     text: job.meta.text,
     brief: job.meta.brief,
     paletteMood: job.meta.paletteMood,
+    palette: job.palette,
     outFile: specimenHtmlPath(job.id),
-    appRoot: process.cwd(),
     onEvent: emit,
   });
 

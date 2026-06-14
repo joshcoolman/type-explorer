@@ -1,6 +1,7 @@
 "use client";
 
 import type { SpecimenMeta } from "@/lib/types";
+import type { SpecimenControl } from "@/lib/specimen-control";
 import ProgressPanel from "./ProgressPanel";
 import SpecimenViewer, { DeleteButton } from "./SpecimenViewer";
 
@@ -9,6 +10,7 @@ interface LibraryViewProps {
   activeId: string | null;
   onJobDone: () => void;
   onDeleted: (id: string) => void;
+  control: SpecimenControl;
 }
 
 export default function LibraryView({
@@ -16,6 +18,7 @@ export default function LibraryView({
   activeId,
   onJobDone,
   onDeleted,
+  control,
 }: LibraryViewProps) {
   const active = specimens.find((s) => s.id === activeId) ?? null;
 
@@ -44,5 +47,5 @@ export default function LibraryView({
     );
   }
 
-  return <SpecimenViewer meta={active} onDeleted={onDeleted} />;
+  return <SpecimenViewer meta={active} onDeleted={onDeleted} control={control} />;
 }

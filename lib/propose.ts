@@ -78,11 +78,16 @@ const PROPOSAL_TOOL: Anthropic.Tool = {
             },
             sampleHeadline: {
               type: "string",
-              description: "A short brief-appropriate headline to preview the display face.",
+              description:
+                "A short brief-appropriate headline to preview the display face. " +
+                "Plain text only — letters, numbers, and standard punctuation; " +
+                "no emoji, pictographs, or decorative symbols.",
             },
             sampleBody: {
               type: "string",
-              description: "One or two sentences of brief-appropriate body copy for the text face.",
+              description:
+                "One or two sentences of brief-appropriate body copy for the text face. " +
+                "Plain text only — no emoji, pictographs, or decorative symbols.",
             },
           },
           required: [
@@ -121,6 +126,7 @@ function buildPrompt(opts: ProposeOptions, digest: string, retryNote?: string): 
     digest,
     "",
     "Aim for genuine contrast between the display and text faces, real readability for the body face, and copy that matches the brief's tone.",
+    "Sample headline and body copy must be plain text only: letters, numbers, and standard punctuation. Never include emoji, pictographs, or decorative symbol characters, even for icon fonts.",
   );
   if (retryNote) parts.push("", retryNote);
   parts.push("", "Call propose_pairings with 2-4 proposals.");

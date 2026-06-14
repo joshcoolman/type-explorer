@@ -5,37 +5,42 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Bitter × Nunito — Type Specimen</title>
 
+  <!-- css2 URL is built by lib/specimen-render.ts (loads all weights for both faces). -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bitter:ital,wght@0,100..900;1,100..900&family=Nunito:ital,wght@0,200..1000;1,200..1000&display=swap" />
 
   <style>
-    /* ----- palette: terracotta & soft white (warm editorial, blended terracotta) ----- */
+    /* ----- palette tokens: HSL channels, consumed via hsl(var(--x)).
+       These are defaults; lib/specimen-render.ts bakes the chosen palette in an
+       extra style block after this one, and the host app can override at runtime. ----- */
     :root {
-      --background: 32 36% 97%;
-      --foreground: 22 14% 13%;
-      --card: 36 32% 99%;
-      --muted: 30 22% 92%;
-      --muted-foreground: 24 9% 41%;
-      --border: 28 18% 85%;
-      --signal: 14 66% 50%;
-      --signal-foreground: 32 36% 97%;
-      --ring: 14 66% 50%;
+      --background: 42 38% 97%;
+      --foreground: 30 9% 11%;
+      --card: 42 30% 99%;
+      --muted: 40 20% 92%;
+      --muted-foreground: 30 5% 40%;
+      --border: 34 14% 84%;
+      --signal: 8 76% 49%;
+      --signal-foreground: 42 38% 97%;
+      --ring: 8 76% 49%;
       --radius: 0.25rem;
 
+      /* The two faces — set to the pairing's family names by the renderer. */
       --font-display: "Bitter", Georgia, serif;
       --font-text: "Nunito", system-ui, sans-serif;
+      --font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
     }
     .dark {
-      --background: 22 12% 8%;
-      --foreground: 32 22% 90%;
-      --card: 22 12% 10%;
-      --muted: 22 10% 15%;
-      --muted-foreground: 28 10% 60%;
-      --border: 24 9% 19%;
-      --signal: 16 80% 62%;
-      --signal-foreground: 22 12% 8%;
-      --ring: 16 80% 62%;
+      --background: 30 8% 7%;
+      --foreground: 40 24% 91%;
+      --card: 30 8% 9%;
+      --muted: 30 7% 14%;
+      --muted-foreground: 38 8% 60%;
+      --border: 34 7% 18%;
+      --signal: 10 84% 60%;
+      --signal-foreground: 30 8% 7%;
+      --ring: 10 84% 60%;
     }
 
     * { box-sizing: border-box; }
@@ -54,21 +59,18 @@
     section:first-of-type { border-top: 0; }
 
     .label {
-      font-family: var(--font-text);
+      font-family: var(--font-mono);
       font-size: 12px;
-      font-weight: 700;
-      letter-spacing: 0.18em;
+      letter-spacing: 0.16em;
       text-transform: uppercase;
       color: hsl(var(--muted-foreground));
-      margin: 0 0 20px;
+      margin: 0 0 24px;
     }
-    .label .num { color: hsl(var(--signal)); margin-right: 10px; }
     .display { font-family: var(--font-display); }
     .text { font-family: var(--font-text); }
-    .muted { color: hsl(var(--muted-foreground)); }
-    .tnum { font-variant-numeric: tabular-nums; font-feature-settings: "tnum" 1; }
     a { color: hsl(var(--signal)); text-decoration-thickness: 1px; text-underline-offset: 2px; }
 
+    /* sticky header: mono title + theme toggle, no nav */
     header.bar {
       position: sticky; top: 0; z-index: 10;
       display: flex; align-items: center; gap: 18px;
@@ -77,193 +79,174 @@
       backdrop-filter: blur(8px);
       border-bottom: 1px solid hsl(var(--border));
     }
-    header.bar .title { font-family: var(--font-display); font-size: 16px; font-weight: 700; }
-    header.bar nav { display: flex; flex-wrap: wrap; gap: 4px 14px; margin-left: auto; }
-    header.bar nav a {
-      font-size: 12px; letter-spacing: 0.04em; color: hsl(var(--muted-foreground));
-      text-decoration: none;
+    header.bar .title {
+      font-family: var(--font-mono);
+      font-size: 13px;
+      letter-spacing: 0.02em;
+      color: hsl(var(--foreground));
     }
-    header.bar nav a:hover { color: hsl(var(--foreground)); }
     .toggle {
-      font: inherit; font-size: 12px; cursor: pointer;
+      margin-left: auto;
+      font: inherit; font-family: var(--font-mono); font-size: 12px; cursor: pointer;
       background: hsl(var(--muted)); color: hsl(var(--foreground));
       border: 1px solid hsl(var(--border)); border-radius: var(--radius);
       padding: 6px 10px;
     }
 
-    .hero h1 { font-family: var(--font-display); font-weight: 600; font-size: clamp(40px, 9vw, 104px); line-height: 1.02; margin: 0; }
-    .hero .pair { display: flex; flex-wrap: wrap; gap: 8px 28px; margin-top: 28px; }
-    .hero .pair .face { font-family: var(--font-display); font-size: clamp(28px, 5vw, 56px); }
-    .hero .pair .face.t { font-family: var(--font-text); }
-    .hero .pair .role { display: block; font-family: var(--font-text); font-size: 12px; letter-spacing: 0.16em; text-transform: uppercase; color: hsl(var(--muted-foreground)); }
-    .hero p.lede { font-size: clamp(16px, 2.2vw, 20px); max-width: 60ch; margin-top: 28px; }
-
-    dl.colophon { display: grid; grid-template-columns: 200px 1fr; gap: 0; margin: 0; }
-    dl.colophon > div { display: contents; }
-    dl.colophon dt { padding: 12px 0; border-top: 1px solid hsl(var(--border)); color: hsl(var(--muted-foreground)); font-size: 13px; letter-spacing: 0.04em; }
-    dl.colophon dd { padding: 12px 0; border-top: 1px solid hsl(var(--border)); margin: 0; }
-
-    .ladder .row { display: flex; align-items: baseline; gap: 20px; padding: 10px 0; border-top: 1px solid hsl(var(--border)); }
-    .ladder .row .w { width: 110px; flex: none; font-family: var(--font-text); font-size: 12px; color: hsl(var(--muted-foreground)); }
-    .ladder .row .sample { font-size: clamp(26px, 4vw, 40px); line-height: 1.1; }
-
-    .panel { background: hsl(var(--card)); border: 1px solid hsl(var(--border)); border-radius: var(--radius); padding: 28px; }
-    .control { display: grid; grid-template-columns: 120px 1fr 64px; align-items: center; gap: 16px; margin-bottom: 14px; }
-    .control label { font-family: var(--font-text); font-size: 12px; letter-spacing: 0.06em; text-transform: uppercase; color: hsl(var(--muted-foreground)); }
-    .control output { font-family: var(--font-text); font-size: 13px; text-align: right; color: hsl(var(--foreground)); }
-    input[type="range"] { width: 100%; accent-color: hsl(var(--signal)); }
-    .preview-line { font-family: var(--font-display); font-size: clamp(34px, 6vw, 72px); line-height: 1.05; margin-top: 24px; }
-
-    .switch { display: inline-flex; align-items: center; gap: 8px; font-family: var(--font-text); font-size: 12px; letter-spacing: 0.06em; text-transform: uppercase; color: hsl(var(--muted-foreground)); }
-
-    .tester input[type="text"] { width: 100%; font: inherit; font-size: 16px; padding: 12px 14px; border: 1px solid hsl(var(--border)); border-radius: var(--radius); background: hsl(var(--background)); color: hsl(var(--foreground)); margin-bottom: 18px; }
-    #testerDisplay { font-family: var(--font-display); }
-    #testerText { font-family: var(--font-text); margin-top: 14px; }
-
+    /* in context — the editorial spread */
     .spread h2 { font-family: var(--font-display); font-weight: 600; font-size: clamp(34px, 6vw, 72px); line-height: 1.04; margin: 0 0 8px; }
     .spread .standfirst { font-size: clamp(18px, 2.4vw, 24px); color: hsl(var(--muted-foreground)); max-width: 62ch; margin: 0 0 28px; }
     .spread .body { columns: 2; column-gap: 40px; font-size: 16px; }
     .spread .body p { margin: 0 0 1em; }
-    .spread .body p:first-child::first-letter { font-family: var(--font-display); float: left; font-size: 3.4em; line-height: 0.8; padding: 6px 10px 0 0; color: hsl(var(--signal)); font-weight: 700; }
-    @media (max-width: 720px) { .spread .body { columns: 1; } dl.colophon { grid-template-columns: 1fr; } dl.colophon dt { border-top: 1px solid hsl(var(--border)); padding-bottom: 0; } dl.colophon dd { border-top: 0; padding-top: 2px; } }
+    .spread .body p:first-child::first-letter { font-family: var(--font-display); float: left; font-size: 3.4em; line-height: 0.8; padding: 6px 10px 0 0; color: hsl(var(--signal)); }
+    @media (max-width: 720px) { .spread .body { columns: 1; } }
 
-    .running { font-size: 16px; max-width: 66ch; }
-
-    .glyphs { display: grid; grid-template-columns: repeat(auto-fill, minmax(56px, 1fr)); gap: 1px; background: hsl(var(--border)); border: 1px solid hsl(var(--border)); border-radius: var(--radius); overflow: hidden; }
-    .glyphs .g { background: hsl(var(--card)); aspect-ratio: 1; display: flex; align-items: center; justify-content: center; font-family: var(--font-display); font-size: 28px; transition: background 0.12s, color 0.12s; }
-    .glyphs .g:hover { background: hsl(var(--signal)); color: hsl(var(--signal-foreground)); }
-
+    /* type scale — tabs (Display/Text) + weight buttons + ramp */
+    .scale .scale-controls { display: flex; flex-wrap: wrap; align-items: center; gap: 14px 24px; margin-bottom: 32px; }
+    .scale .tabs, .scale .weights { display: inline-flex; flex-wrap: wrap; gap: 4px; }
+    .scale .seg {
+      font: inherit; font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.03em;
+      cursor: pointer; padding: 6px 12px; border-radius: var(--radius);
+      background: transparent; color: hsl(var(--muted-foreground));
+      border: 1px solid hsl(var(--border));
+    }
+    .scale .seg:hover { color: hsl(var(--foreground)); }
+    .scale .seg.active { background: hsl(var(--signal)); color: hsl(var(--signal-foreground)); border-color: hsl(var(--signal)); }
     .scale .row { display: flex; align-items: baseline; gap: 18px; padding: 6px 0; }
-    .scale .row .px { width: 64px; flex: none; font-family: var(--font-text); font-size: 12px; color: hsl(var(--muted-foreground)); text-align: right; }
-    .scale .row .s { font-family: var(--font-display); line-height: 1.1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .scale .row .px { width: 56px; flex: none; font-family: var(--font-mono); font-size: 12px; color: hsl(var(--muted-foreground)); text-align: right; }
+    .scale .row .s { line-height: 1.1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
-    footer.colofooter { padding: 40px 0 80px; color: hsl(var(--muted-foreground)); font-size: 13px; }
+    footer.colofooter { padding: 40px 0 80px; color: hsl(var(--muted-foreground)); font-size: 13px; font-family: var(--font-mono); }
   </style>
+  <style id="palette-baked">:root{--background:30 44% 96%;--foreground:18 18% 14%;--card:30 44% 98%;--muted:30 27% 91%;--muted-foreground:18 12% 51%;--border:30 36% 83%;--signal:17 56% 51%;--signal-foreground:30 44% 96%;--ring:17 56% 51%;}.dark{--background:18 18% 14%;--foreground:30 44% 96%;--card:18 18% 16%;--muted:18 18% 21%;--muted-foreground:30 12% 63%;--border:18 18% 25%;--signal:17 56% 59%;--signal-foreground:18 18% 14%;--ring:17 56% 59%;}</style>
+
+  <!-- ===== theme + palette: runs in <head> so the first paint is already correct.
+       The host app (Type Explorer) drives this two ways: ?theme=/?pal= params on
+       the iframe URL for the initial render, and postMessage for live changes.
+       applyPalette() mirrors lib/palette.ts — keep the coefficients in sync. ===== -->
+  <script>
+    window.__specimen = (function () {
+      var root = document.documentElement;
+
+      function hexToHsl(hex) {
+        var h = String(hex).replace(/^#/, "").trim();
+        if (h.length === 3) h = h.replace(/(.)/g, "$1$1");
+        if (!/^[0-9a-fA-F]{6}$/.test(h)) return { h: 0, s: 0, l: 50 };
+        var r = parseInt(h.slice(0, 2), 16) / 255;
+        var g = parseInt(h.slice(2, 4), 16) / 255;
+        var b = parseInt(h.slice(4, 6), 16) / 255;
+        var max = Math.max(r, g, b), min = Math.min(r, g, b);
+        var l = (max + min) / 2, s = 0, hue = 0;
+        if (max !== min) {
+          var d = max - min;
+          s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+          if (max === r) hue = (g - b) / d + (g < b ? 6 : 0);
+          else if (max === g) hue = (b - r) / d + 2;
+          else hue = (r - g) / d + 4;
+          hue /= 6;
+        }
+        return { h: hue * 360, s: s * 100, l: l * 100 };
+      }
+      function clamp(n) { return Math.max(0, Math.min(100, n)); }
+      function shift(c, dl, satScale, satCap) {
+        satScale = satScale == null ? 1 : satScale; satCap = satCap == null ? 100 : satCap;
+        var s = clamp(Math.min(c.s * satScale, satCap)), l = clamp(c.l + dl);
+        return Math.round(c.h) + " " + Math.round(s) + "% " + Math.round(l) + "%";
+      }
+      function towards(from, to, t, satCap) {
+        satCap = satCap == null ? 12 : satCap;
+        var l = clamp(from.l + (to.l - from.l) * t), s = clamp(Math.min(from.s, satCap));
+        return Math.round(from.h) + " " + Math.round(s) + "% " + Math.round(l) + "%";
+      }
+
+      // Replace the injected override stylesheet (or remove it when pal is null).
+      function applyPalette(light, dark, accent) {
+        var existing = document.getElementById("palette-override");
+        if (!light || !dark || !accent) { if (existing) existing.remove(); return; }
+        var L = hexToHsl(light), D = hexToHsl(dark), A = hexToHsl(accent);
+        var aStr = Math.round(A.h) + " " + Math.round(A.s) + "% " + Math.round(A.l) + "%";
+        var aDark = shift(A, 8, 1, 100);
+        var lightTokens =
+          "--background:" + shift(L, 0) + ";--foreground:" + shift(D, 0) +
+          ";--card:" + shift(L, 2) + ";--muted:" + shift(L, -5, 0.6) +
+          ";--muted-foreground:" + towards(D, L, 0.45) + ";--border:" + shift(L, -13, 0.8) +
+          ";--signal:" + aStr + ";--signal-foreground:" + shift(L, 0) + ";--ring:" + aStr + ";";
+        var darkTokens =
+          "--background:" + shift(D, 0) + ";--foreground:" + shift(L, 0) +
+          ";--card:" + shift(D, 2) + ";--muted:" + shift(D, 7) +
+          ";--muted-foreground:" + towards(L, D, 0.4) + ";--border:" + shift(D, 11) +
+          ";--signal:" + aDark + ";--signal-foreground:" + shift(D, 0) + ";--ring:" + aDark + ";";
+        var css = ":root{" + lightTokens + "}.dark{" + darkTokens + "}";
+        if (existing) { existing.textContent = css; return; }
+        var el = document.createElement("style");
+        el.id = "palette-override";
+        el.textContent = css;
+        document.head.appendChild(el);
+      }
+
+      function setMode(dark) { root.classList.toggle("dark", !!dark); }
+
+      // ----- initial render from URL params (no flash) -----
+      var params = new URLSearchParams(location.search);
+      var themeParam = params.get("theme");           // "light" | "dark" | null
+      var fromUrl = themeParam === "light" || themeParam === "dark";
+      var saved = null;
+      try { saved = localStorage.getItem("specimen-theme"); } catch (e) {}
+      // Precedence: explicit ?theme= (host override) > saved preference > LIGHT default.
+      var dark = fromUrl ? themeParam === "dark" : saved === "dark";
+      setMode(dark);
+
+      var pal = params.get("pal");                    // "RRGGBB-RRGGBB-RRGGBB"
+      if (pal) {
+        var parts = pal.split("-");
+        if (parts.length === 3) applyPalette("#" + parts[0], "#" + parts[1], "#" + parts[2]);
+      }
+
+      // ----- live control channel from the host app -----
+      window.addEventListener("message", function (e) {
+        var d = e && e.data;
+        if (!d || d.type !== "specimen-control") return;
+        if (d.mode === "light" || d.mode === "dark") {
+          dark = d.mode === "dark";
+          setMode(dark);
+        }
+        if (Object.prototype.hasOwnProperty.call(d, "palette")) {
+          if (d.palette && d.palette.light) applyPalette(d.palette.light, d.palette.dark, d.palette.accent);
+          else applyPalette(null); // restore the baked palette
+        }
+      });
+
+      return { applyPalette: applyPalette, setMode: function (m) { dark = m === "dark"; setMode(dark); } };
+    })();
+  </script>
 </head>
 <body>
   <header class="bar">
     <span class="title">Bitter × Nunito</span>
-    <nav>
-      <a href="#hero">01 Hero</a>
-      <a href="#colophon">02 Colophon</a>
-      <a href="#ladder">03 Weights</a>
-      <a href="#axes">04 Axes</a>
-      <a href="#tester">06 Tester</a>
-      <a href="#context">07 In context</a>
-      <a href="#bodyspec">08 Body</a>
-      <a href="#glyphs">09 Glyphs</a>
-      <a href="#scale">10 Scale</a>
-    </nav>
     <button class="toggle" id="themeToggle" type="button">Dark</button>
   </header>
 
   <div class="wrap">
 
-    <!-- 1. HERO -->
-    <section id="hero" class="hero">
-      <h1 class="display">Breathe with the fog.</h1>
-      <div class="pair">
-        <span class="face">Bitter<span class="role">Display</span></span>
-        <span class="face t">Nunito<span class="role">Text</span></span>
-      </div>
-      <p class="lede">A Mission-District yoga studio asks for warmth without softness. Bitter's slab serifs ground every headline like feet on a mat; Nunito's rounded humanist terminals keep the schedule, the bios, and the breath cues easy to read.</p>
-    </section>
-
-    <!-- 2. COLOPHON -->
-    <section id="colophon">
-      <p class="label"><span class="num">02</span>Colophon</p>
-      <dl class="colophon">
-        <div><dt>Display</dt><dd>Bitter — contemporary slab serif, built for screens</dd></div>
-        <div><dt>Text</dt><dd>Nunito — rounded humanist sans-serif</dd></div>
-        <div><dt>Styles</dt><dd>Bitter: Regular 400 + roman &amp; italic across the variable range. Nunito: Regular 400 + roman &amp; italic across the variable range.</dd></div>
-        <div><dt>Variable axes</dt><dd>Bitter — Weight (wght) 100–900, default 400. Nunito — Weight (wght) 200–1000, default 400. Both ship matching italics.</dd></div>
-        <div><dt>License</dt><dd>Both families under the SIL Open Font License 1.1</dd></div>
-        <div><dt>Source</dt><dd>
-          <a href="https://fonts.google.com/specimen/Bitter" target="_blank" rel="noreferrer">Bitter</a>,
-          <a href="https://fonts.google.com/specimen/Nunito" target="_blank" rel="noreferrer">Nunito</a> on Google Fonts
-        </dd></div>
-      </dl>
-    </section>
-
-    <!-- 3. WEIGHT LADDER (display) -->
-    <section id="ladder">
-      <p class="label"><span class="num">03</span>Weight ladder · Bitter</p>
-      <div class="ladder">
-        <div class="row"><span class="w">200 · ExtraLight</span><span class="sample display" style="font-weight: 200">Inhale</span></div>
-        <div class="row"><span class="w">400 · Regular</span><span class="sample display" style="font-weight: 400">Grounded</span></div>
-        <div class="row"><span class="w">600 · SemiBold</span><span class="sample display" style="font-weight: 600">Balance</span></div>
-        <div class="row"><span class="w">700 · Bold</span><span class="sample display" style="font-weight: 700">Vinyasa</span></div>
-        <div class="row"><span class="w">900 · Black</span><span class="sample display" style="font-weight: 900">Exhale</span></div>
-      </div>
-    </section>
-
-    <!-- 4. AXIS PLAYGROUND (Bitter — single wght axis) -->
-    <section id="axes">
-      <p class="label"><span class="num">04</span>Axis playground · Bitter</p>
-      <div class="panel">
-        <div class="control">
-          <label for="ax-wght">Weight (wght)</label>
-          <input type="range" id="ax-wght" data-axis="wght" min="100" max="900" value="400" step="1" />
-          <output for="ax-wght">400</output>
-        </div>
-        <label class="switch"><input type="checkbox" id="ax-ital" data-axis-ital /> Italic</label>
-        <div class="preview-line" id="axisPreview">Root to rise</div>
-      </div>
-    </section>
-
-    <!-- 6. LIVE TESTER -->
-    <section id="tester" class="tester">
-      <p class="label"><span class="num">06</span>Live tester</p>
-      <div class="panel">
-        <input type="text" id="testerInput" value="Find your center" />
-        <div class="control">
-          <label for="testerSize">Size</label>
-          <input type="range" id="testerSize" min="16" max="120" value="56" />
-          <output for="testerSize">56px</output>
-        </div>
-        <div class="control">
-          <label for="testerWeight">Weight</label>
-          <input type="range" id="testerWeight" min="200" max="1000" value="400" step="1" />
-          <output for="testerWeight">400</output>
-        </div>
-        <div id="testerDisplay">Find your center</div>
-        <div id="testerText">Find your center</div>
-      </div>
-    </section>
-
-    <!-- 7. IN CONTEXT -->
+    <!-- IN CONTEXT — the editorial spread (first section) -->
     <section id="context" class="spread">
-      <p class="label"><span class="num">07</span>In context</p>
-      <h2 class="display">Sixty minutes, one steady breath at a time</h2>
-      <p class="standfirst text">Our heated flow meets the city's cool mornings. Arrive as you are; leave a little lighter. Bitter carries the headline, Nunito carries everything you actually have to read before class.</p>
-      <div class="body text">
-        <p>The studio sits two flights above Valencia Street, where the fog burns off around eleven and the windows go gold. We keep the room at ninety-two degrees, the playlist low, and the schedule honest. No mirrors, no leaderboard, no rush — just a teacher counting you through the breath while the streetcar rattles past below.</p>
-        <p>Beginners are not an afterthought here. Every week opens with a slow foundations class where we name the shapes, build the transitions, and let you fall out of a pose without anyone noticing. By Friday the same sequence moves like water, and the thing you could not do on Monday feels like it was always yours.</p>
-        <p>Membership is month to month because trust should be too. Drop in when the week allows, book a private when you want detail, or simply sit in the back and breathe. The mat is forty inches of quiet that belongs to you for one hour. Bring water, bring nothing else, and let the rest of San Francisco wait at the door.</p>
-      </div>
+      <p class="label">In context</p>
+      <h2 class="display">Breathe in, settle, begin</h2>
+      <p class="standfirst text">A calm practice in the middle of a loud city.</p>
+      <div class="body text"><p>Warmth without softness. The slab headline grounds the page like feet on a mat, and the rounded body keeps the schedule, the bios, and the breath cues easy to read at any size.</p>
+        <p>It is an inviting voice for a studio: steady, friendly, and clear. Class times and gentle instructions hold their shape whether they are set large on a sign or small in a weekly newsletter.</p></div>
     </section>
 
-    <!-- 8. BODY SPECIMEN (text face) -->
-    <section id="bodyspec">
-      <p class="label"><span class="num">08</span>Body specimen · Nunito</p>
-      <div class="ladder">
-        <div class="row"><span class="w">400 · Regular</span><span class="sample text" style="font-size:24px;font-weight:400">Open the hips, soften the jaw</span></div>
-        <div class="row"><span class="w">700 · Bold</span><span class="sample text" style="font-size:24px;font-weight:700">Open the hips, soften the jaw</span></div>
-      </div>
-      <p class="running text" style="margin-top:28px">Nunito was drawn for sustained reading, and it shows at body size: open counters, gentle rounded terminals, and a generous x-height keep class descriptions, teacher bios, and waiver fine print legible on any phone in the lobby. Set against Bitter's firmer slabs, the sans does the patient work while the serif does the announcing — a clean division of labor that holds from the hero down to the footnote.</p>
-      <p class="text tnum" style="margin-top:18px;font-size:20px">0123456789 · $1,234.56 · 09:45 · (2024–2025)</p>
-      <p class="text" style="margin-top:8px;letter-spacing:.12em">ABCDEFGHIJKLMNOPQRSTUVWXYZ</p>
-    </section>
-
-    <!-- 9. GLYPH GRID (display face) -->
-    <section id="glyphs">
-      <p class="label"><span class="num">09</span>Glyphs · Bitter</p>
-      <div class="glyphs" id="glyphGrid"></div>
-    </section>
-
-    <!-- 10. TYPE SCALE (display face) -->
+    <!-- TYPE SCALE — Display/Text tabs + weight buttons; the ramp reflows on click -->
     <section id="scale" class="scale">
-      <p class="label"><span class="num">10</span>Type scale · Bitter</p>
+      <p class="label">Type scale</p>
+      <div class="scale-controls">
+        <div class="tabs" id="scaleTabs">
+          <button type="button" class="seg active" data-face="display">Display</button>
+          <button type="button" class="seg" data-face="text">Text</button>
+        </div>
+        <div class="weights" id="scaleWeights"></div>
+      </div>
       <div id="scaleRows"></div>
     </section>
 
@@ -272,112 +255,93 @@
     </footer>
   </div>
 
+  <script>window.__scaleData = {"display":{"name":"Bitter","weights":[100,200,300,400,500,600,700,800,900]},"text":{"name":"Nunito","weights":[200,300,400,500,600,700,800,900]}};</script>
   <script>
-    // ----- theme toggle -----
+    // ----- theme toggle button (the active mode is initialized in <head>) -----
     (function () {
       var root = document.documentElement;
       var btn = document.getElementById("themeToggle");
-      var saved = null;
-      try { saved = localStorage.getItem("specimen-theme"); } catch (e) {}
-      var dark = saved ? saved === "dark"
-        : (window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches);
-      function apply() {
-        root.classList.toggle("dark", dark);
-        if (btn) btn.textContent = dark ? "Light" : "Dark";
-      }
-      apply();
+      function sync() { if (btn) btn.textContent = root.classList.contains("dark") ? "Light" : "Dark"; }
+      sync();
       if (btn) btn.addEventListener("click", function () {
-        dark = !dark;
+        var dark = !root.classList.contains("dark");
+        root.classList.toggle("dark", dark);
         try { localStorage.setItem("specimen-theme", dark ? "dark" : "light"); } catch (e) {}
-        apply();
+        sync();
       });
     })();
 
-    // ----- axis playground -----
-    (function () {
-      var preview = document.getElementById("axisPreview");
-      if (!preview) return;
-      var sliders = Array.prototype.slice.call(document.querySelectorAll("#axes [data-axis]"));
-      var italToggle = document.querySelector("#axes [data-axis-ital]");
-      function update() {
-        var parts = sliders.map(function (s) {
-          var out = s.parentNode.querySelector("output");
-          if (out) out.textContent = s.value;
-          return "'" + s.getAttribute("data-axis") + "' " + s.value;
-        });
-        preview.style.fontVariationSettings = parts.join(", ");
-        preview.style.fontStyle = italToggle && italToggle.checked ? "italic" : "normal";
-      }
-      sliders.forEach(function (s) { s.addEventListener("input", update); });
-      if (italToggle) italToggle.addEventListener("change", update);
-      update();
-    })();
-
-    // ----- live tester -----
-    (function () {
-      var input = document.getElementById("testerInput");
-      var size = document.getElementById("testerSize");
-      var weight = document.getElementById("testerWeight");
-      var disp = document.getElementById("testerDisplay");
-      var text = document.getElementById("testerText");
-      if (!input) return;
-      function update() {
-        var t = input.value || " ";
-        disp.textContent = t;
-        text.textContent = t;
-        var px = size.value + "px";
-        disp.style.fontSize = px;
-        text.style.fontSize = px;
-        disp.style.fontWeight = weight.value;
-        text.style.fontWeight = weight.value;
-        size.parentNode.querySelector("output").textContent = px;
-        weight.parentNode.querySelector("output").textContent = weight.value;
-      }
-      [input, size, weight].forEach(function (el) {
-        el.addEventListener("input", update);
-      });
-      update();
-    })();
-
-    // ----- glyph grid -----
-    (function () {
-      var grid = document.getElementById("glyphGrid");
-      if (!grid) return;
-      var sets = [
-        "ABCDEFGHIJKLMNOPQRSTUVWXYZ",
-        "abcdefghijklmnopqrstuvwxyz",
-        "0123456789",
-        "&@#%$.,;:!?'\"()[]{}/—–-*+="
-      ];
-      sets.join("").split("").forEach(function (ch) {
-        var d = document.createElement("div");
-        d.className = "g";
-        d.textContent = ch;
-        grid.appendChild(d);
-      });
-    })();
-
-    // ----- type scale -----
+    // ----- interactive type scale: Display/Text tabs + weight buttons -----
     (function () {
       var rows = document.getElementById("scaleRows");
-      if (!rows) return;
+      var tabs = document.getElementById("scaleTabs");
+      var weightsEl = document.getElementById("scaleWeights");
+      var data = window.__scaleData;
+      if (!rows || !tabs || !weightsEl || !data) return;
+
+      var word = "Stillness";
       var sizes = [13, 16, 20, 25, 31, 39, 49, 61, 76];
-      var word = "Namasté";
-      sizes.forEach(function (px) {
-        var row = document.createElement("div");
-        row.className = "row";
-        var label = document.createElement("span");
-        label.className = "px";
-        label.textContent = px + "px";
-        var s = document.createElement("span");
-        s.className = "s";
-        s.style.fontSize = px + "px";
-        s.textContent = word;
-        row.appendChild(label);
-        row.appendChild(s);
-        rows.appendChild(row);
+      var face = "display";
+      var weight = pickDefault(data.display.weights);
+
+      function pickDefault(weights) {
+        if (!weights || !weights.length) return 400;
+        return weights.indexOf(400) !== -1 ? 400 : weights[Math.floor(weights.length / 2)];
+      }
+      function familyVar() { return face === "display" ? "var(--font-display)" : "var(--font-text)"; }
+
+      function renderRows() {
+        rows.innerHTML = "";
+        sizes.forEach(function (px) {
+          var row = document.createElement("div");
+          row.className = "row";
+          var label = document.createElement("span");
+          label.className = "px";
+          label.textContent = px + "px";
+          var s = document.createElement("span");
+          s.className = "s";
+          s.style.fontFamily = familyVar();
+          s.style.fontSize = px + "px";
+          s.style.fontWeight = weight;
+          s.textContent = word;
+          row.appendChild(label);
+          row.appendChild(s);
+          rows.appendChild(row);
+        });
+      }
+
+      function renderWeights() {
+        var weights = data[face].weights || [400];
+        if (weights.indexOf(weight) === -1) weight = pickDefault(weights);
+        weightsEl.innerHTML = "";
+        weights.forEach(function (w) {
+          var b = document.createElement("button");
+          b.type = "button";
+          b.className = "seg" + (w === weight ? " active" : "");
+          b.textContent = w;
+          b.addEventListener("click", function () {
+            weight = w;
+            renderWeights();
+            renderRows();
+          });
+          weightsEl.appendChild(b);
+        });
+      }
+
+      Array.prototype.forEach.call(tabs.children, function (btn) {
+        btn.addEventListener("click", function () {
+          face = btn.getAttribute("data-face");
+          Array.prototype.forEach.call(tabs.children, function (b) {
+            b.classList.toggle("active", b === btn);
+          });
+          renderWeights();
+          renderRows();
+        });
       });
+
+      renderWeights();
+      renderRows();
     })();
   </script>
-<!-- type-explorer-footer --><div style="font:12px ui-monospace,SFMono-Regular,Menlo,monospace;opacity:.6;padding:14px 16px;text-align:center">Generated 2026-06-11 · 1m 41s · $0.455 API cost · Type Explorer · https://github.com/joshcoolman/type-explorer</div></body>
+</body>
 </html>
