@@ -1,0 +1,676 @@
+{
+  "pairings": [
+    {
+      "id": "epilogue-baskervville",
+      "label": "Epilogue & Baskervville",
+      "heading": "Epilogue",
+      "body": "Baskervville",
+      "monovoice": false
+    },
+    {
+      "id": "epunda-slab-epunda-sans",
+      "label": "Epunda Slab & Epunda Sans",
+      "heading": "Epunda Slab",
+      "body": "Epunda Sans",
+      "monovoice": false
+    },
+    {
+      "id": "work-sans-bitter",
+      "label": "Work Sans & Bitter",
+      "heading": "Work Sans",
+      "body": "Bitter",
+      "monovoice": false
+    },
+    {
+      "id": "montserrat-google-sans",
+      "label": "Montserrat & Google Sans",
+      "heading": "Montserrat",
+      "body": "Google Sans",
+      "monovoice": false
+    },
+    {
+      "id": "special-gothic-condensed-one-special-gothic",
+      "label": "Special Gothic Condensed One & Special Gothic",
+      "heading": "Special Gothic Condensed One",
+      "body": "Special Gothic",
+      "monovoice": false
+    },
+    {
+      "id": "special-gothic-expanded-one-special-gothic",
+      "label": "Special Gothic Expanded One & Special Gothic",
+      "heading": "Special Gothic Expanded One",
+      "body": "Special Gothic",
+      "monovoice": false
+    },
+    {
+      "id": "suse-mono-suse",
+      "label": "SUSE Mono & SUSE",
+      "heading": "SUSE Mono",
+      "body": "SUSE",
+      "monovoice": false
+    },
+    {
+      "id": "tiktok-sans-geist",
+      "label": "TikTok Sans & Geist",
+      "heading": "TikTok Sans",
+      "body": "Geist",
+      "monovoice": false
+    },
+    {
+      "id": "unbounded-albert-sans",
+      "label": "Unbounded & Albert Sans",
+      "heading": "Unbounded",
+      "body": "Albert Sans",
+      "monovoice": false
+    },
+    {
+      "id": "urbanist-open-sans",
+      "label": "Urbanist & Open Sans",
+      "heading": "Urbanist",
+      "body": "Open Sans",
+      "monovoice": false
+    },
+    {
+      "id": "vend-sans-vend-sans",
+      "label": "Vend Sans (Bold) & Vend Sans (Regular)",
+      "heading": "Vend Sans",
+      "body": "Vend Sans",
+      "monovoice": true
+    },
+    {
+      "id": "voltaire-inter",
+      "label": "Voltaire & Inter",
+      "heading": "Voltaire",
+      "body": "Inter",
+      "monovoice": false
+    },
+    {
+      "id": "yantramanav-yantramanav",
+      "label": "Yantramanav (Bold) & Yantramanav (Regular)",
+      "heading": "Yantramanav",
+      "body": "Yantramanav",
+      "monovoice": true
+    },
+    {
+      "id": "ysabeau-infant-ysabeau",
+      "label": "Ysabeau Infant & Ysabeau",
+      "heading": "Ysabeau Infant",
+      "body": "Ysabeau",
+      "monovoice": false
+    },
+    {
+      "id": "ysabeau-sc-ysabeau",
+      "label": "Ysabeau SC & Ysabeau",
+      "heading": "Ysabeau SC",
+      "body": "Ysabeau",
+      "monovoice": false
+    },
+    {
+      "id": "zain-nunito",
+      "label": "Zain & Nunito",
+      "heading": "Zain",
+      "body": "Nunito",
+      "monovoice": false
+    },
+    {
+      "id": "zen-maru-gothic-zen-maru-gothic",
+      "label": "Zen Maru Gothic (Bold) & Zen Maru Gothic (Regular)",
+      "heading": "Zen Maru Gothic",
+      "body": "Zen Maru Gothic",
+      "monovoice": true
+    },
+    {
+      "id": "zen-kaku-gothic-antique-zen-kaku-gothic-new",
+      "label": "Zen Kaku Gothic Antique & Zen Kaku Gothic New",
+      "heading": "Zen Kaku Gothic Antique",
+      "body": "Zen Kaku Gothic New",
+      "monovoice": false
+    },
+    {
+      "id": "zalando-sans-zalando-sans",
+      "label": "Zalando Sans (Bold) & Zalando Sans (Regular)",
+      "heading": "Zalando Sans",
+      "body": "Zalando Sans",
+      "monovoice": true
+    },
+    {
+      "id": "zalando-sans-expanded-zalando-sans",
+      "label": "Zalando Sans Expanded & Zalando Sans",
+      "heading": "Zalando Sans Expanded",
+      "body": "Zalando Sans",
+      "monovoice": false
+    },
+    {
+      "id": "gloock-inter",
+      "label": "Gloock & Inter",
+      "heading": "Gloock",
+      "body": "Inter",
+      "monovoice": false
+    },
+    {
+      "id": "dm-sans-staatliches",
+      "label": "DM Sans & Staatliches",
+      "heading": "DM Sans",
+      "body": "Staatliches",
+      "monovoice": false
+    },
+    {
+      "id": "archivo-ibm-plex-mono",
+      "label": "Archivo & IBM Plex Mono",
+      "heading": "Archivo",
+      "body": "IBM Plex Mono",
+      "monovoice": false
+    },
+    {
+      "id": "eb-garamond-dm-mono",
+      "label": "EB Garamond & DM Mono",
+      "heading": "EB Garamond",
+      "body": "DM Mono",
+      "monovoice": false
+    },
+    {
+      "id": "metal-eb-garamond",
+      "label": "Metal & EB Garamond",
+      "heading": "Metal",
+      "body": "EB Garamond",
+      "monovoice": false
+    },
+    {
+      "id": "dm-sans-playfair-display",
+      "label": "DM Sans & Playfair Display",
+      "heading": "DM Sans",
+      "body": "Playfair Display",
+      "monovoice": false
+    },
+    {
+      "id": "geist-mono-eb-garamond",
+      "label": "Geist Mono & EB Garamond",
+      "heading": "Geist Mono",
+      "body": "EB Garamond",
+      "monovoice": false
+    },
+    {
+      "id": "pt-serif-lato",
+      "label": "PT Serif & Lato",
+      "heading": "PT Serif",
+      "body": "Lato",
+      "monovoice": false
+    },
+    {
+      "id": "source-sans-pro-source-code-pro",
+      "label": "Source Sans Pro & Source Code Pro",
+      "heading": "Source Sans Pro",
+      "body": "Source Code Pro",
+      "monovoice": false
+    },
+    {
+      "id": "zalando-sans-jetbrains-mono",
+      "label": "Zalando Sans & JetBrains Mono",
+      "heading": "Zalando Sans",
+      "body": "JetBrains Mono",
+      "monovoice": false
+    },
+    {
+      "id": "special-gothic-expanded-one-inter",
+      "label": "Special Gothic Expanded One & Inter",
+      "heading": "Special Gothic Expanded One",
+      "body": "Inter",
+      "monovoice": false
+    },
+    {
+      "id": "bricolage-grotesque-biorhyme",
+      "label": "Bricolage Grotesque & BioRhyme",
+      "heading": "Bricolage Grotesque",
+      "body": "BioRhyme",
+      "monovoice": false
+    },
+    {
+      "id": "libre-franklin-eczar",
+      "label": "Libre Franklin & Eczar",
+      "heading": "Libre Franklin",
+      "body": "Eczar",
+      "monovoice": false
+    },
+    {
+      "id": "alumni-sans-dm-sans",
+      "label": "Alumni Sans & DM Sans",
+      "heading": "Alumni Sans",
+      "body": "DM Sans",
+      "monovoice": false
+    },
+    {
+      "id": "crimson-pro-vt323",
+      "label": "Crimson Pro & VT323",
+      "heading": "Crimson Pro",
+      "body": "VT323",
+      "monovoice": false
+    },
+    {
+      "id": "instrument-sans-instrument-serif",
+      "label": "Instrument Sans & Instrument Serif",
+      "heading": "Instrument Sans",
+      "body": "Instrument Serif",
+      "monovoice": false
+    },
+    {
+      "id": "instrument-sans-chivo-mono",
+      "label": "Instrument Sans & Chivo Mono",
+      "heading": "Instrument Sans",
+      "body": "Chivo Mono",
+      "monovoice": false
+    },
+    {
+      "id": "karla-inconsolata",
+      "label": "Karla & Inconsolata",
+      "heading": "Karla",
+      "body": "Inconsolata",
+      "monovoice": false
+    },
+    {
+      "id": "alfa-slab-one-gentium-book-plus",
+      "label": "Alfa Slab One & Gentium Book Plus",
+      "heading": "Alfa Slab One",
+      "body": "Gentium Book Plus",
+      "monovoice": false
+    },
+    {
+      "id": "montserrat-hind",
+      "label": "Montserrat & Hind",
+      "heading": "Montserrat",
+      "body": "Hind",
+      "monovoice": false
+    },
+    {
+      "id": "lora-manrope",
+      "label": "Lora & Manrope",
+      "heading": "Lora",
+      "body": "Manrope",
+      "monovoice": false
+    },
+    {
+      "id": "palanquin-dark-palanquin",
+      "label": "Palanquin Dark & Palanquin",
+      "heading": "Palanquin Dark",
+      "body": "Palanquin",
+      "monovoice": false
+    },
+    {
+      "id": "lusitana-raleway",
+      "label": "Lusitana & Raleway",
+      "heading": "Lusitana",
+      "body": "Raleway",
+      "monovoice": false
+    },
+    {
+      "id": "nunito-pt-sans",
+      "label": "Nunito & PT Sans",
+      "heading": "Nunito",
+      "body": "PT Sans",
+      "monovoice": false
+    },
+    {
+      "id": "cardo-roboto-serif",
+      "label": "Cardo & Roboto Serif",
+      "heading": "Cardo",
+      "body": "Roboto Serif",
+      "monovoice": false
+    },
+    {
+      "id": "yellowtail-nunito",
+      "label": "Yellowtail & Nunito",
+      "heading": "Yellowtail",
+      "body": "Nunito",
+      "monovoice": false
+    },
+    {
+      "id": "yellowtail-lato",
+      "label": "Yellowtail & Lato",
+      "heading": "Yellowtail",
+      "body": "Lato",
+      "monovoice": false
+    },
+    {
+      "id": "lustria-mulish",
+      "label": "Lustria & Mulish",
+      "heading": "Lustria",
+      "body": "Mulish",
+      "monovoice": false
+    },
+    {
+      "id": "ovo-mulish",
+      "label": "Ovo & Mulish",
+      "heading": "Ovo",
+      "body": "Mulish",
+      "monovoice": false
+    },
+    {
+      "id": "brawler-nunito-sans",
+      "label": "Brawler & Nunito Sans",
+      "heading": "Brawler",
+      "body": "Nunito Sans",
+      "monovoice": false
+    },
+    {
+      "id": "oswald-montserrat",
+      "label": "Oswald & Montserrat",
+      "heading": "Oswald",
+      "body": "Montserrat",
+      "monovoice": false
+    },
+    {
+      "id": "teko-ubuntu",
+      "label": "Teko & Ubuntu",
+      "heading": "Teko",
+      "body": "Ubuntu",
+      "monovoice": false
+    },
+    {
+      "id": "rubik-karla",
+      "label": "Rubik & Karla",
+      "heading": "Rubik",
+      "body": "Karla",
+      "monovoice": false
+    },
+    {
+      "id": "libre-franklin-libre-baskerville",
+      "label": "Libre Franklin & Libre Baskerville",
+      "heading": "Libre Franklin",
+      "body": "Libre Baskerville",
+      "monovoice": false
+    },
+    {
+      "id": "libre-franklin-libre-franklin",
+      "label": "Libre Franklin (Bold) & Libre Franklin (Regular)",
+      "heading": "Libre Franklin",
+      "body": "Libre Franklin",
+      "monovoice": true
+    },
+    {
+      "id": "alegreya-source-sans-pro",
+      "label": "Alegreya & Source Sans Pro",
+      "heading": "Alegreya",
+      "body": "Source Sans Pro",
+      "monovoice": false
+    },
+    {
+      "id": "alegreya-sc-alegreya",
+      "label": "Alegreya SC & Alegreya",
+      "heading": "Alegreya SC",
+      "body": "Alegreya",
+      "monovoice": false
+    },
+    {
+      "id": "alegreya-sans-sc-alegreya-sans",
+      "label": "Alegreya Sans SC & Alegreya Sans",
+      "heading": "Alegreya Sans SC",
+      "body": "Alegreya Sans",
+      "monovoice": false
+    },
+    {
+      "id": "roboto-nunito-sans",
+      "label": "Roboto & Nunito Sans",
+      "heading": "Roboto",
+      "body": "Nunito Sans",
+      "monovoice": false
+    },
+    {
+      "id": "montserrat-geist",
+      "label": "Montserrat & Geist",
+      "heading": "Montserrat",
+      "body": "Geist",
+      "monovoice": false
+    },
+    {
+      "id": "montserrat-nunito",
+      "label": "Montserrat & Nunito",
+      "heading": "Montserrat",
+      "body": "Nunito",
+      "monovoice": false
+    },
+    {
+      "id": "bricolage-grotesque-geist",
+      "label": "Bricolage Grotesque & Geist",
+      "heading": "Bricolage Grotesque",
+      "body": "Geist",
+      "monovoice": false
+    },
+    {
+      "id": "bricolage-grotesque-ubuntu",
+      "label": "Bricolage Grotesque & Ubuntu",
+      "heading": "Bricolage Grotesque",
+      "body": "Ubuntu",
+      "monovoice": false
+    },
+    {
+      "id": "ubuntu-sans-mono-ubuntu-sans",
+      "label": "Ubuntu Sans Mono & Ubuntu Sans",
+      "heading": "Ubuntu Sans Mono",
+      "body": "Ubuntu Sans",
+      "monovoice": false
+    },
+    {
+      "id": "ubuntu-condensed-ubuntu-sans",
+      "label": "Ubuntu Condensed & Ubuntu Sans",
+      "heading": "Ubuntu Condensed",
+      "body": "Ubuntu Sans",
+      "monovoice": false
+    },
+    {
+      "id": "ubuntu-sans-ubuntu",
+      "label": "Ubuntu Sans & Ubuntu",
+      "heading": "Ubuntu Sans",
+      "body": "Ubuntu",
+      "monovoice": false
+    },
+    {
+      "id": "ubuntu-sans-mono-ubuntu-mono",
+      "label": "Ubuntu Sans Mono & Ubuntu Mono",
+      "heading": "Ubuntu Sans Mono",
+      "body": "Ubuntu Mono",
+      "monovoice": false
+    },
+    {
+      "id": "manrope-ibm-plex-mono",
+      "label": "Manrope & IBM Plex Mono",
+      "heading": "Manrope",
+      "body": "IBM Plex Mono",
+      "monovoice": false
+    },
+    {
+      "id": "ubuntu-condensed-ubuntu",
+      "label": "Ubuntu Condensed & Ubuntu",
+      "heading": "Ubuntu Condensed",
+      "body": "Ubuntu",
+      "monovoice": false
+    },
+    {
+      "id": "red-hat-mono-red-hat-mono",
+      "label": "Red Hat Mono (Bold) & Red Hat Mono (Regular)",
+      "heading": "Red Hat Mono",
+      "body": "Red Hat Mono",
+      "monovoice": true
+    },
+    {
+      "id": "pt-sans-narrow-pt-serif",
+      "label": "PT Sans Narrow & PT Serif",
+      "heading": "PT Sans Narrow",
+      "body": "PT Serif",
+      "monovoice": false
+    },
+    {
+      "id": "pt-serif-pt-serif",
+      "label": "PT Serif (Bold) & PT Serif (Regular)",
+      "heading": "PT Serif",
+      "body": "PT Serif",
+      "monovoice": true
+    },
+    {
+      "id": "pt-sans-caption-pt-sans",
+      "label": "PT Sans Caption & PT Sans",
+      "heading": "PT Sans Caption",
+      "body": "PT Sans",
+      "monovoice": false
+    },
+    {
+      "id": "pt-sans-narrow-pt-sans",
+      "label": "PT Sans Narrow & PT Sans",
+      "heading": "PT Sans Narrow",
+      "body": "PT Sans",
+      "monovoice": false
+    },
+    {
+      "id": "playfair-display-sc-playfair",
+      "label": "Playfair Display SC & Playfair",
+      "heading": "Playfair Display SC",
+      "body": "Playfair",
+      "monovoice": false
+    },
+    {
+      "id": "playfair-display-playfair",
+      "label": "Playfair Display & Playfair",
+      "heading": "Playfair Display",
+      "body": "Playfair",
+      "monovoice": false
+    },
+    {
+      "id": "noto-serif-display-noto-sans",
+      "label": "Noto Serif Display & Noto Sans",
+      "heading": "Noto Serif Display",
+      "body": "Noto Sans",
+      "monovoice": false
+    },
+    {
+      "id": "noto-serif-noto-serif",
+      "label": "Noto Serif (Bold) & Noto Serif (Regular)",
+      "heading": "Noto Serif",
+      "body": "Noto Serif",
+      "monovoice": true
+    },
+    {
+      "id": "noto-serif-noto-sans",
+      "label": "Noto Serif & Noto Sans",
+      "heading": "Noto Serif",
+      "body": "Noto Sans",
+      "monovoice": false
+    },
+    {
+      "id": "noto-sans-noto-sans",
+      "label": "Noto Sans (Bold) & Noto Sans (Regular)",
+      "heading": "Noto Sans",
+      "body": "Noto Sans",
+      "monovoice": true
+    },
+    {
+      "id": "fira-mono-fira-mono",
+      "label": "Fira Mono (Bold) & Fira Mono (Regular)",
+      "heading": "Fira Mono",
+      "body": "Fira Mono",
+      "monovoice": true
+    },
+    {
+      "id": "encode-sans-expanded-encode-sans-condensed",
+      "label": "Encode Sans Expanded & Encode Sans Condensed",
+      "heading": "Encode Sans Expanded",
+      "body": "Encode Sans Condensed",
+      "monovoice": false
+    },
+    {
+      "id": "barlow-semi-condensed-barlow",
+      "label": "Barlow Semi Condensed & Barlow",
+      "heading": "Barlow Semi Condensed",
+      "body": "Barlow",
+      "monovoice": false
+    },
+    {
+      "id": "ibm-plex-sans-condensed-ibm-plex-serif",
+      "label": "IBM Plex Sans Condensed & IBM Plex Serif",
+      "heading": "IBM Plex Sans Condensed",
+      "body": "IBM Plex Serif",
+      "monovoice": false
+    },
+    {
+      "id": "ibm-plex-sans-condensed-ibm-plex-sans",
+      "label": "IBM Plex Sans Condensed & IBM Plex Sans",
+      "heading": "IBM Plex Sans Condensed",
+      "body": "IBM Plex Sans",
+      "monovoice": false
+    },
+    {
+      "id": "source-code-pro-source-code-pro",
+      "label": "Source Code Pro (Bold) & Source Code Pro (Regular)",
+      "heading": "Source Code Pro",
+      "body": "Source Code Pro",
+      "monovoice": true
+    },
+    {
+      "id": "source-serif-4-source-serif-4",
+      "label": "Source Serif 4 (Bold) & Source Serif 4 (Regular)",
+      "heading": "Source Serif 4",
+      "body": "Source Serif 4",
+      "monovoice": true
+    },
+    {
+      "id": "reddit-mono-reddit-mono",
+      "label": "Reddit Mono (Bold) & Reddit Mono (Regular)",
+      "heading": "Reddit Mono",
+      "body": "Reddit Mono",
+      "monovoice": true
+    },
+    {
+      "id": "roboto-serif-roboto-serif",
+      "label": "Roboto Serif (Bold) & Roboto Serif (Regular)",
+      "heading": "Roboto Serif",
+      "body": "Roboto Serif",
+      "monovoice": true
+    },
+    {
+      "id": "roboto-roboto-serif",
+      "label": "Roboto & Roboto Serif",
+      "heading": "Roboto",
+      "body": "Roboto Serif",
+      "monovoice": false
+    },
+    {
+      "id": "roboto-mono-roboto-mono",
+      "label": "Roboto Mono (Bold) & Roboto Mono (Regular)",
+      "heading": "Roboto Mono",
+      "body": "Roboto Mono",
+      "monovoice": true
+    },
+    {
+      "id": "dm-mono-dm-mono",
+      "label": "DM Mono (Bold) & DM Mono (Regular)",
+      "heading": "DM Mono",
+      "body": "DM Mono",
+      "monovoice": true
+    },
+    {
+      "id": "dm-sans-dm-mono",
+      "label": "DM Sans & DM Mono",
+      "heading": "DM Sans",
+      "body": "DM Mono",
+      "monovoice": false
+    },
+    {
+      "id": "besley-fustat",
+      "label": "Besley & Fustat",
+      "heading": "Besley",
+      "body": "Fustat",
+      "monovoice": false
+    },
+    {
+      "id": "funnel-display-geist",
+      "label": "Funnel Display & Geist",
+      "heading": "Funnel Display",
+      "body": "Geist",
+      "monovoice": false
+    },
+    {
+      "id": "epilogue-inter",
+      "label": "Epilogue & Inter",
+      "heading": "Epilogue",
+      "body": "Inter",
+      "monovoice": false
+    }
+  ]
+}

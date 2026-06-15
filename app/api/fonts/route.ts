@@ -6,6 +6,17 @@ export const runtime = "nodejs";
 
 type SortKey = "popularity" | "trending" | "date" | "alpha";
 
+/**
+ * Icon / symbol / emoji families render as glyph grids, not readable type, so we
+ * keep them out of the browse listing. Display-only filter — the catalog and the
+ * generation pipeline still see them. Revisit if we ever want a dedicated view.
+ */
+const ICON_FONT_RE = /\b(icons?|symbols?|emoji)\b/i;
+
+function isIconFont(f: FontFamily): boolean {
+  return ICON_FONT_RE.test(f.family);
+}
+
 function sortFamilies(families: FontFamily[], sort: SortKey): FontFamily[] {
   const copy = [...families];
   switch (sort) {
@@ -41,7 +52,7 @@ export async function GET(req: NextRequest) {
   const limit = Math.min(Number(sp.get("limit") ?? 60) || 60, 500);
   const offset = Math.max(Number(sp.get("offset") ?? 0) || 0, 0);
 
-  let families = catalog.families;
+  let families = catalog.families.filter((f) => !isIconFont(f));
   if (q) families = families.filter((f) => f.family.toLowerCase().includes(q));
   if (category && category !== "all") {
     families = families.filter((f) => f.category === category);

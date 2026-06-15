@@ -1,106 +1,97 @@
 # Continue
 
-## Where we are
+## What was being worked on
 
-**type-explorer** (runs on **http://localhost:3001**; user runs the server, house
-rule: never `npm run dev`). This session did a lot: a palette/theme system, a
-lightweight card grid, an emoji guard, a Brief log fix, and — the big one — a
-**complete rewrite of tier-2 specimen generation** plus a **radically leaner
-specimen**. All green: `npm run build` clean, `npm run lint` clean, `npm test`
-**29 passing** (10 css2-url + 9 palette + 10 specimen-render). Everything verified
-live in the browser.
+Refocusing **type-explorer** (Next.js 16 App Router, React 19, Tailwind v4, TS)
+around a **graze-and-gather** model: browse fonts/pairings, collect with a heart,
+view your collection. Three surfaces now: **Home** (curated pairings), **Explorer**
+(single-font specimen catalog over the full Google Fonts library), **Favorites**.
+Pairing-as-workflow and AI specimen generation were pulled OUT of the UX but left
+intact in the repo (documented as parked). House rules: never run `npm run dev`
+(user runs server on :3000); always confirm a production `npm run build` passes;
+no emoji in code/UI.
 
-## The big change this session: generation + lean specimen
+## Changes made so far (all uncommitted)
 
-Old: the Agent SDK (opus) rewrote the entire ~515-line `template.html` every time
-(~$0.5, ~100s). New: **code renders the scaffold from the catalog; one tiny Sonnet
-call returns just the copy.** And the specimen itself was cut down hard.
+Earlier in session (single-font specimen cards + icon filter):
+- **`app/components/FontSpecimenCard.tsx`** (new) — single-font specimen card:
+  bold (700) header, regular (400) subtitle + running paragraph, all in the same
+  family, mono font-name label at bottom. Alternating light/dark fields via
+  `themeForIndex`. Lazy-loads its font on scroll (IntersectionObserver +
+  `loadPreviewFont(family,[400,700])`). Exports `DEFAULT_VOICE` (the fixed default
+  copy: "Letters That Carry the Weight" / subtitle / paragraph) used as fallback
+  for every blank voice field. Props now also: `favorited?`, `onToggleFavorite?`.
+- **`app/components/BrowseView.tsx`** — restyled Explorer Browse: kept the data
+  layer (debounced search, CATEGORIES, SORTS, `/api/fonts` paging, Load more),
+  swapped FontCard grid → FontSpecimenCard grid, dropped selection/generate.
+  Added a gear "Typographic voice" panel (Title/Subtitle/Paragraph, textarea for
+  paragraph) persisted to localStorage `type-explorer:voice`. Wires favorites.
+- **`lib/specimen-samples.ts`** — added `body` to `SampleCopy` + 8 samples (home
+  PairingCard ignores it; single source preserved).
+- **`app/api/fonts/route.ts`** — added `isIconFont` predicate
+  (`/\b(icons?|symbols?|emoji)\b/i`) filtering icon/symbol/emoji families from the
+  browse listing (display-only; catalog/generation still see them). Verified: 13
+  matches, zero false positives, 1932 families served.
 
-**Lean specimen (the only sections now):**
-- Header bar: just the `Display × Text` title in a **monospace** stack (var
-  `--font-mono`, NOT either specimen face) + the light/dark toggle. **No nav.**
-- **1. In context** (now the first section) — editorial spread, drop cap.
-- **2. Type scale** — **interactive**: Display/Text tabs + a weight button per real
-  weight; clicking a weight reflows the whole ramp. Driven by injected
-  `window.__scaleData = {display:{name,weights}, text:{name,weights}}`.
-- **Cut entirely:** Hero, Colophon, Weight ladder, Axis playground, Optical size,
-  Live tester, Body specimen, **Glyph grid**.
+This session (favorites + strip pairing/AI from UX):
+- **`lib/types.ts`** — added `Pairing` interface (moved out of SuggestedPairings).
+- **`lib/favorites.ts`** (new) — localStorage store key `type-explorer:favorites`
+  `{ fonts: FontFamily[], pairings: Pairing[] }`. Exports `useFavorites()`
+  (useSyncExternalStore, cross-tab via storage event), `isFontFavorite`,
+  `isPairingFavorite`, `toggleFontFavorite`, `togglePairingFavorite`.
+- **`app/components/FavoriteButton.tsx`** (new) — heart toggle (outline→filled),
+  takes `active`, `onToggle`, `color`, `activeColor`, `label`. NO "use client"
+  directive on purpose (only imported by client components; avoids the Next 16
+  serializable-props entry-boundary warning).
+- **`app/components/PairingCard.tsx`** — added `favorited?`/`onToggleFavorite?`,
+  heart at top-right (theme.muted outline, theme.accent fill), `pr-10` on h2.
+- **`app/components/SuggestedPairings.tsx`** — imports Pairing from lib/types now;
+  calls `useFavorites()`, passes favorited + togglePairingFavorite to each card.
+- **`app/components/FavoritesView.tsx`** (new) + **`app/favorites/page.tsx`** (new)
+  — `/favorites` route. PAGE_THEME chrome like Home. Two sections, "Pairings N"
+  and "Fonts N", each card favoritable (filled heart; toggling removes reactively).
+  Font cards render with `DEFAULT_VOICE`. Empty state when nothing collected.
+- **`app/components/GlobalNav.tsx`** — added `{ href:"/favorites", label:"Favorites" }`.
+  Nav is Home / Explorer / Favorites (kept "Explorer" name per decision).
+- **`app/explorer.tsx`** — STRIPPED from the big tabbed component to a slim shell:
+  `h-screen` flex col, a header bar, and `<BrowseView />`. Removed Brief/Library
+  tabs, LibrarySidebar, GridView card-view toggle, SettingsPanel, all generation
+  state/handlers.
+- **`docs/parked-pairing-and-ai.md`** (new) — documents what's parked (BriefView,
+  LibraryView, LibrarySidebar, GridView, SettingsPanel, SpecimenViewer,
+  ProgressPanel, FontCard; lib generate/propose/jobs/store/specimen-*/palette;
+  api jobs/specimens/proposals) and the **deterministic revisit path**: build a
+  researched JSON pairing catalog (roles: header/subhead/body), render specimens
+  deterministically, reserve AI for offline batch / "surprise me".
 
-**New generation pipeline:**
-- `lib/specimen-render.ts` (NEW, pure, **unit-tested** `lib/specimen-render.test.ts`)
-  — `renderSpecimen({display,text,copy,palette})`. Reads `template.html` (module
-  cached), computes each face's weight list (`weightList`: static → `parseVariants`
-  upright weights; variable → 100–900 steps ∩ wght axis range), builds css2 URL via
-  `pairingCss2Url`, bakes palette via `derivePaletteCss` into a `<style
-  id="palette-baked">`, substitutes `{{…}}` tokens. Escapes HTML in copy and JS in
-  `scaleWord`.
-- `lib/specimen-copy.ts` (NEW) — `getSpecimenCopy({display,text,brief})`, a plain
-  `@anthropic-ai/sdk` forced-tool Sonnet call (mirrors `lib/propose.ts`) returning
-  `SpecimenCopy { contextHeadline, contextStandfirst, contextBody[], scaleWord }`.
-  Emoji/symbol-banned. **Never throws** — `fallbackCopy(display,text)` gives generic
-  lorem on any failure (so a $0 path exists).
-- `lib/generate.ts` — `runGeneration` rewritten: `findFamily → getSpecimenCopy →
-  renderSpecimen → writeFile`. **Agent SDK dropped.** Removed `appRoot` from
-  `GenerateOptions` (and from the `lib/jobs.ts` call). `paletteMood` kept on the
-  interface but unused.
-- `lib/types.ts` — added `SpecimenCopy`.
-- `SKILL.md`/`palettes.md` are now **reference-only** (generation no longer reads
-  them or loads the skill).
+## Key decisions
 
-**GOTCHA fixed this session:** never put a `{{PLACEHOLDER}}` inside the `<style>`
-block's CSS comments — substituting a value containing `</style>` there prematurely
-closes the stylesheet. There's a render test guarding `<style>`/`</style>` balance.
+- **Graze-and-gather over pairing-first.** Pairing is not an upfront assumption.
+  Favoriting (single fonts AND pairings) is the core verb; a Favorites view is the
+  collection. Confirmed via AskUserQuestion: full strip of Explorer, fonts+pairings
+  in one Favorites view, keep "Explorer" nav name.
+- **AI parked, not deleted.** Per-request AI is expensive and pairing/specimen are
+  largely deterministic/solved — keep code intact, revisit as a JSON catalog.
+- Favorites are local-only (localStorage), no backend. Store full FontFamily /
+  Pairing objects so Favorites view renders without refetching.
+- Single fixed default specimen copy (`DEFAULT_VOICE`) for all cards, overridable
+  via the voice panel — emphasizes that many fonts work alone.
 
-## Other changes this session (all also done)
+## Outstanding work / next steps
 
-- **Palette/theme system** (earlier in session): `lib/palette.ts` (+test) — `Palette`
-  type (re-exported from types), `DEFAULT_PALETTE`, localStorage CRUD (key
-  `type-explorer:palette`), `hexToHsl`/`deriveTokens`/`derivePaletteCss`/
-  `swatchColors`. `lib/specimen-control.ts` — `SpecimenControl`, `specimenSrc`,
-  `postControl`, `useSpecimenControl`. Specimens are sandboxed iframes driven by
-  `?theme=`/`?pal=` URL params (first paint) + `postMessage` (live). `SettingsPanel`
-  (3 color pickers + swatch preview), `mode/palette/paletteEnabled/gridMode` state in
-  `app/explorer.tsx`, header grid + settings icons. Default mode **light**, custom
-  palette **ON**.
-- **Card grid is lightweight** (`app/components/SpecimenCard.tsx`): NO iframe — a
-  display-font headline + lorem paragraph colored from `swatchColors(palette,mode)`;
-  body uses `c.mutedForeground` (NOT `c.muted`, which is a near-background fill — that
-  was a contrast bug, fixed). `GridView.tsx` keeps the Display/Text… no, keeps the
-  light/dark `ModeToggle` + expand-to-full-`SpecimenViewer`.
-- **Emoji guard** in `lib/propose.ts` (proposal copy) and `lib/specimen-copy.ts`.
-- **Brief log fix** (`BriefView.tsx`): `generate()` sets `autoFocused.current = true`
-  so starting the first job in an empty library no longer auto-opens the log; it just
-  flips the card to "View progress".
-
-## Library / data state
-
-`data/` was reset and re-seeded with the **4 re-rendered lean seeds**
-(`seed/specimens/*.html`, regenerated via the new renderer with per-pairing palettes
-+ canned copy, $0). `data/index.json` + the 4 slug-named HTML files are present and
-served. `seedIfEmpty` (`lib/store.ts`) re-copies seeds only when `data/index.json` is
-absent (cached per process → needs a server restart to re-trigger; not needed now
-since data is populated).
-
-## Outstanding / next steps
-
-- **Restart the dev server** when convenient so it loads the new `generate.ts` for new
-  generations (in-memory job registry + seedChecked persist across HMR).
-- The **copy call** (`getSpecimenCopy`) wasn't exercised live yet — generate one from
-  Brief to confirm the Sonnet copy looks good (render half is fully verified via the
-  seeds).
-- `costUsd` is no longer reported for generations (Sonnet call cost not computed) —
-  fine, UI tolerates undefined; add token→USD estimate later if wanted.
-- Stray untracked `pnpm-lock.yaml` may still want deleting (project uses npm).
-- **Nothing committed** — all work sits uncommitted on `2e3d7f9`.
+- Not built (intentionally parked): the deterministic JSON pairing catalog + a
+  "Pair this" affordance on specimen cards; reviving Brief/Library if ever wanted.
+- Parked components still typecheck/build but are unmounted — safe to delete later
+  if the deterministic path is chosen instead of reviving them.
+- Optional: "Source Sans Pro" → "Source Sans 3" stale name in suggested-pairings JSON.
 
 ## Git state
 
-Branch `main`, last commit `2e3d7f9 initial commit`, no remote. Modified: SKILL.md,
-template.html, app/api/jobs/route.ts, BriefView/LibraryView/SpecimenViewer/explorer,
-lib/{generate,jobs,propose,types}.ts, the 4 seed HTMLs. New (untracked):
-GridView/SettingsPanel/SpecimenCard.tsx, lib/{palette,palette.test,specimen-control,
-specimen-copy,specimen-render,specimen-render.test}.ts. All uncommitted.
-
-Last files edited: `.claude/skills/type-specimen/template.html`,
-`lib/specimen-render.ts`, `lib/specimen-copy.ts`, `lib/generate.ts`,
-`seed/specimens/*.html`.
+Branch **main**. Everything uncommitted. Tracked-modified: app/api/fonts/route.ts,
+app/components/BrowseView.tsx, app/explorer.tsx, app/layout.tsx, app/page.tsx,
+lib/types.ts, continue.md. Many untracked new files/dirs (FavoriteButton,
+FavoritesView, FontSpecimenCard, GlobalNav, PairingCard, SuggestedPairings,
+app/explorer/, app/favorites/, content/, docs/, ideas/, lib/card-themes.ts,
+lib/favorites.ts, lib/mindful-palettes.ts, lib/specimen-samples.ts, scripts/).
+Production build passes clean (routes include /, /explorer, /favorites). No commits
+made this session — user has not asked to commit.

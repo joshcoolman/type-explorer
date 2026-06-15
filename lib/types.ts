@@ -29,6 +29,19 @@ export interface Catalog {
 }
 
 /**
+ * A curated display + text pairing shown on the home page. Sourced from
+ * `content/suggested-pairings.json`. `monovoice` marks a same-family "pairing"
+ * (one font carrying both roles).
+ */
+export interface Pairing {
+  id: string;
+  label: string;
+  heading: string;
+  body: string;
+  monovoice: boolean;
+}
+
+/**
  * The user-controlled specimen palette: three source colours. Lives here (not in
  * the client-only `lib/palette.ts`) so server code — the generation prompt — can
  * import the type. Derivation of the other tokens stays in `lib/palette.ts`.
