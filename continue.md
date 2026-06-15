@@ -11,7 +11,7 @@ intact in the repo (documented as parked). House rules: never run `npm run dev`
 (user runs server on :3000); always confirm a production `npm run build` passes;
 no emoji in code/UI.
 
-## Changes made so far (all uncommitted)
+## Changes made so far (committed — see Git state)
 
 Earlier in session (single-font specimen cards + icon filter):
 - **`app/components/FontSpecimenCard.tsx`** (new) — single-font specimen card:
@@ -87,11 +87,8 @@ This session (favorites + strip pairing/AI from UX):
 
 ## Git state
 
-Branch **main**. Everything uncommitted. Tracked-modified: app/api/fonts/route.ts,
-app/components/BrowseView.tsx, app/explorer.tsx, app/layout.tsx, app/page.tsx,
-lib/types.ts, continue.md. Many untracked new files/dirs (FavoriteButton,
-FavoritesView, FontSpecimenCard, GlobalNav, PairingCard, SuggestedPairings,
-app/explorer/, app/favorites/, content/, docs/, ideas/, lib/card-themes.ts,
-lib/favorites.ts, lib/mindful-palettes.ts, lib/specimen-samples.ts, scripts/).
-Production build passes clean (routes include /, /explorer, /favorites). No commits
-made this session — user has not asked to commit.
+Branch **main**, clean and pushed (up to date with `origin/main`). All of the
+above shipped in commit **`0a61ba2`** "Refocus app on graze-and-gather; park
+pairing + AI generation". Production build passes clean (routes: /, /explorer,
+/favorites). Nothing outstanding to commit; the next session starts from a clean
+tree.
