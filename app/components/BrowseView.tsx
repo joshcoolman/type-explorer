@@ -8,6 +8,7 @@ import {
   toggleFontFavorite,
 } from "@/lib/favorites";
 import FontSpecimenCard, { type VoiceCopy } from "./FontSpecimenCard";
+import { Button, Grid, Input, Textarea, Panel, Label } from "./ui";
 
 type SortKey = "popularity" | "trending" | "date" | "alpha";
 
@@ -130,48 +131,51 @@ export default function BrowseView() {
     <div className="flex h-full flex-col">
       {/* Controls */}
       <div className="flex flex-wrap items-center gap-3 border-b border-border px-6 py-4">
-        <input
+        <Input
           value={q}
           onChange={(e) => setQ(e.target.value)}
           placeholder="Search fonts"
-          className="w-56 rounded border border-border bg-panel px-3 py-1.5 text-sm text-text outline-none placeholder:text-muted focus:border-accent"
+          className="w-56 border-border bg-panel text-text placeholder:text-muted focus:border-accent"
         />
         <div className="flex flex-wrap gap-1">
           {CATEGORIES.map((c) => (
-            <button
+            <Button
               key={c.key}
+              size="sm"
               onClick={() => setCategory(c.key)}
-              className={`rounded px-2.5 py-1 text-xs font-medium transition-colors ${
+              className={
                 category === c.key
                   ? "bg-accent text-bg"
                   : "bg-panel text-muted hover:text-text"
-              }`}
+              }
             >
               {c.label}
-            </button>
+            </Button>
           ))}
         </div>
         <div className="ml-auto flex items-center gap-1">
           {SORTS.map((s) => (
-            <button
+            <Button
               key={s.key}
+              size="sm"
               onClick={() => setSort(s.key)}
-              className={`rounded px-2.5 py-1 text-xs font-medium transition-colors ${
+              className={
                 sort === s.key
                   ? "bg-panel-2 text-text"
                   : "text-muted hover:text-text"
-              }`}
+              }
             >
               {s.label}
-            </button>
+            </Button>
           ))}
-          <button
+          <Button
             type="button"
+            size="icon-sm"
             aria-label="Edit typographic voice"
             aria-pressed={showVoice}
             onClick={() => setShowVoice((v) => !v)}
             title="Typographic voice"
-            className={`ml-1 flex h-8 w-8 items-center justify-center rounded border transition-colors ${
+            className={`ml-1 border ${
               showVoice
                 ? "border-accent text-accent"
                 : voiceActive
@@ -180,18 +184,22 @@ export default function BrowseView() {
             }`}
           >
             <GearIcon />
-          </button>
+          </Button>
         </div>
       </div>
 
       {/* Grid */}
       <div className="flex-1 overflow-y-auto px-6 py-5">
         {showVoice && (
-          <section className="mb-6 rounded-xl border border-border bg-panel p-5">
+          <Panel
+            radius="card"
+            as="section"
+            className="mb-6 border-border bg-panel"
+          >
             <div className="mb-3 flex items-center justify-between">
-              <h2 className="font-mono text-xs uppercase tracking-[0.18em] text-accent">
+              <Label as="h2" className="text-accent">
                 Typographic voice
-              </h2>
+              </Label>
               <button
                 type="button"
                 onClick={() => updateVoice(EMPTY_VOICE)}
@@ -227,15 +235,15 @@ export default function BrowseView() {
                 multiline
               />
             </div>
-          </section>
+          </Panel>
         )}
 
         {error && (
-          <div className="mb-4 rounded border border-bad/40 bg-bad/10 px-4 py-3 text-sm text-bad">
+          <div className="mb-4 rounded-card border border-bad/40 bg-bad/10 px-4 py-3 text-sm text-bad">
             {error}
           </div>
         )}
-        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 lg:gap-6 xl:grid-cols-4">
+        <Grid>
           {families.map((f, i) => (
             <FontSpecimenCard
               key={f.family}
@@ -246,7 +254,7 @@ export default function BrowseView() {
               onToggleFavorite={() => toggleFontFavorite(f)}
             />
           ))}
-        </div>
+        </Grid>
 
         {!loading && families.length === 0 && (
           <p className="py-12 text-center text-sm text-muted">
@@ -256,13 +264,13 @@ export default function BrowseView() {
 
         {canLoadMore && (
           <div className="mt-6 flex justify-center">
-            <button
+            <Button
               onClick={() => fetchPage(offset + PAGE, false)}
               disabled={loading}
-              className="rounded border border-border bg-panel px-4 py-2 text-sm text-text hover:border-muted disabled:opacity-50"
+              className="border border-border bg-panel text-text hover:border-muted"
             >
               {loading ? "Loading…" : `Load more (${families.length} of ${total})`}
-            </button>
+            </Button>
           </div>
         )}
       </div>
@@ -283,26 +291,26 @@ function Field({
   onChange: (v: string) => void;
   multiline?: boolean;
 }) {
+  const color =
+    "border-border bg-bg text-text placeholder:text-muted focus:border-accent";
   return (
     <label className="flex flex-col gap-2">
-      <span className="font-mono text-[11px] uppercase tracking-[0.14em] text-muted">
-        {label}
-      </span>
+      <Label className="text-muted">{label}</Label>
       {multiline ? (
-        <textarea
+        <Textarea
           value={value}
           placeholder={placeholder}
           rows={3}
           onChange={(e) => onChange(e.target.value)}
-          className="resize-y rounded-lg border border-border bg-bg px-3 py-2 text-sm text-text outline-none transition-colors placeholder:text-muted focus:border-accent"
+          className={color}
         />
       ) : (
-        <input
+        <Input
           type="text"
           value={value}
           placeholder={placeholder}
           onChange={(e) => onChange(e.target.value)}
-          className="rounded-lg border border-border bg-bg px-3 py-2 text-sm text-text outline-none transition-colors placeholder:text-muted focus:border-accent"
+          className={color}
         />
       )}
     </label>

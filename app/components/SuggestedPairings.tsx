@@ -9,6 +9,8 @@ import {
   togglePairingFavorite,
 } from "../../lib/favorites";
 import PairingCard from "./PairingCard";
+import { Button, Container, Grid, Input, Panel, Label } from "./ui";
+import { typeRole } from "./ui";
 
 interface CardCopy {
   title: string;
@@ -61,18 +63,11 @@ export default function SuggestedPairings({ pairings }: { pairings: Pairing[] })
 
   return (
     <main className="min-h-screen" style={{ background: UI.bg, color: UI.fg }}>
-      <div className="mx-auto max-w-[1400px] px-5 py-12 sm:px-8 sm:py-16">
+      <Container className="py-12 sm:py-16">
         <header className="mb-10 flex flex-wrap items-end justify-between gap-4">
           <div>
-            <div
-              className="font-mono text-xs uppercase tracking-[0.2em]"
-              style={{ color: UI.accent }}
-            >
-              Type Explorer
-            </div>
-            <h1 className="mt-2 text-4xl font-semibold sm:text-5xl">
-              Suggested Pairings
-            </h1>
+            <Label style={{ color: UI.accent }}>Type Explorer</Label>
+            <h1 className={`mt-2 ${typeRole.display}`}>Suggested Pairings</h1>
             <p
               className="mt-3 max-w-xl text-sm leading-relaxed"
               style={{ color: UI.muted }}
@@ -82,12 +77,14 @@ export default function SuggestedPairings({ pairings }: { pairings: Pairing[] })
             </p>
           </div>
 
-          <button
+          <Button
             type="button"
+            size="icon"
+            shape="pill"
             aria-label="Edit card copy"
             aria-pressed={showSettings}
             onClick={() => setShowSettings((s) => !s)}
-            className="flex h-10 w-10 items-center justify-center rounded-full border transition-colors"
+            className="border"
             style={{
               borderColor: UI.border,
               color: overridesActive ? UI.accent : UI.fg,
@@ -95,18 +92,19 @@ export default function SuggestedPairings({ pairings }: { pairings: Pairing[] })
             }}
           >
             <GearIcon />
-          </button>
+          </Button>
         </header>
 
         {showSettings && (
-          <section
-            className="mb-10 rounded-2xl border p-6 sm:p-8"
+          <Panel
+            as="section"
+            className="mb-10"
             style={{ borderColor: UI.border, background: UI.surface }}
           >
             <div className="mb-4 flex items-center justify-between">
-              <h2 className="font-mono text-xs uppercase tracking-[0.18em]" style={{ color: UI.accent }}>
+              <Label as="h2" style={{ color: UI.accent }}>
                 Card copy
-              </h2>
+              </Label>
               <button
                 type="button"
                 onClick={() => updateCopy({ title: "", subtitle: "" })}
@@ -136,10 +134,10 @@ export default function SuggestedPairings({ pairings }: { pairings: Pairing[] })
                 onChange={(v) => updateCopy({ ...copy, subtitle: v })}
               />
             </div>
-          </section>
+          </Panel>
         )}
 
-        <div className="grid grid-cols-2 gap-5 lg:grid-cols-3 lg:gap-6 xl:grid-cols-4">
+        <Grid dense>
           {pairings.map((p, i) => (
             <PairingCard
               key={p.id}
@@ -153,8 +151,8 @@ export default function SuggestedPairings({ pairings }: { pairings: Pairing[] })
               onToggleFavorite={() => togglePairingFavorite(p)}
             />
           ))}
-        </div>
-      </div>
+        </Grid>
+      </Container>
     </main>
   );
 }
@@ -172,18 +170,13 @@ function Field({
 }) {
   return (
     <label className="flex flex-col gap-2">
-      <span
-        className="font-mono text-[11px] uppercase tracking-[0.14em]"
-        style={{ color: UI.muted }}
-      >
-        {label}
-      </span>
-      <input
+      <Label style={{ color: UI.muted }}>{label}</Label>
+      <Input
         type="text"
         value={value}
         placeholder={placeholder}
         onChange={(e) => onChange(e.target.value)}
-        className="rounded-lg border px-3 py-2 text-sm outline-none transition-colors focus:ring-2"
+        className="focus:ring-2"
         style={{ borderColor: UI.border, background: UI.bg, color: UI.fg }}
       />
     </label>

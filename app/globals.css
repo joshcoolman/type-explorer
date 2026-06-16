@@ -26,6 +26,12 @@
   --color-bad: var(--bad);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+
+  /* Shape — radius scale (adapted from Material 3, trimmed to what the app uses).
+     Drives utilities: rounded-control / rounded-card / rounded-surface. */
+  --radius-control: 8px; /* buttons, inputs, chips, small toggles */
+  --radius-card: 12px; /* cards, tiles, panels */
+  --radius-surface: 16px; /* large pairing cards, modals, settings sheets */
 }
 
 html,
