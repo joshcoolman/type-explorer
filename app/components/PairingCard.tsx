@@ -15,6 +15,8 @@ interface PairingCardProps {
   titleOverride?: string;
   /** Global subtitle override — when non-empty, every card shows this. */
   subtitleOverride?: string;
+  /** Optional short rationale shown beside the label (suggested pairings). */
+  note?: string;
   favorited?: boolean;
   onToggleFavorite?: () => void;
 }
@@ -26,6 +28,7 @@ export default function PairingCard({
   index,
   titleOverride,
   subtitleOverride,
+  note,
   favorited = false,
   onToggleFavorite,
 }: PairingCardProps) {
@@ -71,10 +74,15 @@ export default function PairingCard({
       </p>
 
       <div
-        className="mt-auto pt-8 font-mono text-[11px] uppercase tracking-[0.16em]"
+        className="mt-auto flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1 pt-8 font-mono text-[11px] uppercase tracking-[0.16em]"
         style={{ color: theme.accent }}
       >
-        {label}
+        <span>{label}</span>
+        {note && (
+          <span className="normal-case tracking-normal" style={{ color: theme.muted }}>
+            {note}
+          </span>
+        )}
       </div>
     </article>
   );

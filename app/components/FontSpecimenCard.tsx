@@ -27,6 +27,10 @@ interface FontSpecimenCardProps {
   voice: VoiceCopy;
   favorited?: boolean;
   onToggleFavorite?: () => void;
+  /** Whether the pairing library has suggestions for this font. */
+  hasPairings?: boolean;
+  /** Open the suggested-pairings overlay for this font. */
+  onShowPairings?: () => void;
 }
 
 export default function FontSpecimenCard({
@@ -35,6 +39,8 @@ export default function FontSpecimenCard({
   voice,
   favorited = false,
   onToggleFavorite,
+  hasPairings = false,
+  onShowPairings,
 }: FontSpecimenCardProps) {
   const ref = useRef<HTMLDivElement>(null);
   const [inView, setInView] = useState(false);
@@ -90,6 +96,19 @@ export default function FontSpecimenCard({
         </div>
       )}
 
+      {hasPairings && onShowPairings && (
+        <button
+          type="button"
+          aria-label={`Show pairings for ${family.family}`}
+          onClick={onShowPairings}
+          title="Suggest pairings"
+          className="absolute left-4 top-4 flex h-9 w-9 items-center justify-center rounded-full transition-transform hover:scale-110"
+          style={{ color: theme.muted }}
+        >
+          <SparkIcon />
+        </button>
+      )}
+
       <h2
         className="pr-10 text-3xl leading-[1.05] sm:text-4xl"
         style={{ fontFamily: family_, fontWeight: 700 }}
@@ -118,5 +137,21 @@ export default function FontSpecimenCard({
         {family.family}
       </div>
     </article>
+  );
+}
+
+/** A small sparkle/wand mark for the "suggest pairings" action. */
+function SparkIcon() {
+  return (
+    <svg
+      width="18"
+      height="18"
+      viewBox="0 0 24 24"
+      fill="currentColor"
+      aria-hidden="true"
+    >
+      <path d="M12 2l1.6 4.8a4 4 0 0 0 2.6 2.6L21 11l-4.8 1.6a4 4 0 0 0-2.6 2.6L12 20l-1.6-4.8a4 4 0 0 0-2.6-2.6L3 11l4.8-1.6a4 4 0 0 0 2.6-2.6L12 2z" />
+      <path d="M19 14l.7 2.1a2 2 0 0 0 1.2 1.2L23 18l-2.1.7a2 2 0 0 0-1.2 1.2L19 22l-.7-2.1a2 2 0 0 0-1.2-1.2L15 18l2.1-.7a2 2 0 0 0 1.2-1.2L19 14z" />
+    </svg>
   );
 }

@@ -2,93 +2,77 @@
 
 ## What was being worked on
 
-Refocusing **type-explorer** (Next.js 16 App Router, React 19, Tailwind v4, TS)
-around a **graze-and-gather** model: browse fonts/pairings, collect with a heart,
-view your collection. Three surfaces now: **Home** (curated pairings), **Explorer**
-(single-font specimen catalog over the full Google Fonts library), **Favorites**.
-Pairing-as-workflow and AI specimen generation were pulled OUT of the UX but left
-intact in the repo (documented as parked). House rules: never run `npm run dev`
-(user runs server on :3000); always confirm a production `npm run build` passes;
-no emoji in code/UI.
+Built a **magic-icon font-pairing feature** for the Explorer, backed by an
+offline-generated static pairing library. A sparkle icon on each font card opens a
+modal of suggested pairings (with rationale), favoritable into `/favorites`. The
+algorithmic engine went through two iterations and landed on **Google Fonts'
+hand-curated semantic tags** (`capability=FAMILY_TAGS`), not fontjoy CNN vectors.
 
-## Changes made so far (committed — see Git state)
+## Changes made so far (uncommitted)
 
-Earlier in session (single-font specimen cards + icon filter):
-- **`app/components/FontSpecimenCard.tsx`** (new) — single-font specimen card:
-  bold (700) header, regular (400) subtitle + running paragraph, all in the same
-  family, mono font-name label at bottom. Alternating light/dark fields via
-  `themeForIndex`. Lazy-loads its font on scroll (IntersectionObserver +
-  `loadPreviewFont(family,[400,700])`). Exports `DEFAULT_VOICE` (the fixed default
-  copy: "Letters That Carry the Weight" / subtitle / paragraph) used as fallback
-  for every blank voice field. Props now also: `favorited?`, `onToggleFavorite?`.
-- **`app/components/BrowseView.tsx`** — restyled Explorer Browse: kept the data
-  layer (debounced search, CATEGORIES, SORTS, `/api/fonts` paging, Load more),
-  swapped FontCard grid → FontSpecimenCard grid, dropped selection/generate.
-  Added a gear "Typographic voice" panel (Title/Subtitle/Paragraph, textarea for
-  paragraph) persisted to localStorage `type-explorer:voice`. Wires favorites.
-- **`lib/specimen-samples.ts`** — added `body` to `SampleCopy` + 8 samples (home
-  PairingCard ignores it; single source preserved).
-- **`app/api/fonts/route.ts`** — added `isIconFont` predicate
-  (`/\b(icons?|symbols?|emoji)\b/i`) filtering icon/symbol/emoji families from the
-  browse listing (display-only; catalog/generation still see them). Verified: 13
-  matches, zero false positives, 1932 families served.
+**Data foundation (offline):**
+- `scripts/build-pairing-library.mjs` — generates `content/pairing-library.json`.
+  Merges two sources per source-font: (1) **curated** pairs parsed from
+  `app/raw-font-dump/{serif,sans-serif}.md` (193 pairs; 17 non-Google/Fontshare
+  fonts dropped + logged; Source Sans Pro→3 rename), and (2) **algorithmic**
+  suggestions from Google Fonts tags.
+- Tag acquisition: reads `GOOGLE_FONTS_API_KEY` from `.env.local`, fetches
+  `capability=FAMILY_TAGS`, caches to `content/font-tags.json` (1,945 fonts; delete
+  to refresh). Self-contained — no `~/repos/fontjoy` dependency.
+- Scorer: genre contrast (dominant) + body-utility (variants have regular+bold) +
+  `W_MOOD=0.5`×cosine of the 20-dim `/Expressive` mood vector + `W_POP=0.3`
+  popularity prior. `eligiblePartner()` excludes handwriting/`/Script`/decorative
+  `/Theme` faces. `TOP_K=6`. Tuned against curated dumps (median rank ~282/1945,
+  65% in top quartile, 381 samples).
+- Per-suggestion `why` string from real features, e.g. "Both competent;
+  Transitional serif × humanist sans". Shared tone picked via IDF so it favors
+  characterful tags (calm/competent) over ubiquitous ones (business/rugged).
 
-This session (favorites + strip pairing/AI from UX):
-- **`lib/types.ts`** — added `Pairing` interface (moved out of SuggestedPairings).
-- **`lib/favorites.ts`** (new) — localStorage store key `type-explorer:favorites`
-  `{ fonts: FontFamily[], pairings: Pairing[] }`. Exports `useFavorites()`
-  (useSyncExternalStore, cross-tab via storage event), `isFontFavorite`,
-  `isPairingFavorite`, `toggleFontFavorite`, `togglePairingFavorite`.
-- **`app/components/FavoriteButton.tsx`** (new) — heart toggle (outline→filled),
-  takes `active`, `onToggle`, `color`, `activeColor`, `label`. NO "use client"
-  directive on purpose (only imported by client components; avoids the Next 16
-  serializable-props entry-boundary warning).
-- **`app/components/PairingCard.tsx`** — added `favorited?`/`onToggleFavorite?`,
-  heart at top-right (theme.muted outline, theme.accent fill), `pr-10` on h2.
-- **`app/components/SuggestedPairings.tsx`** — imports Pairing from lib/types now;
-  calls `useFavorites()`, passes favorited + togglePairingFavorite to each card.
-- **`app/components/FavoritesView.tsx`** (new) + **`app/favorites/page.tsx`** (new)
-  — `/favorites` route. PAGE_THEME chrome like Home. Two sections, "Pairings N"
-  and "Fonts N", each card favoritable (filled heart; toggling removes reactively).
-  Font cards render with `DEFAULT_VOICE`. Empty state when nothing collected.
-- **`app/components/GlobalNav.tsx`** — added `{ href:"/favorites", label:"Favorites" }`.
-  Nav is Home / Explorer / Favorites (kept "Explorer" name per decision).
-- **`app/explorer.tsx`** — STRIPPED from the big tabbed component to a slim shell:
-  `h-screen` flex col, a header bar, and `<BrowseView />`. Removed Brief/Library
-  tabs, LibrarySidebar, GridView card-view toggle, SettingsPanel, all generation
-  state/handlers.
-- **`docs/parked-pairing-and-ai.md`** (new) — documents what's parked (BriefView,
-  LibraryView, LibrarySidebar, GridView, SettingsPanel, SpecimenViewer,
-  ProgressPanel, FontCard; lib generate/propose/jobs/store/specimen-*/palette;
-  api jobs/specimens/proposals) and the **deterministic revisit path**: build a
-  researched JSON pairing catalog (roles: header/subhead/body), render specimens
-  deterministically, reserve AI for offline batch / "surprise me".
+**App wiring:**
+- `lib/pairing-library.ts` — lazy-loads the JSON (kept out of main bundle);
+  `groupedPairingsFor()` returns `{curated, suggested}` as `LibraryPairing[]`
+  (Pairing + optional `why`). `SuggestedPartner` gained `why?`.
+- `app/components/SuggestedPairingsModal.tsx` (new) — overlay; "Curated" section
+  then "More pairings"; renders each suggestion via existing `PairingCard`, passing
+  `why` as `note`. Esc/backdrop close, scroll lock.
+- `app/components/FontSpecimenCard.tsx` — sparkle icon (top-left), shown only when
+  `hasPairings`; new props `hasPairings`, `onShowPairings`.
+- `app/components/BrowseView.tsx` — loads library on mount, passes
+  `hasPairings`/`onShowPairings` to cards, renders the modal for `pairingFor`.
+- `app/components/PairingCard.tsx` — new optional `note?` prop, rendered muted
+  beside the mono label.
+- Favoriting reuses existing `FavoriteButton`/`lib/favorites.ts` → flows to
+  `/favorites` with zero new persistence.
 
 ## Key decisions
 
-- **Graze-and-gather over pairing-first.** Pairing is not an upfront assumption.
-  Favoriting (single fonts AND pairings) is the core verb; a Favorites view is the
-  collection. Confirmed via AskUserQuestion: full strip of Explorer, fonts+pairings
-  in one Favorites view, keep "Explorer" nav name.
-- **AI parked, not deleted.** Per-request AI is expensive and pairing/specimen are
-  largely deterministic/solved — keep code intact, revisit as a JSON catalog.
-- Favorites are local-only (localStorage), no backend. Store full FontFamily /
-  Pairing objects so Favorites view renders without refetching.
-- Single fixed default specimen copy (`DEFAULT_VOICE`) for all cards, overridable
-  via the voice panel — emphasizes that many fonts work alone.
+- **Engine: Google Fonts FAMILY_TAGS, fontjoy retired.** fontjoy CNN was opaque,
+  weak (median ~213), and only covered 773/1,945 fonts. Tags cover 1,929/1,945, are
+  interpretable, and enable the per-pairing "why". See memory `pairing-engine.md`.
+- **Curated is the top tier**, algorithmic fills below it. Curated convergence
+  (many serifs → same sans) is treated as correct, not a bug.
+- **Genre contrast is the dominant real signal**; mood adds differentiation + the
+  honest rationale; popularity keeps suggestions to usable faces.
+- The validation-against-curated harness lives inside the build script and must be
+  kept (gate any scorer change on it).
 
 ## Outstanding work / next steps
 
-- Not built (intentionally parked): the deterministic JSON pairing catalog + a
-  "Pair this" affordance on specimen cards; reviving Brief/Library if ever wanted.
-- Parked components still typecheck/build but are unmounted — safe to delete later
-  if the deterministic path is chosen instead of reviving them.
-- Optional: "Source Sans Pro" → "Source Sans 3" stale name in suggested-pairings JSON.
+- **Phase 2 (deferred):** opentype.js geometric metrics (x-height match, width/
+  condensation, stroke contrast) parsed from TTFs, to refine ranking + add spatial
+  reasoning to the "why". Adds a dep + a TTF-fetch job.
+- Browser verification not yet done by Claude (user runs the dev server): on
+  `/explorer`, click sparkle on a covered font → suggestions render with rationale;
+  favorite one → appears in `/favorites`; sparkle absent on uncovered fonts.
+- Optional: promote tags into `lib/catalog.ts` (`FontFamily.tags`) as first-class
+  catalog data; not needed since `why` is precomputed.
+- `content/pairing-library.json` is ~1.7MB (lazy-loaded). Fine for now.
 
 ## Git state
 
-Branch **main**, clean and pushed (up to date with `origin/main`). All of the
-above shipped in commit **`0a61ba2`** "Refocus app on graze-and-gather; park
-pairing + AI generation". Production build passes clean (routes: /, /explorer,
-/favorites). Nothing outstanding to commit; the next session starts from a clean
-tree.
+Branch **main**. Everything from this session is **uncommitted**. Modified:
+`BrowseView.tsx`, `FontSpecimenCard.tsx`, `PairingCard.tsx`, `continue.md`.
+Untracked: `app/components/SuggestedPairingsModal.tsx`, `lib/pairing-library.ts`,
+`scripts/build-pairing-library.mjs`, `content/{pairing-library,font-tags}.json`,
+`app/raw-font-dump/`. Production `npm run build` passes clean (routes /, /explorer,
+/favorites). Last commit: `5b43370` (design-system foundation).

@@ -7,7 +7,12 @@ import {
   isFontFavorite,
   toggleFontFavorite,
 } from "@/lib/favorites";
+import {
+  loadPairingLibrary,
+  type PairingLibrary,
+} from "@/lib/pairing-library";
 import FontSpecimenCard, { type VoiceCopy } from "./FontSpecimenCard";
+import SuggestedPairingsModal from "./SuggestedPairingsModal";
 import { Button, Grid, Input, Textarea, Panel, Label } from "./ui";
 
 type SortKey = "popularity" | "trending" | "date" | "alpha";
@@ -64,10 +69,19 @@ export default function BrowseView() {
   const [showVoice, setShowVoice] = useState(false);
   const [voice, setVoice] = useState<VoiceCopy>(EMPTY_VOICE);
 
+  // Pairing library (lazy-loaded) + which source font's pairings are open.
+  const [library, setLibrary] = useState<PairingLibrary | null>(null);
+  const [pairingFor, setPairingFor] = useState<string | null>(null);
+
   const favorites = useFavorites();
 
   // Hydrate persisted voice after mount (avoids SSR hydration mismatch).
   useEffect(() => setVoice(readVoice()), []);
+
+  // Pull in the pairing library once; the magic icon appears as it resolves.
+  useEffect(() => {
+    loadPairingLibrary().then(setLibrary).catch(() => setLibrary({}));
+  }, []);
 
   const updateVoice = useCallback((next: VoiceCopy) => {
     setVoice(next);
@@ -252,6 +266,8 @@ export default function BrowseView() {
               voice={voice}
               favorited={isFontFavorite(favorites, f.family)}
               onToggleFavorite={() => toggleFontFavorite(f)}
+              hasPairings={!!library?.[f.family]}
+              onShowPairings={() => setPairingFor(f.family)}
             />
           ))}
         </Grid>
@@ -274,6 +290,14 @@ export default function BrowseView() {
           </div>
         )}
       </div>
+
+      {pairingFor && library?.[pairingFor] && (
+        <SuggestedPairingsModal
+          source={pairingFor}
+          entry={library[pairingFor]}
+          onClose={() => setPairingFor(null)}
+        />
+      )}
     </div>
   );
 }
