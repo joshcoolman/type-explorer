@@ -1,6 +1,7 @@
 [
   {
     "date": "2026-06-16",
+    "commit": "52e9f0e",
     "title": "Unified page header, neutral palette, and a footer",
     "changes": [
       "Unified every view's header into one element — the title sits in the same place and style on Home, Explorer, Favorites, and Changelog; the eyebrow and descriptive sub-text were dropped for a cleaner read.",
@@ -22,6 +23,7 @@
   },
   {
     "date": "2026-06-16",
+    "commit": "6a66e3e",
     "title": "Global typographic voice, unified cards, and this changelog",
     "changes": [
       "Made the typographic voice global: one editor pop-up, opened from a gear at the right of the nav, now drives Explorer specimens, Home and favorite pairings alike — replacing the two separate editors that had drifted apart.",

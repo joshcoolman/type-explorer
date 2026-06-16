@@ -1,9 +1,22 @@
-import { themeForIndex } from "../../lib/card-themes";
+const REPO = "https://github.com/joshcoolman/type-explorer";
+
+/**
+ * One fixed green/cream treatment for every changelog card. The changelog is a
+ * technical page, so it skips the per-card color variety the specimen grid uses.
+ * (Mirrors CARD_THEMES[0].)
+ */
+const THEME = {
+  bg: "#40534C",
+  fg: "#F0E4D3",
+  muted: "#AEBAB0",
+};
 
 export interface ChangelogEntry {
   date: string;
   title: string;
   changes: string[];
+  /** Short hash of the commit this entry describes; shown as a GitHub link. */
+  commit?: string;
   /**
    * Key files this entry touched. Doubles as agent orientation — a map from
    * "what changed" to "where it lives" — and is rendered as a small reference
@@ -13,10 +26,9 @@ export interface ChangelogEntry {
 }
 
 /**
- * A full-width changelog entry in the app's card language — a per-index color
- * field with a big display title, the change list (numbered, rule-separated),
- * an optional key-files reference, and the date as the mono accent label. One
- * card per dated entry; carries no favorite / action controls.
+ * A full-width changelog entry — a fixed green field with the commit link on top,
+ * a big display title, the change list (numbered, rule-separated), and an
+ * optional key-files reference. One card per entry; no favorite / action controls.
  */
 export default function ChangelogCard({
   entry,
@@ -25,23 +37,33 @@ export default function ChangelogCard({
   entry: ChangelogEntry;
   index: number;
 }) {
-  const theme = themeForIndex(index);
-
   return (
     <article
       className="flex flex-col rounded-2xl p-8 sm:p-10"
-      style={{ background: theme.bg, color: theme.fg }}
+      style={{ background: THEME.bg, color: THEME.fg }}
     >
-      <time
-        dateTime={entry.date}
-        className="font-mono text-[11px] uppercase tracking-[0.16em]"
-        style={{ color: theme.muted }}
-      >
-        {formatDate(entry.date)}
-      </time>
+      {entry.commit ? (
+        <a
+          href={`${REPO}/commit/${entry.commit}`}
+          target="_blank"
+          rel="noreferrer"
+          className="w-fit font-mono text-[11px] tracking-[0.12em] underline-offset-4 transition-colors hover:underline"
+          style={{ color: THEME.muted }}
+        >
+          {entry.commit}
+        </a>
+      ) : (
+        <time
+          dateTime={entry.date}
+          className="font-mono text-[11px] uppercase tracking-[0.16em]"
+          style={{ color: THEME.muted }}
+        >
+          {formatDate(entry.date)}
+        </time>
+      )}
       <div
         className="mb-6 mt-3"
-        style={{ borderTop: `0.5px solid ${theme.muted}` }}
+        style={{ borderTop: `0.5px solid ${THEME.muted}` }}
       />
 
       <h2 className="text-3xl font-bold leading-[1.05] sm:text-4xl">
@@ -54,19 +76,17 @@ export default function ChangelogCard({
             key={i}
             className="flex gap-4 py-4 text-base leading-relaxed first:pt-0"
             style={
-              i > 0
-                ? { borderTop: `0.5px solid ${theme.muted}` }
-                : undefined
+              i > 0 ? { borderTop: `0.5px solid ${THEME.muted}` } : undefined
             }
           >
             <span
               aria-hidden="true"
               className="shrink-0 pt-1 font-mono text-xs tracking-wider tabular-nums"
-              style={{ color: theme.muted }}
+              style={{ color: THEME.muted }}
             >
               {index}.{i + 1}
             </span>
-            <span style={{ color: theme.fg }}>{change}</span>
+            <span style={{ color: THEME.fg }}>{change}</span>
           </li>
         ))}
       </ul>
@@ -75,7 +95,7 @@ export default function ChangelogCard({
         <div className="mt-8">
           <div
             className="mb-2 font-mono text-[11px] uppercase tracking-[0.16em]"
-            style={{ color: theme.muted }}
+            style={{ color: THEME.muted }}
           >
             Key files
           </div>
@@ -84,7 +104,7 @@ export default function ChangelogCard({
               <li
                 key={file}
                 className="font-mono text-xs leading-relaxed"
-                style={{ color: theme.muted }}
+                style={{ color: THEME.muted }}
               >
                 {file}
               </li>
