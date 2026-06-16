@@ -4,6 +4,8 @@ Browse Google Fonts as full-size specimens and discover display + text pairings 
 both hand-curated and algorithmically suggested. A calmer way to choose type than
 scrolling a wall of font names.
 
+**Live:** [type-explorer-pi.vercel.app](https://type-explorer-pi.vercel.app/)
+
 > **Status:** a personal project, shared publicly as a work sample. Not accepting
 > contributions — issues and pull requests may be closed without response. You're
 > welcome to fork it and make it your own (see [Licensing](#licensing)).
