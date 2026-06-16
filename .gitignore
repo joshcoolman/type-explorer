@@ -40,10 +40,8 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
-# type-explorer generated data
-/data/fonts.json
-/data/index.json
-/data/specimens/*.html
+# regenerable cache for scripts/build-pairing-library.mjs (Google Fonts tag dump)
+/content/font-tags.json
 
 # keep the env template tracked
 !.env.example

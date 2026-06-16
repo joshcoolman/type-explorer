@@ -76,6 +76,7 @@ export default function BrowseView() {
   const favorites = useFavorites();
 
   // Hydrate persisted voice after mount (avoids SSR hydration mismatch).
+  // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => setVoice(readVoice()), []);
 
   // Pull in the pairing library once; the magic icon appears as it resolves.
@@ -295,6 +296,7 @@ export default function BrowseView() {
         <SuggestedPairingsModal
           source={pairingFor}
           entry={library[pairingFor]}
+          voice={voice}
           onClose={() => setPairingFor(null)}
         />
       )}

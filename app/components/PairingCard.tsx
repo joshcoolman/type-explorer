@@ -24,7 +24,6 @@ interface PairingCardProps {
 export default function PairingCard({
   heading,
   body,
-  label,
   index,
   titleOverride,
   subtitleOverride,
@@ -73,16 +72,23 @@ export default function PairingCard({
         {subtitle}
       </p>
 
-      <div
-        className="mt-auto flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1 pt-8 font-mono text-[11px] uppercase tracking-[0.16em]"
-        style={{ color: theme.accent }}
-      >
-        <span>{label}</span>
-        {note && (
-          <span className="normal-case tracking-normal" style={{ color: theme.muted }}>
-            {note}
-          </span>
-        )}
+      <div className="mt-auto pt-12">
+        <div className="pt-4" style={{ borderTop: `0.5px solid ${theme.muted}` }}>
+          <div
+            className="flex min-h-[2.75em] flex-wrap items-baseline justify-between gap-x-3 gap-y-1 font-mono text-[10px] uppercase leading-snug tracking-[0.12em]"
+            style={{ color: theme.accent }}
+          >
+            <span className="flex min-w-0 flex-col">
+              <span className="truncate">{heading}</span>
+              <span className="truncate">&amp; {body}</span>
+            </span>
+            {note && (
+              <span className="normal-case tracking-normal" style={{ color: theme.muted }}>
+                {note}
+              </span>
+            )}
+          </div>
+        </div>
       </div>
     </article>
   );

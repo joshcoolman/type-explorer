@@ -16,7 +16,7 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Type Explorer",
   description:
-    "Discover Google Fonts, get pairing recommendations from a brief, and generate self-contained HTML type specimens.",
+    "Browse Google Fonts as full-size specimens and discover curated and algorithmic display + text pairings.",
 };
 
 export default function RootLayout({

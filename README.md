@@ -1,102 +1,100 @@
 # Type Explorer
 
-An agent-driven tool for discovering Google Fonts, getting pairing
-recommendations from a plain-English brief, and generating polished,
-self-contained HTML type specimens.
+Browse Google Fonts as full-size specimens and discover display + text pairings —
+both hand-curated and algorithmically suggested. A calmer way to choose type than
+scrolling a wall of font names.
 
-The core loop:
-
-> describe a need or browse the catalog → an agent proposes font pairings → pick
-> one → receive a magazine-grade, single-file specimen HTML you can open
-> anywhere, share, or drop into another repo as design direction.
-
-It is a **local-first personal tool** — run it with `npm run dev`, use your own
-API keys, nothing is deployed or shared.
+> **Status:** a personal project, shared publicly as a work sample. Not accepting
+> contributions — issues and pull requests may be closed without response. You're
+> welcome to fork it and make it your own (see [Licensing](#licensing)).
 
 ## What it does
 
-1. **Browse** the full Google Fonts catalog with live previews, category
-   filters, and popularity / trending / recently-updated sort.
-2. **Brief** — type what you need ("something fun and playful for a kids game
-   show") and get 2–4 pairings back, each with a rationale and a preview
-   rendered in the actual fonts. Proposals are a single cheap structured-output
-   call validated against the real catalog, so the model can't recommend a font
-   that doesn't exist.
-3. **Generate** a self-contained HTML specimen for a chosen pairing via a Claude
-   agent running locally with a vendored skill. Progress streams live; finished
-   specimens accumulate in a library and render in a sandboxed iframe.
+- **Home** — a gallery of ready-made display + text pairings: a less-common
+  "Suggested" set up top and the familiar "Popular" combinations grouped below.
+  Favorite any card.
+- **Explorer** — browse the full Google Fonts catalog as real specimens (title,
+  subtitle, and paragraph set in the actual font), with search, category filters,
+  and popularity / trending / recently-updated sort. Set a custom "typographic
+  voice" to judge every font against the same words. Hit **Get Pairings** on any
+  font to see curated and algorithmic partners in a modal.
+- **Favorites** — everything you've collected, fonts and pairings, in one place.
 
-A specimen is one `.html` file with ten sections (hero, colophon, weight ladder,
-variable-axis playground, optical-size demo, live tester, an editorial spread,
-body specimen, glyph grid, type scale), light/dark mode, and live interactive
-controls. It opens correctly straight from `file://` — fonts load from Google's
-CDN; nothing else is external. See
-[`examples/fraunces-libre-franklin-specimen.html`](examples/fraunces-libre-franklin-specimen.html)
-for a sample.
+Pairing suggestions are precomputed offline (see [Data & scripts](#data--scripts))
+from Google Fonts' own semantic tags plus a curated set — so the app ships with a
+rich pairing library and needs no AI or API keys at runtime.
 
-The repo also ships with four pre-built specimens under
-[`seed/`](seed/). On first run — when your Library is still empty — the app
-copies them into `data/` so you open to a populated Library without spending
-anything (it's a plain file copy; the agent never runs for these). Your own
-generations append alongside them.
-
-## Setup
-
-You need two API keys, both free to obtain:
-
-| Key | What for | Where |
-|---|---|---|
-| `ANTHROPIC_API_KEY` | Pairing proposals + specimen generation (billed) | [console.anthropic.com](https://console.anthropic.com/settings/keys) |
-| `GOOGLE_FONTS_API_KEY` | Fetching the font catalog (free, 10k req/day) | [Google Cloud console](https://console.cloud.google.com/apis/credentials) — enable the **Web Fonts Developer API**, then create an API key |
+## Run it
 
 ```bash
-cp .env.example .env.local   # then paste your two keys
-npm install
-npm run dev                  # http://localhost:3000
+pnpm install
+pnpm dev        # http://localhost:3000
 ```
 
-The catalog is fetched once and cached to `data/fonts.json` for 7 days (a
-"Refresh font catalog" button forces a refetch). All generated specimens and the
-catalog live under `data/`, which is gitignored.
+That's it — **no API keys or environment variables are required** to run or host
+the app. It reads static data committed to the repo (`data/fonts.json`,
+`content/pairing-library.json`, `content/suggested-pairings.json`).
 
-## Cost
+## Deploy
 
-- **Proposals** are a single Sonnet-class call — a fraction of a cent each.
-- **Specimen generation** is an Opus-class agent run; expect roughly
-  **$0.10–$0.40** per specimen depending on the pairing. The exact per-specimen
-  cost is shown in the library (taken from the SDK's result message), and the app
-  only runs the expensive step after you commit to a pairing.
+Zero-config on any Next.js host. On [Vercel](https://vercel.com), import the repo
+and deploy — no environment variables to set. The font catalog and pairing library
+are static files bundled into the build, so there are no runtime secrets or
+external API calls (fonts themselves load from the Google Fonts CDN in the
+browser).
+
+## Data & scripts
+
+The app reads three committed data files. Two are regenerated by offline scripts
+that talk to the Google Fonts API; you only run these to refresh the data, and
+they never run as part of the app or the deploy.
+
+| File | What it is | Refresh with |
+|---|---|---|
+| `data/fonts.json` | The font catalog (families, variable axes, popularity/trending order) | `pnpm catalog:refresh` |
+| `content/pairing-library.json` | Per-font curated + algorithmic pairings (the "Get Pairings" data) | `pnpm pairings:build` |
+| `content/suggested-pairings.json` | The home-page pairing gallery | hand-maintained |
+
+The two refresh scripts need a **free** Google Fonts Developer API key:
+
+```bash
+cp .env.example .env.local        # add GOOGLE_FONTS_API_KEY
+pnpm catalog:refresh              # rewrites data/fonts.json
+pnpm pairings:build               # rewrites content/pairing-library.json
+```
+
+Get a key by enabling the **Web Fonts Developer API** in a Google Cloud project
+and creating an API key. Commit the regenerated JSON when you're happy with it.
 
 ## How it works
 
-- **Next.js (App Router)** hosts the UI, the catalog API, the proposals call, and
-  the specimen-generation jobs with SSE progress streaming.
-- **Catalog layer** (`lib/catalog.ts`) is the ground truth: the Webfonts API
-  (popularity + variable-axis data + trending ranks) merged and cached. Every
-  read — browse, proposal validation, the generation prompt — goes through it, so
-  the agent always works from real font metadata.
-- **css2 URL construction** (`lib/css2-url.ts`) owns the fiddly axis-ordering
-  rules and is unit-tested; the agent is handed a finished URL rather than
-  building one.
-- **Two-tier agents**: proposals use the plain Anthropic SDK with a forced
-  tool-use schema; generation uses the Claude Agent SDK with a vendored
-  `.claude/skills/type-specimen/` skill (a hand-written `template.html` the agent
-  fills in — no build step).
-- **Anti-hallucination**: the real weights, italics, and variable axes for both
-  faces, plus the pre-built css2 URL, are injected into the generation prompt. The
-  axis playground reflects the font's actual capabilities — no fake sliders.
+- **Next.js (App Router)** with React 19 and Tailwind v4.
+- `lib/catalog.ts` reads the static `data/fonts.json`; `app/api/fonts` filters,
+  sorts, and paginates it for the Explorer.
+- `lib/pairing-library.ts` lazy-loads the pairing JSON so it stays out of the main
+  bundle.
+- `lib/css2-url.ts` builds the fiddly Google Fonts `css2` URLs (axis ordering
+  rules) and is unit-tested; `lib/font-loader.ts` injects the stylesheet on demand.
+- Favorites and the typographic-voice overrides persist in `localStorage` — no
+  backend, no accounts.
 
 ## Scripts
 
 ```bash
-npm run dev      # local dev server
-npm run build    # production build
-npm test         # unit tests (css2 URL construction)
-npm run lint     # eslint
+pnpm dev               # local dev server
+pnpm build             # production build
+pnpm start             # serve the production build
+pnpm test              # unit tests (css2 URL construction)
+pnpm lint              # eslint
+pnpm catalog:refresh   # regenerate data/fonts.json (needs GOOGLE_FONTS_API_KEY)
+pnpm pairings:build    # regenerate content/pairing-library.json
 ```
 
 ## Licensing
 
-All Google Fonts in the catalog are under the SIL Open Font License or Apache
-License. Specimens embed nothing — they reference the Google Fonts CDN — so
-sharing a generated specimen is licensing-clean.
+This project's code is released under the [MIT License](LICENSE) — fork it, modify
+it, build on it freely; just keep the copyright notice.
+
+Google Fonts are under the SIL Open Font License or Apache License. The app embeds
+no font files — it references the Google Fonts CDN — so the project and anything
+you build from it stays licensing-clean.

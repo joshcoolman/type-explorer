@@ -42,12 +42,19 @@ function readCopy(): CardCopy {
   }
 }
 
-export default function SuggestedPairings({ pairings }: { pairings: Pairing[] }) {
+export default function SuggestedPairings({
+  pairings,
+  popular = [],
+}: {
+  pairings: Pairing[];
+  popular?: Pairing[];
+}) {
   const [showSettings, setShowSettings] = useState(false);
   const [copy, setCopy] = useState<CardCopy>({ title: "", subtitle: "" });
   const favorites = useFavorites();
 
   // Load persisted overrides after mount (avoids SSR hydration mismatch).
+  // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => setCopy(readCopy()), []);
 
   function updateCopy(next: CardCopy) {
@@ -61,6 +68,20 @@ export default function SuggestedPairings({ pairings }: { pairings: Pairing[] })
 
   const overridesActive = !!(copy.title.trim() || copy.subtitle.trim());
 
+  const renderCard = (p: Pairing, i: number) => (
+    <PairingCard
+      key={p.id}
+      heading={p.heading}
+      body={p.body}
+      label={p.label}
+      index={i}
+      titleOverride={copy.title}
+      subtitleOverride={copy.subtitle}
+      favorited={isPairingFavorite(favorites, p.id)}
+      onToggleFavorite={() => togglePairingFavorite(p)}
+    />
+  );
+
   return (
     <main className="min-h-screen" style={{ background: UI.bg, color: UI.fg }}>
       <Container className="py-12 sm:py-16">
@@ -72,8 +93,8 @@ export default function SuggestedPairings({ pairings }: { pairings: Pairing[] })
               className="mt-3 max-w-xl text-sm leading-relaxed"
               style={{ color: UI.muted }}
             >
-              A gallery of ready-made display and text pairings. Start from one you
-              like instead of a blank search box.
+              Distinctive display and text pairings built from lesser-known Google
+              Fonts — for a fresher look.
             </p>
           </div>
 
@@ -137,21 +158,22 @@ export default function SuggestedPairings({ pairings }: { pairings: Pairing[] })
           </Panel>
         )}
 
-        <Grid dense>
-          {pairings.map((p, i) => (
-            <PairingCard
-              key={p.id}
-              heading={p.heading}
-              body={p.body}
-              label={p.label}
-              index={i}
-              titleOverride={copy.title}
-              subtitleOverride={copy.subtitle}
-              favorited={isPairingFavorite(favorites, p.id)}
-              onToggleFavorite={() => togglePairingFavorite(p)}
-            />
-          ))}
-        </Grid>
+        <Grid dense>{pairings.map((p, i) => renderCard(p, i))}</Grid>
+
+        {popular.length > 0 && (
+          <section className="mt-16">
+            <h2 className={typeRole.display}>Popular Pairings</h2>
+            <p
+              className="mb-6 mt-3 max-w-xl text-sm leading-relaxed"
+              style={{ color: UI.muted }}
+            >
+              Familiar, widely-used combinations seen across many websites.
+            </p>
+            <Grid dense>
+              {popular.map((p, i) => renderCard(p, pairings.length + i))}
+            </Grid>
+          </section>
+        )}
       </Container>
     </main>
   );

@@ -2,7 +2,7 @@
   "name": "type-explorer",
   "version": "0.1.0",
   "private": true,
-  "description": "An agent-driven tool for discovering Google Fonts, getting pairing recommendations from a natural-language brief, and generating self-contained HTML type specimens.",
+  "description": "Browse Google Fonts as full-size specimens and discover curated and algorithmic display + text pairings.",
   "author": "Josh Coolman",
   "license": "MIT",
   "engines": {
@@ -14,11 +14,11 @@
     "start": "next start",
     "lint": "eslint",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "catalog:refresh": "node scripts/build-catalog.mjs",
+    "pairings:build": "node scripts/build-pairing-library.mjs"
   },
   "dependencies": {
-    "@anthropic-ai/claude-agent-sdk": "^0.3.173",
-    "@anthropic-ai/sdk": "^0.104.1",
     "next": "16.2.6",
     "react": "19.2.4",
     "react-dom": "19.2.4"

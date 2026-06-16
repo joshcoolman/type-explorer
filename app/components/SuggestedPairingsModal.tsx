@@ -3,6 +3,7 @@
 import { useEffect } from "react";
 import type { LibraryEntry } from "@/lib/pairing-library";
 import { groupedPairingsFor } from "@/lib/pairing-library";
+import type { VoiceCopy } from "./FontSpecimenCard";
 import {
   useFavorites,
   isPairingFavorite,
@@ -10,7 +11,7 @@ import {
 } from "@/lib/favorites";
 import { PAGE_THEME } from "@/lib/card-themes";
 import PairingCard from "./PairingCard";
-import { Grid, Label } from "./ui";
+import { Grid, Label, typeRole } from "./ui";
 
 /**
  * An overlay that shows the pairings for one source font — curated picks first,
@@ -21,10 +22,13 @@ import { Grid, Label } from "./ui";
 export default function SuggestedPairingsModal({
   source,
   entry,
+  voice,
   onClose,
 }: {
   source: string;
   entry: LibraryEntry;
+  /** The explorer's typographic-voice overrides, applied to every pairing card. */
+  voice: VoiceCopy;
   onClose: () => void;
 }) {
   const favorites = useFavorites();
@@ -53,6 +57,8 @@ export default function SuggestedPairingsModal({
       body={p.body}
       label={p.label}
       note={p.why}
+      titleOverride={voice.title}
+      subtitleOverride={voice.subtitle}
       index={i++}
       favorited={isPairingFavorite(favorites, p.id)}
       onToggleFavorite={() => togglePairingFavorite(p)}
@@ -65,18 +71,29 @@ export default function SuggestedPairingsModal({
       aria-modal="true"
       aria-label={`Pairings for ${source}`}
       className="fixed inset-0 z-50 overflow-y-auto"
-      style={{ background: "rgba(8, 7, 5, 0.72)" }}
+      style={{ background: "rgba(8, 7, 5, 0.25)" }}
       onClick={onClose}
     >
       <div
-        className="mx-auto my-8 w-full max-w-[1100px] rounded-surface p-6 sm:p-8"
-        style={{ background: PAGE_THEME.bg, color: PAGE_THEME.fg }}
+        className="mx-auto my-4 w-[calc(100%-2rem)] max-w-none rounded-surface p-6 sm:p-8 min-h-[calc(100vh-2rem)] backdrop-blur-xl"
+        style={{
+          background: "rgba(10, 9, 7, 0.82)",
+          color: PAGE_THEME.fg,
+          border: "0.5px solid #34302A",
+          boxShadow: "0 24px 60px rgba(0, 0, 0, 0.5)",
+        }}
         onClick={(e) => e.stopPropagation()}
       >
-        <header className="mb-6 flex items-start justify-between gap-4">
+        <header className="mb-8 flex items-start justify-between gap-4">
           <div>
-            <Label style={{ color: PAGE_THEME.accent }}>Pairs with</Label>
-            <h2 className="mt-1 text-2xl sm:text-3xl">{source}</h2>
+            <h2 className={typeRole.display}>Suggested Pairings</h2>
+            <p
+              className="mt-3 max-w-xl text-sm leading-relaxed"
+              style={{ color: PAGE_THEME.muted }}
+            >
+              Suggested pairings for{" "}
+              <span style={{ color: PAGE_THEME.fg }}>{source}</span>.
+            </p>
           </div>
           <button
             type="button"
@@ -100,9 +117,11 @@ export default function SuggestedPairingsModal({
 
         {suggested.length > 0 && (
           <section>
-            <Label className="mb-3 block" style={{ color: PAGE_THEME.muted }}>
-              {curated.length > 0 ? "More pairings" : "Suggested pairings"}
-            </Label>
+            {curated.length > 0 && (
+              <Label className="mb-3 block" style={{ color: PAGE_THEME.muted }}>
+                More pairings
+              </Label>
+            )}
             <Grid dense>{suggested.map(renderCard)}</Grid>
           </section>
         )}
