@@ -19,6 +19,6 @@ export function Input({
 export function Textarea({
   className,
   ...rest
-}: React.TextareaHTMLAttributes<HTMLTextAreaElement>) {
+}: React.ComponentPropsWithRef<"textarea">) {
   return <textarea className={cn(fieldBase, "resize-y", className)} {...rest} />;
 }

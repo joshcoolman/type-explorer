@@ -21,6 +21,7 @@ scrolling a wall of font names.
   voice" to judge every font against the same words. Hit **Get Pairings** on any
   font to see curated and algorithmic partners in a modal.
 - **Favorites** — everything you've collected, fonts and pairings, in one place.
+- **Changelog** — a running, newest-first log of changes at `/changelog`.
 
 Pairing suggestions are precomputed offline (see [Data & scripts](#data--scripts))
 from Google Fonts' own semantic tags plus a curated set — so the app ships with a
@@ -91,6 +92,30 @@ pnpm lint              # eslint
 pnpm catalog:refresh   # regenerate data/fonts.json (needs GOOGLE_FONTS_API_KEY)
 pnpm pairings:build    # regenerate content/pairing-library.json
 ```
+
+## Changelog
+
+The `/changelog` page renders `content/changelog.json` — a plain, newest-first
+JSON array of `{ date, title, changes[] }` entries. To record a change, add or
+edit an entry:
+
+```json
+[
+  {
+    "date": "2026-06-16",
+    "title": "Short headline",
+    "changes": ["What's different, from a user's point of view."],
+    "files": ["app/path/to/file.tsx — what lives here"]
+  }
+]
+```
+
+`files` is optional and lists the key files the entry touched — it surfaces as a
+small reference on the card and doubles as orientation for anyone (or any agent)
+returning to the repo. Editing the file by hand is all it takes — no build step
+or dependency. If you work on this repo with Claude Code, the `/changes` slash
+command (`.claude/commands/changes.md`) drafts an entry from the current diff and
+recent commits and prepends it for you.
 
 ## Licensing
 

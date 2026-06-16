@@ -1,0 +1,21 @@
+[
+  {
+    "date": "2026-06-16",
+    "title": "Global typographic voice, unified cards, and this changelog",
+    "changes": [
+      "Made the typographic voice global: one editor pop-up, opened from a gear at the right of the nav, now drives Explorer specimens, Home and favorite pairings alike — replacing the two separate editors that had drifted apart.",
+      "Reworked that editor into a light-mode pop-up with stacked, auto-growing fields, reachable from any page and any scroll depth.",
+      "Unified every card surface (Explorer, Home, pairings, favorites) onto one card component and one grid: a single fluid column on small screens, then fixed-width cards that pack left instead of stretching.",
+      "Lined up page headers with the left edge of the cards as a global standard.",
+      "Added this changelog at /changelog — a full-width card per dated entry — plus the /changes command and README notes for keeping it current."
+    ],
+    "files": [
+      "app/components/VoiceProvider.tsx — global voice state + the single editor pop-up",
+      "app/components/TypographicVoiceModal.tsx — the voice editor UI",
+      "app/components/SpecimenCard.tsx — the shared card; FontSpecimenCard / PairingCard wrap it",
+      "app/components/ui/Grid.tsx — the one fixed-width, left-aligned card grid",
+      "app/components/ChangelogCard.tsx + app/changelog/page.tsx — the changelog surface",
+      "app/globals.css — the theme-light inverted-surface convention"
+    ]
+  }
+]

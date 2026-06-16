@@ -1,16 +1,9 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import type { FontFamily } from "@/lib/types";
+import type { FontFamily, VoiceCopy } from "@/lib/types";
 import { fontStack, loadPreviewFont } from "@/lib/font-loader";
-import { themeForIndex } from "@/lib/card-themes";
-import FavoriteButton from "./FavoriteButton";
-
-export interface VoiceCopy {
-  title: string;
-  subtitle: string;
-  paragraph: string;
-}
+import SpecimenCard from "./SpecimenCard";
 
 /** Shown on every card until the user overrides a field in the voice panel. */
 export const DEFAULT_VOICE: VoiceCopy = {
@@ -74,54 +67,22 @@ export default function FontSpecimenCard({
   const paragraph = voice.paragraph.trim()
     ? voice.paragraph
     : DEFAULT_VOICE.paragraph;
-  const theme = themeForIndex(index);
 
   const family_ = inView ? fontStack(family) : "inherit";
 
   return (
-    <article
-      ref={ref}
-      className="relative flex flex-col rounded-2xl p-8 sm:p-10"
-      style={{ background: theme.bg, color: theme.fg }}
-    >
-      {onToggleFavorite && (
-        <div className="absolute right-4 top-4">
-          <FavoriteButton
-            active={favorited}
-            onToggle={onToggleFavorite}
-            color={theme.muted}
-            activeColor={theme.accent}
-            label="font"
-          />
-        </div>
-      )}
-
-      <h2
-        className="pr-10 text-3xl leading-[1.05] sm:text-4xl"
-        style={{ fontFamily: family_, fontWeight: 700 }}
-      >
-        {title}
-      </h2>
-
-      <p
-        className="mt-3 text-lg leading-snug sm:text-xl"
-        style={{ fontFamily: family_, fontWeight: 400, color: theme.muted }}
-      >
-        {subtitle}
-      </p>
-
-      <p
-        className="mt-5 text-sm leading-relaxed"
-        style={{ fontFamily: family_, fontWeight: 400, color: theme.muted }}
-      >
-        {paragraph}
-      </p>
-
-      <div className="mt-auto pt-12">
-        <div
-          className="pt-4 font-mono text-[11px] uppercase leading-snug tracking-[0.16em]"
-          style={{ borderTop: `0.5px solid ${theme.muted}` }}
-        >
+    <SpecimenCard
+      cardRef={ref}
+      index={index}
+      titleFont={family_}
+      title={title}
+      subtitle={subtitle}
+      paragraph={paragraph}
+      favorited={favorited}
+      onToggleFavorite={onToggleFavorite}
+      favoriteLabel="font"
+      footer={(theme) => (
+        <div className="font-mono text-[11px] uppercase leading-snug tracking-[0.16em]">
           <div className="min-h-[2.75em]" style={{ color: theme.accent }}>
             {family.family}
           </div>
@@ -141,7 +102,7 @@ export default function FontSpecimenCard({
             )}
           </div>
         </div>
-      </div>
-    </article>
+      )}
+    />
   );
 }

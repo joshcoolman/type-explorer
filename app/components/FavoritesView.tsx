@@ -7,7 +7,9 @@ import {
   togglePairingFavorite,
 } from "../../lib/favorites";
 import PairingCard from "./PairingCard";
-import FontSpecimenCard, { DEFAULT_VOICE } from "./FontSpecimenCard";
+import FontSpecimenCard from "./FontSpecimenCard";
+import { useVoice } from "./VoiceProvider";
+import { Container, Grid } from "./ui";
 
 const UI = {
   bg: PAGE_THEME.bg,
@@ -18,12 +20,13 @@ const UI = {
 
 export default function FavoritesView() {
   const favorites = useFavorites();
+  const { voice } = useVoice();
   const { fonts, pairings } = favorites;
   const empty = fonts.length === 0 && pairings.length === 0;
 
   return (
     <main className="min-h-screen" style={{ background: UI.bg, color: UI.fg }}>
-      <div className="mx-auto max-w-[1400px] px-5 py-12 sm:px-8 sm:py-16">
+      <Container className="py-12 sm:py-16">
         <header className="mb-10">
           <div
             className="font-mono text-xs uppercase tracking-[0.2em]"
@@ -56,7 +59,7 @@ export default function FavoritesView() {
         {pairings.length > 0 && (
           <section className="mb-14">
             <SectionHeading label="Pairings" count={pairings.length} />
-            <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 lg:gap-6 xl:grid-cols-4">
+            <Grid>
               {pairings.map((p, i) => (
                 <PairingCard
                   key={p.id}
@@ -64,32 +67,34 @@ export default function FavoritesView() {
                   body={p.body}
                   label={p.label}
                   index={i}
+                  titleOverride={voice.title}
+                  subtitleOverride={voice.subtitle}
                   favorited
                   onToggleFavorite={() => togglePairingFavorite(p)}
                 />
               ))}
-            </div>
+            </Grid>
           </section>
         )}
 
         {fonts.length > 0 && (
           <section>
             <SectionHeading label="Fonts" count={fonts.length} />
-            <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 lg:gap-6 xl:grid-cols-4">
+            <Grid>
               {fonts.map((f, i) => (
                 <FontSpecimenCard
                   key={f.family}
                   family={f}
                   index={i}
-                  voice={DEFAULT_VOICE}
+                  voice={voice}
                   favorited
                   onToggleFavorite={() => toggleFontFavorite(f)}
                 />
               ))}
-            </div>
+            </Grid>
           </section>
         )}
-      </div>
+      </Container>
     </main>
   );
 }

@@ -13,6 +13,22 @@
   --bad: #f08a8a;
 }
 
+/* Inverted (light) surface. The site is dark; certain self-contained surfaces —
+   pop-ups, sheets — flip to a warm cream "light mode" that matches the active
+   accent (the cream "All" chip). Wrap a surface in `theme-light` and the usual
+   semantic utilities (bg-panel, bg-bg, text-text, text-muted, text-accent,
+   border-border) re-resolve to this palette — no per-element color overrides.
+   Reuse this class for any future component that should read light-on-dark. */
+.theme-light {
+  --bg: #ffffff; /* input fields — white, black text */
+  --panel: #f0e7d1; /* the cream surface itself */
+  --panel-2: #e7d9ba;
+  --border: #d8c9a6;
+  --text: #211d15; /* near-black, warm */
+  --muted: #6f6553;
+  --accent: #7c5e1f; /* deep amber — legible on cream, same family as the chip */
+}
+
 @theme inline {
   --color-bg: var(--bg);
   --color-panel: var(--panel);

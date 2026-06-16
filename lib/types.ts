@@ -29,6 +29,18 @@ export interface Catalog {
 }
 
 /**
+ * The global "typographic voice" — one set of words applied to every card, so
+ * fonts and pairings can be judged against the same copy. Empty fields fall back
+ * to each card's own sample. Shown on Explorer specimens (all three fields) and
+ * pairing cards (title + subtitle; paragraph unused there).
+ */
+export interface VoiceCopy {
+  title: string;
+  subtitle: string;
+  paragraph: string;
+}
+
+/**
  * A curated display + text pairing shown on the home page. Sourced from
  * `content/suggested-pairings.json`. `monovoice` marks a same-family "pairing"
  * (one font carrying both roles).

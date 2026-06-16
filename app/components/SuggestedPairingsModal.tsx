@@ -3,7 +3,6 @@
 import { useEffect } from "react";
 import type { LibraryEntry } from "@/lib/pairing-library";
 import { groupedPairingsFor } from "@/lib/pairing-library";
-import type { VoiceCopy } from "./FontSpecimenCard";
 import {
   useFavorites,
   isPairingFavorite,
@@ -11,6 +10,7 @@ import {
 } from "@/lib/favorites";
 import { PAGE_THEME } from "@/lib/card-themes";
 import PairingCard from "./PairingCard";
+import { useVoice } from "./VoiceProvider";
 import { Grid, Label, typeRole } from "./ui";
 
 /**
@@ -22,16 +22,14 @@ import { Grid, Label, typeRole } from "./ui";
 export default function SuggestedPairingsModal({
   source,
   entry,
-  voice,
   onClose,
 }: {
   source: string;
   entry: LibraryEntry;
-  /** The explorer's typographic-voice overrides, applied to every pairing card. */
-  voice: VoiceCopy;
   onClose: () => void;
 }) {
   const favorites = useFavorites();
+  const { voice } = useVoice();
   const { curated, suggested } = groupedPairingsFor(source, entry);
 
   // Close on Escape; lock background scroll while open.
@@ -111,7 +109,7 @@ export default function SuggestedPairingsModal({
             <Label className="mb-3 block" style={{ color: PAGE_THEME.muted }}>
               Curated
             </Label>
-            <Grid dense>{curated.map(renderCard)}</Grid>
+            <Grid>{curated.map(renderCard)}</Grid>
           </section>
         )}
 
@@ -122,7 +120,7 @@ export default function SuggestedPairingsModal({
                 More pairings
               </Label>
             )}
-            <Grid dense>{suggested.map(renderCard)}</Grid>
+            <Grid>{suggested.map(renderCard)}</Grid>
           </section>
         )}
       </div>
