@@ -1,5 +1,5 @@
-import Explorer from "../explorer";
+import BrowseView from "../components/BrowseView";
 
 export default function ExplorerPage() {
-  return <Explorer />;
+  return <BrowseView />;
 }

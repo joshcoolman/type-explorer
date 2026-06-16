@@ -11,12 +11,11 @@ import {
   loadPairingLibrary,
   type PairingLibrary,
 } from "@/lib/pairing-library";
+import { PAGE_THEME, HIGHLIGHT } from "@/lib/card-themes";
 import FontSpecimenCard from "./FontSpecimenCard";
 import SuggestedPairingsModal from "./SuggestedPairingsModal";
 import { useVoice } from "./VoiceProvider";
-import { Button, Grid, Input } from "./ui";
-
-type SortKey = "popularity" | "trending" | "date" | "alpha";
+import { Button, Container, Grid, GridAlign, Input, PageHeader } from "./ui";
 
 const CATEGORIES = [
   { key: "all", label: "All" },
@@ -27,20 +26,23 @@ const CATEGORIES = [
   { key: "handwriting", label: "Script" },
 ] as const;
 
-const SORTS: { key: SortKey; label: string }[] = [
-  { key: "popularity", label: "Popular" },
-  { key: "trending", label: "Trending" },
-  { key: "date", label: "Updated" },
-  { key: "alpha", label: "A–Z" },
-];
-
 const PAGE = 60;
+
+/** Page-chrome surface colors, matching the rest of the app's dark surfaces. */
+const UI = {
+  bg: PAGE_THEME.bg,
+  fg: PAGE_THEME.fg,
+  muted: PAGE_THEME.muted,
+  accent: PAGE_THEME.accent,
+  border: "#2A2823",
+  field: "#1B1A16",
+  pill: "#1F1D19",
+};
 
 export default function BrowseView() {
   const [q, setQ] = useState("");
   const [debouncedQ, setDebouncedQ] = useState("");
   const [category, setCategory] = useState<string>("all");
-  const [sort, setSort] = useState<SortKey>("popularity");
 
   const [families, setFamilies] = useState<FontFamily[]>([]);
   const [total, setTotal] = useState(0);
@@ -74,7 +76,7 @@ export default function BrowseView() {
         const params = new URLSearchParams({
           q: debouncedQ,
           category,
-          sort,
+          sort: "popularity",
           limit: String(PAGE),
           offset: String(nextOffset),
         });
@@ -92,7 +94,7 @@ export default function BrowseView() {
         setLoading(false);
       }
     },
-    [debouncedQ, category, sort],
+    [debouncedQ, category],
   );
 
   // Reset and refetch whenever the query parameters change.
@@ -104,56 +106,62 @@ export default function BrowseView() {
   const canLoadMore = families.length < total;
 
   return (
-    <div className="flex h-full flex-col">
-      {/* Controls */}
-      <div className="flex flex-wrap items-center gap-3 border-b border-border px-6 py-4">
-        <Input
-          value={q}
-          onChange={(e) => setQ(e.target.value)}
-          placeholder="Search fonts"
-          className="w-56 border-border bg-panel text-text placeholder:text-muted focus:border-accent"
-        />
-        <div className="flex flex-wrap gap-1">
-          {CATEGORIES.map((c) => (
-            <Button
-              key={c.key}
-              size="sm"
-              onClick={() => setCategory(c.key)}
-              className={
-                category === c.key
-                  ? "bg-accent text-bg"
-                  : "bg-panel text-muted hover:text-text"
-              }
-            >
-              {c.label}
-            </Button>
-          ))}
-        </div>
-        <div className="ml-auto flex items-center gap-1">
-          {SORTS.map((s) => (
-            <Button
-              key={s.key}
-              size="sm"
-              onClick={() => setSort(s.key)}
-              className={
-                sort === s.key
-                  ? "bg-panel-2 text-text"
-                  : "text-muted hover:text-text"
-              }
-            >
-              {s.label}
-            </Button>
-          ))}
-        </div>
-      </div>
+    <main className="flex-1" style={{ background: UI.bg, color: UI.fg }}>
+      <Container className="pt-6 pb-12 sm:pt-8 sm:pb-16">
+        <GridAlign className="mb-10">
+          <PageHeader
+            title="Explorer"
+            className="mb-0"
+            actions={
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center lg:justify-end">
+              <Input
+                value={q}
+                onChange={(e) => setQ(e.target.value)}
+                placeholder="Search fonts"
+                className="w-full sm:w-56"
+                style={{
+                  borderColor: UI.border,
+                  background: UI.field,
+                  color: UI.fg,
+                }}
+              />
+              <div className="flex flex-wrap gap-1.5">
+                {CATEGORIES.map((c) => {
+                  const on = category === c.key;
+                  return (
+                    <Button
+                      key={c.key}
+                      size="sm"
+                      onClick={() => setCategory(c.key)}
+                      style={
+                        on
+                          ? { background: HIGHLIGHT, color: UI.bg }
+                          : { background: UI.pill, color: UI.muted }
+                      }
+                    >
+                      {c.label}
+                    </Button>
+                  );
+                })}
+              </div>
+            </div>
+            }
+          />
+        </GridAlign>
 
-      {/* Grid */}
-      <div className="flex-1 overflow-y-auto px-6 py-5">
         {error && (
-          <div className="mb-4 rounded-card border border-bad/40 bg-bad/10 px-4 py-3 text-sm text-bad">
+          <div
+            className="mb-6 rounded-card border px-4 py-3 text-sm"
+            style={{
+              borderColor: "rgba(240,138,138,0.4)",
+              background: "rgba(240,138,138,0.1)",
+              color: "#F08A8A",
+            }}
+          >
             {error}
           </div>
         )}
+
         <Grid>
           {families.map((f, i) => (
             <FontSpecimenCard
@@ -170,23 +178,28 @@ export default function BrowseView() {
         </Grid>
 
         {!loading && families.length === 0 && (
-          <p className="py-12 text-center text-sm text-muted">
+          <p className="py-12 text-center text-sm" style={{ color: UI.muted }}>
             No fonts match these filters.
           </p>
         )}
 
         {canLoadMore && (
-          <div className="mt-6 flex justify-center">
+          <div className="mt-8 flex justify-center">
             <Button
               onClick={() => fetchPage(offset + PAGE, false)}
               disabled={loading}
-              className="border border-border bg-panel text-text hover:border-muted"
+              className="border"
+              style={{
+                borderColor: UI.border,
+                background: UI.field,
+                color: UI.fg,
+              }}
             >
               {loading ? "Loading…" : `Load more (${families.length} of ${total})`}
             </Button>
           </div>
         )}
-      </div>
+      </Container>
 
       {pairingFor && library?.[pairingFor] && (
         <SuggestedPairingsModal
@@ -195,6 +208,6 @@ export default function BrowseView() {
           onClose={() => setPairingFor(null)}
         />
       )}
-    </div>
+    </main>
   );
 }

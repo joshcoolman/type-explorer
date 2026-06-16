@@ -9,7 +9,7 @@ import {
 } from "../../lib/favorites";
 import PairingCard from "./PairingCard";
 import { useVoice } from "./VoiceProvider";
-import { Container, Grid, Label, typeRole } from "./ui";
+import { Container, Grid, GridAlign, PageHeader, typeRole } from "./ui";
 
 /** Page-chrome surface colors, derived from the fixed dark-neutral PAGE_THEME. */
 const UI = {
@@ -44,31 +44,19 @@ export default function SuggestedPairings({
   );
 
   return (
-    <main className="min-h-screen" style={{ background: UI.bg, color: UI.fg }}>
-      <Container className="py-12 sm:py-16">
-        <header className="mb-10">
-          <Label style={{ color: UI.accent }}>Type Explorer</Label>
-          <h1 className={`mt-2 ${typeRole.display}`}>Suggested Pairings</h1>
-          <p
-            className="mt-3 max-w-xl text-sm leading-relaxed"
-            style={{ color: UI.muted }}
-          >
-            Distinctive display and text pairings built from lesser-known Google
-            Fonts — for a fresher look.
-          </p>
-        </header>
+    <main className="flex-1" style={{ background: UI.bg, color: UI.fg }}>
+      <Container className="pt-6 pb-12 sm:pt-8 sm:pb-16">
+        <GridAlign className="mb-10">
+          <PageHeader title="Suggested Pairings" className="mb-0" />
+        </GridAlign>
 
         <Grid>{pairings.map((p, i) => renderCard(p, i))}</Grid>
 
         {popular.length > 0 && (
           <section className="mt-16">
-            <h2 className={typeRole.display}>Popular Pairings</h2>
-            <p
-              className="mb-6 mt-3 max-w-xl text-sm leading-relaxed"
-              style={{ color: UI.muted }}
-            >
-              Familiar, widely-used combinations seen across many websites.
-            </p>
+            <GridAlign className="mb-6">
+              <h2 className={typeRole.display}>Popular Pairings</h2>
+            </GridAlign>
             <Grid>
               {popular.map((p, i) => renderCard(p, pairings.length + i))}
             </Grid>

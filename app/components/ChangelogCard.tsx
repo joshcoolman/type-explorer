@@ -32,6 +32,18 @@ export default function ChangelogCard({
       className="flex flex-col rounded-2xl p-8 sm:p-10"
       style={{ background: theme.bg, color: theme.fg }}
     >
+      <time
+        dateTime={entry.date}
+        className="font-mono text-[11px] uppercase tracking-[0.16em]"
+        style={{ color: theme.muted }}
+      >
+        {formatDate(entry.date)}
+      </time>
+      <div
+        className="mb-6 mt-3"
+        style={{ borderTop: `0.5px solid ${theme.muted}` }}
+      />
+
       <h2 className="text-3xl font-bold leading-[1.05] sm:text-4xl">
         {entry.title}
       </h2>
@@ -80,16 +92,6 @@ export default function ChangelogCard({
           </ul>
         </div>
       )}
-
-      <div className="mt-10 pt-4" style={{ borderTop: `0.5px solid ${theme.muted}` }}>
-        <time
-          dateTime={entry.date}
-          className="font-mono text-[11px] uppercase tracking-[0.16em]"
-          style={{ color: theme.accent }}
-        >
-          {formatDate(entry.date)}
-        </time>
-      </div>
     </article>
   );
 }

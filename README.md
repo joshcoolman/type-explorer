@@ -10,6 +10,8 @@ scrolling a wall of font names.
 > contributions — issues and pull requests may be closed without response. You're
 > welcome to fork it and make it your own (see [Licensing](#licensing)).
 
+![The home page — a gallery of suggested display and text pairings](docs/screenshots/home.png)
+
 ## What it does
 
 - **Home** — a gallery of ready-made display + text pairings: a less-common
@@ -26,6 +28,21 @@ scrolling a wall of font names.
 Pairing suggestions are precomputed offline (see [Data & scripts](#data--scripts))
 from Google Fonts' own semantic tags plus a curated set — so the app ships with a
 rich pairing library and needs no AI or API keys at runtime.
+
+## Screenshots
+
+The Explorer — the full catalog as real specimens, with search, filters, and sort:
+
+![The Explorer view showing font specimens in a card grid](docs/screenshots/explorer.png)
+
+The typographic voice — one pop-up sets the title, subtitle, and paragraph applied
+to every card, so fonts and pairings are judged against the same words:
+
+![The typographic voice editor pop-up over the Explorer](docs/screenshots/voice.png)
+
+The changelog at `/changelog` — one card per dated entry:
+
+![The changelog page with a dated entry card](docs/screenshots/changelog.png)
 
 ## Run it
 

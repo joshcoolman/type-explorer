@@ -53,16 +53,16 @@ export default function TypographicVoiceModal({
         className="theme-light my-8 w-full max-w-2xl border-border bg-panel text-text shadow-2xl"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="mb-3 flex items-center justify-between gap-4">
-          <Label as="h2" className="text-accent">
-            Typographic voice
-          </Label>
+        <div className="mb-4 flex items-center justify-between gap-4">
+          <p className="text-sm font-semibold text-text">
+            Set the text for typographic cards.
+          </p>
           <div className="flex items-center gap-4">
             <button
               type="button"
               onClick={onReset}
               disabled={!active}
-              className="font-mono text-[11px] uppercase tracking-wider text-muted underline-offset-4 hover:underline disabled:opacity-40"
+              className="font-mono text-[11px] font-bold uppercase tracking-wider text-muted underline-offset-4 hover:underline disabled:opacity-40"
             >
               Reset to default
             </button>
@@ -76,9 +76,6 @@ export default function TypographicVoiceModal({
             </button>
           </div>
         </div>
-        <p className="mb-4 max-w-2xl text-sm text-muted">
-          Set the text for typographic cards.
-        </p>
         <div className="flex flex-col gap-4">
           <Field
             label="Title"
@@ -127,7 +124,7 @@ function Field({
 
   return (
     <label className="flex flex-col gap-2">
-      <Label className="text-muted">{label}</Label>
+      <Label className="font-bold text-muted">{label}</Label>
       <Textarea
         ref={ref}
         value={value}

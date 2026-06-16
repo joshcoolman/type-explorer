@@ -87,8 +87,15 @@ export function themeForIndex(i: number): CardTheme {
 
 /** Fixed dark-neutral page chrome behind the grid. */
 export const PAGE_THEME: CardTheme = {
-  bg: "#14130F", // warm near-black ground
+  bg: "#212121", // neutral grey ground (no hue) — matches globals.css --bg
   fg: C.cream,
   muted: "#8A8678",
   accent: C.orioles,
 };
+
+/**
+ * The selected/active highlight for interactive page-chrome controls (filter
+ * pills, and future toggles). Warm amber/gold. Distinct from `PAGE_THEME.accent`
+ * (orange-red), which is reserved for small-type accents like the page eyebrow.
+ */
+export const HIGHLIGHT = "#e8c07a";

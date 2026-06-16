@@ -1,19 +1,37 @@
 [
   {
     "date": "2026-06-16",
+    "title": "Unified page header, neutral palette, and a footer",
+    "changes": [
+      "Unified every view's header into one element — the title sits in the same place and style on Home, Explorer, Favorites, and Changelog; the eyebrow and descriptive sub-text were dropped for a cleaner read.",
+      "Folded the Explorer search and category filters into that shared header, and removed the sort options — results default to most popular.",
+      "Made page headers line up with the cards at every width, and the changelog header line up with its narrower card column.",
+      "Repainted the whole site in a neutral near-black, with the nav blending into the page.",
+      "Settled on a single amber highlight for active controls (filter pills, the voice gear), keeping the red as a small accent.",
+      "Added a global footer with the license and a GitHub link — it sits below the content, or at the bottom of short pages.",
+      "Gave the light voice pop-up bold labels and trimmed its heading."
+    ],
+    "files": [
+      "app/components/ui/PageHeader.tsx — the one shared page header",
+      "app/components/ui/GridAlign.tsx — pins headers to the centered card block",
+      "app/components/Footer.tsx + app/layout.tsx — the global footer and sticky-footer layout",
+      "app/components/BrowseView.tsx — Explorer in the unified layout (filters in header, no sort)",
+      "lib/card-themes.ts — neutral PAGE_THEME background + the HIGHLIGHT accent",
+      "app/components/TypographicVoiceModal.tsx — bold light-mode labels"
+    ]
+  },
+  {
+    "date": "2026-06-16",
     "title": "Global typographic voice, unified cards, and this changelog",
     "changes": [
       "Made the typographic voice global: one editor pop-up, opened from a gear at the right of the nav, now drives Explorer specimens, Home and favorite pairings alike — replacing the two separate editors that had drifted apart.",
       "Reworked that editor into a light-mode pop-up with stacked, auto-growing fields, reachable from any page and any scroll depth.",
-      "Unified every card surface (Explorer, Home, pairings, favorites) onto one card component and one grid: a single fluid column on small screens, then fixed-width cards that pack left instead of stretching.",
-      "Lined up page headers with the left edge of the cards as a global standard.",
-      "Added this changelog at /changelog — a full-width card per dated entry — plus the /changes command and README notes for keeping it current."
+      "Unified every card surface (Explorer, Home, pairings, favorites) onto one card component and one grid — a single fluid column on small screens, then fixed-width cards instead of stretching.",
+      "Added this changelog at /changelog — a card per dated entry — plus the /changes command and README notes for keeping it current."
     ],
     "files": [
       "app/components/VoiceProvider.tsx — global voice state + the single editor pop-up",
-      "app/components/TypographicVoiceModal.tsx — the voice editor UI",
       "app/components/SpecimenCard.tsx — the shared card; FontSpecimenCard / PairingCard wrap it",
-      "app/components/ui/Grid.tsx — the one fixed-width, left-aligned card grid",
       "app/components/ChangelogCard.tsx + app/changelog/page.tsx — the changelog surface",
       "app/globals.css — the theme-light inverted-surface convention"
     ]

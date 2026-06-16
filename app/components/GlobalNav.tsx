@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { PAGE_THEME } from "../../lib/card-themes";
+import { HIGHLIGHT, PAGE_THEME } from "../../lib/card-themes";
 import { Button } from "./ui";
 import { useVoice } from "./VoiceProvider";
 
@@ -20,7 +20,10 @@ export default function GlobalNav() {
   return (
     <nav
       className="flex items-center gap-6 px-5 py-3 sm:px-8"
-      style={{ borderBottom: "1px solid rgba(255,255,255,0.08)" }}
+      style={{
+        background: PAGE_THEME.bg,
+        borderBottom: "1px solid rgba(255,255,255,0.08)",
+      }}
     >
       {LINKS.map((l) => {
         const active = l.href === "/" ? pathname === "/" : pathname.startsWith(l.href);
@@ -47,7 +50,7 @@ export default function GlobalNav() {
         className="ml-auto border"
         style={{
           borderColor: "#2A2823",
-          color: active ? PAGE_THEME.accent : "#7D7A70",
+          color: active ? HIGHLIGHT : "#7D7A70",
           background: open ? "#262320" : "transparent",
         }}
       >
