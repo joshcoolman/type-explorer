@@ -103,6 +103,26 @@ Rethink the "Get Pairings" interaction from a modal overlay into an inline split
 
 ---
 
+## Pairing context previews `idea`
+
+Once a pairing is selected, show it applied to a handful of real-world layout templates — so you can feel how the fonts behave in context, not just as a specimen card.
+
+**Examples mentioned:**
+- Social media card
+- Business card
+- Editorial layout
+- Basic web page layout
+
+**The idea:** these are static mock layouts, pre-built templates that swap in the active heading and body fonts. No design tool, no export — just enough to answer "does this pairing actually work for what I'm building?"
+
+**This is unplanned — nothing decided yet. Things to think through:**
+- Where does this live? Inline below the pairing card, a dedicated panel, or a new route?
+- How many templates is useful without being overwhelming?
+- Templates are static HTML/CSS — authored once, fonts injected at render time
+- Relationship to the split-panel pairing view: context previews could be a natural extension of that layout
+
+---
+
 ## Three-font pairings (spike) `idea`
 
 Explore whether pairings should support a third font — typically a body/reading face distinct from both the display and the secondary text font.
