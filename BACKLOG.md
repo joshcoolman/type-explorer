@@ -53,6 +53,26 @@ UI elements for switching between color palettes — exact scope to be defined.
 
 ---
 
+## Local admin UI for curating suggested pairings `idea`
+
+A local-only interface for managing `content/suggested-pairings.json` through the app rather than by hand-editing JSON.
+
+**What exists now:**
+- `content/suggested-pairings.json` is hand-maintained — the only way to add or remove a suggested pairing is to edit the file directly
+- The home page renders whatever is in that file; a `HIDDEN_PAIRING_IDS` set in `app/page.tsx` is used to suppress specific entries without removing them
+
+**Direction:**
+- Local-only: gated behind an env flag or dev-only route (never ships as a public feature)
+- Discovery flow: find a pairing naturally while using the app, then promote it to suggested pairings from the UI rather than switching to a code editor
+- Management: reorder, hide, or remove existing suggested pairings from the same interface
+- Agent handoff: the UI could accumulate a set of changes and generate a structured prompt describing them — so the actual JSON edit is handed to an agent rather than done by hand
+
+**Open questions:**
+- Gate mechanism: env var (`NEXT_PUBLIC_ADMIN=true`), a secret route (`/admin`), or a local-only config file?
+- Whether changes write directly to the JSON file (requires a local API route) or are expressed as a prompt/diff for an agent to apply
+
+---
+
 ## Bookmarkable pairing routes `idea`
 
 Replace the current pairings modal (opened via "Get Pairings" on a font card) with URL-routed pages so individual pairings can be bookmarked and shared.
