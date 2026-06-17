@@ -45,3 +45,6 @@ next-env.d.ts
 
 # keep the env template tracked
 !.env.example
+
+# Session continuation prompt (local only)
+continue.md
