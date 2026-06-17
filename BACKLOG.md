@@ -45,11 +45,16 @@ Formalize and extend the existing card color palette (`CARD_THEMES` in `lib/card
 
 ---
 
-## Palette switcher UI `idea`
+## Palette switcher UI `shipped`
 
 UI elements for switching between color palettes — exact scope to be defined.
 
 *(Note: this item was added mid-thought — finish describing what "switch between" means here before building.)*
+
+**Shipped via the Colors page:** you can now select one card theme and apply it to
+every card app-wide (Randomize / Use selected theme, on the Colors page and in the
+gear), and recolor the page chrome with a live editor. That covers the practical
+"switch between palettes" intent; reopen if a multi-preset switcher was meant.
 
 ---
 
@@ -73,7 +78,13 @@ A local-only interface for managing `content/suggested-pairings.json` through th
 
 ---
 
-## Split-panel pairing view `idea`
+## Split-panel pairing view `shipped`
+
+**Shipped** as the per-font pairings route (`PairingsView.tsx`, `/pairings/{slug}`):
+the selected font anchors a sticky left column as its own full specimen, partners
+flow in their own grid to the right, no modal. Built as a route rather than an
+in-grid transition (pairs naturally with the bookmarkable routes item) — so the
+animated slide/stagger below didn't apply, but the interaction model shipped.
 
 Rethink the "Get Pairings" interaction from a modal overlay into an inline split layout within the Explorer grid.
 

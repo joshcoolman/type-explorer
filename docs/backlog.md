@@ -36,6 +36,10 @@ Change its status tag in `BACKLOG.md`, e.g.
 operation — the page re-derives open/closed from the tag. Closed bodies are left
 as the historical record of what the issue asked for (present tense is fine).
 
+**When this happens:** the commit ritual ties it to the changelog — whenever you
+add a changelog entry (or run `/changes`), sweep here for items that the work now
+covers and close them in the same commit. See "the commit ritual" in `CLAUDE.md`.
+
 ## Key files
 
 - `BACKLOG.md` — the source content (headings + `status` tags)

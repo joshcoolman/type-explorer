@@ -38,5 +38,12 @@ Steps:
    (not every file in the diff). Omit `files` only for trivial entries.
 6. Prepend the entry so the file stays newest-first (it is a top-level JSON array).
 7. Keep it terse, no emojis, and make sure the file remains valid JSON.
+8. **Backlog sweep.** The same shipped work that earns a changelog entry often
+   closes a backlog item — and the two drift apart because nothing links them.
+   After writing the entry, skim `BACKLOG.md` for any open item (status tag not
+   `shipped` / `done` / `closed`) that this change set now sufficiently covers,
+   and flip its tag to `shipped`. Leave the body as the historical record; add a
+   one-line "Shipped via …" note if what shipped differs from what was asked. See
+   `docs/backlog.md` for the tag mechanics. Skip for trivial entries.
 
 Do not commit unless the user asks.

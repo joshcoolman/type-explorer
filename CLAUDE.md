@@ -10,17 +10,23 @@ here.)
 
 ## Critical: the commit ritual
 
-When committing/pushing user-facing work to `main`, both of these are part of the
+When committing/pushing user-facing work to `main`, these are part of the
 commit — no hook enforces them, they're the easy-to-forget steps:
 
 1. **Changelog** — add a `content/changelog.json` entry (newest-first) **in the
    same commit**, or run `/changes`. Entries' `files[]` double as recent-work
    memory, so **skim the changelog first** to see what changed lately and where.
-2. **Continue prompt** — after the commit + push, invoke `/continue-prompt` to
+2. **Backlog sweep** — the same shipped work often closes a backlog item, and the
+   two drift apart because nothing links them. After the changelog entry, skim
+   `BACKLOG.md` for any open item (status not `shipped`/`done`/`closed`) this work
+   now sufficiently covers and flip its tag to `shipped` **in the same commit**
+   (leave the body; add a one-line "Shipped via …" note if it differs from the
+   ask). See `docs/backlog.md`.
+3. **Continue prompt** — after the commit + push, invoke `/continue-prompt` to
    refresh `continue.md` to the new HEAD. (It's a gitignored local handoff, so
    it's updated *alongside* the commit, not in it.)
 
-Trivial commits (typo, dep bump, docs-only) skip both.
+Trivial commits (typo, dep bump, docs-only) skip all three.
 
 ## Commands
 
