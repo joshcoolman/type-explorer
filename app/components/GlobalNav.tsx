@@ -10,7 +10,6 @@ const LINKS = [
   { href: "/", label: "Home" },
   { href: "/explorer", label: "Explorer" },
   { href: "/favorites", label: "Favorites" },
-  { href: "/changelog", label: "Changelog" },
 ];
 
 export default function GlobalNav() {

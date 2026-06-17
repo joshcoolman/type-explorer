@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { PAGE_THEME } from "../../lib/card-themes";
 import { Container } from "./ui";
 
@@ -32,6 +33,27 @@ export default function Footer() {
         >
           GitHub
         </a>
+        <span className="ml-auto flex items-center gap-3">
+          <Link
+            href="/changelog"
+            className="underline-offset-4 transition-colors hover:underline"
+            style={{ color: PAGE_THEME.muted }}
+          >
+            Changelog
+          </Link>
+          <span
+            aria-hidden="true"
+            className="h-3 w-px"
+            style={{ background: "rgba(255,255,255,0.18)" }}
+          />
+          <Link
+            href="/backlog"
+            className="underline-offset-4 transition-colors hover:underline"
+            style={{ color: PAGE_THEME.muted }}
+          >
+            Backlog
+          </Link>
+        </span>
       </Container>
     </footer>
   );
