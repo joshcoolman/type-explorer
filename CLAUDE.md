@@ -40,6 +40,19 @@ first** to see what changed lately and where.
 | URL slugs | `lib/slug.ts` (font-name ↔ slug, single source of truth) |
 | Changelog | `content/changelog.json`, `app/changelog/page.tsx` |
 
+## Feature docs — read when the topic comes up
+
+Deep per-feature docs live in `docs/`. Don't pre-load them; when work touches one
+of these areas, read the doc first (it carries the decisions and structure the
+key-file map above doesn't).
+
+| If we're working on… | Read |
+|---|---|
+| pairings (engine, routes, showcase, slugs) | `docs/pairings.md` |
+| the backlog page (status tags, open/closed) | `docs/backlog.md` |
+| font data / build scripts (catalog, libraries) | `docs/data-pipeline.md` |
+| design system / theming | `docs/design-system.md` |
+
 ## Gotchas
 
 - UI primitives carry no color — per-card themes flow through `className`/`style` (see `Card.tsx`). Reach for `app/components/ui` before hand-rolling.
