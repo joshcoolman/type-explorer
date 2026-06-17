@@ -4,6 +4,7 @@ import type { ReactNode, Ref } from "react";
 import type { CardTheme } from "@/lib/card-themes";
 import { CARD_THEMES, themeForIndex } from "@/lib/card-themes";
 import { useCardTheme } from "./CardThemeProvider";
+import { useVoice } from "./VoiceProvider";
 import FavoriteButton from "./FavoriteButton";
 
 /**
@@ -61,6 +62,9 @@ export default function SpecimenCard({
   const theme = useSelected ? CARD_THEMES[selectedTheme] : themeForIndex(index);
   const body = bodyFont ?? titleFont;
 
+  // Global per-element visibility (toggled by the eyeballs in the voice editor).
+  const { visibility } = useVoice();
+
   return (
     <article
       ref={cardRef}
@@ -79,23 +83,27 @@ export default function SpecimenCard({
         </div>
       )}
 
-      <h2
-        className="pr-10 text-3xl leading-[1.05] sm:text-4xl"
-        style={{ fontFamily: titleFont, fontWeight: 700 }}
-      >
-        {title}
-      </h2>
+      {visibility.title && (
+        <h2
+          className="pr-10 text-3xl leading-[1.05] sm:text-4xl"
+          style={{ fontFamily: titleFont, fontWeight: 700 }}
+        >
+          {title}
+        </h2>
+      )}
 
-      <p
-        className="mt-3 text-lg leading-snug sm:text-xl"
-        style={{ fontFamily: body, fontWeight: 400, color: theme.muted }}
-      >
-        {subtitle}
-      </p>
-
-      {paragraph && (
+      {visibility.subtitle && (
         <p
-          className="mt-5 text-sm leading-relaxed"
+          className="mt-3 text-lg leading-snug sm:text-xl first:mt-0"
+          style={{ fontFamily: body, fontWeight: 400, color: theme.muted }}
+        >
+          {subtitle}
+        </p>
+      )}
+
+      {paragraph && visibility.paragraph && (
+        <p
+          className="mt-5 text-sm leading-relaxed first:mt-0"
           style={{ fontFamily: body, fontWeight: 400, color: theme.muted }}
         >
           {paragraph}

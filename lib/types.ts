@@ -48,6 +48,17 @@ export interface VoiceCopy {
 }
 
 /**
+ * Which voice elements are shown on cards. A global, persisted preference toggled
+ * by the eyeballs in the voice editor. At least one is always visible. Paragraph
+ * is off by default — the compact title+subtitle card is the default look.
+ */
+export interface VoiceVisibility {
+  title: boolean;
+  subtitle: boolean;
+  paragraph: boolean;
+}
+
+/**
  * A curated display + text pairing shown on the home page. Sourced from
  * `content/suggested-pairings.json`. `monovoice` marks a same-family "pairing"
  * (one font carrying both roles).

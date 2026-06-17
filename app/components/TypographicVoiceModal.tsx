@@ -2,7 +2,7 @@
 
 import { useEffect, useLayoutEffect, useRef } from "react";
 import Link from "next/link";
-import type { VoiceCopy } from "@/lib/types";
+import type { VoiceCopy, VoiceVisibility } from "@/lib/types";
 import { useCardTheme } from "./CardThemeProvider";
 import { Textarea, Panel, Label } from "./ui";
 
@@ -16,6 +16,8 @@ import { Textarea, Panel, Label } from "./ui";
 export default function TypographicVoiceModal({
   voice,
   active,
+  visibility,
+  onToggleVisibility,
   onChange,
   onReset,
   onClose,
@@ -23,10 +25,17 @@ export default function TypographicVoiceModal({
   voice: VoiceCopy;
   /** Whether any field is set — gates the reset control. */
   active: boolean;
+  visibility: VoiceVisibility;
+  onToggleVisibility: (key: keyof VoiceVisibility) => void;
   onChange: (next: VoiceCopy) => void;
   onReset: () => void;
   onClose: () => void;
 }) {
+  // The single visible element can't be hidden — disable its eyeball.
+  const visibleCount =
+    Number(visibility.title) +
+    Number(visibility.subtitle) +
+    Number(visibility.paragraph);
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "Escape") onClose();
@@ -79,24 +88,19 @@ export default function TypographicVoiceModal({
           </div>
         </div>
         <div className="flex flex-col gap-4">
-          <Field
-            label="Title"
-            value={voice.title}
-            placeholder="Default sample"
-            onChange={(v) => onChange({ ...voice, title: v })}
-          />
-          <Field
-            label="Subtitle"
-            value={voice.subtitle}
-            placeholder="Default sample"
-            onChange={(v) => onChange({ ...voice, subtitle: v })}
-          />
-          <Field
-            label="Paragraph"
-            value={voice.paragraph}
-            placeholder="Default sample"
-            onChange={(v) => onChange({ ...voice, paragraph: v })}
-          />
+          {(["title", "subtitle", "paragraph"] as const).map((key) => (
+            <Field
+              key={key}
+              label={key[0].toUpperCase() + key.slice(1)}
+              value={voice[key]}
+              placeholder="Default sample"
+              onChange={(v) => onChange({ ...voice, [key]: v })}
+              visible={visibility[key]}
+              // Can't hide the only visible element.
+              toggleDisabled={visibility[key] && visibleCount === 1}
+              onToggleVisible={() => onToggleVisibility(key)}
+            />
+          ))}
         </div>
 
         <CardColorSection onPickTheme={onClose} />
@@ -161,11 +165,19 @@ function Field({
   value,
   placeholder,
   onChange,
+  visible,
+  toggleDisabled,
+  onToggleVisible,
 }: {
   label: string;
   value: string;
   placeholder: string;
   onChange: (v: string) => void;
+  /** Whether this element shows on cards. */
+  visible: boolean;
+  /** True when it's the last visible element — its eyeball is disabled. */
+  toggleDisabled: boolean;
+  onToggleVisible: () => void;
 }) {
   const ref = useRef<HTMLTextAreaElement>(null);
 
@@ -178,17 +190,78 @@ function Field({
   }, [value]);
 
   return (
-    <label className="flex flex-col gap-2">
-      <Label className="font-bold text-muted">{label}</Label>
+    <div className="flex flex-col gap-2">
+      <div className="flex items-center justify-between gap-2">
+        <Label className="font-bold text-muted">{label}</Label>
+        <button
+          type="button"
+          onClick={onToggleVisible}
+          disabled={toggleDisabled}
+          aria-pressed={visible}
+          aria-label={`${visible ? "Hide" : "Show"} ${label.toLowerCase()} on cards`}
+          title={
+            toggleDisabled
+              ? "At least one element must stay visible"
+              : visible
+                ? "Hide on cards"
+                : "Show on cards"
+          }
+          className="flex h-7 w-7 items-center justify-center rounded-full text-muted transition-colors hover:text-text disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:text-muted"
+        >
+          {visible ? <EyeIcon /> : <EyeOffIcon />}
+        </button>
+      </div>
       <Textarea
         ref={ref}
         value={value}
         placeholder={placeholder}
         rows={1}
+        aria-label={label}
         onChange={(e) => onChange(e.target.value)}
-        className="resize-none overflow-hidden border-border bg-bg text-text placeholder:text-muted focus:border-accent"
+        className={`resize-none overflow-hidden border-border bg-bg text-text placeholder:text-muted focus:border-accent ${
+          visible ? "" : "opacity-50"
+        }`}
       />
-    </label>
+    </div>
+  );
+}
+
+function EyeIcon() {
+  return (
+    <svg
+      width="18"
+      height="18"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z" />
+      <circle cx="12" cy="12" r="3" />
+    </svg>
+  );
+}
+
+function EyeOffIcon() {
+  return (
+    <svg
+      width="18"
+      height="18"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <path d="M9.88 5.09A9.77 9.77 0 0 1 12 5c6.5 0 10 7 10 7a13.2 13.2 0 0 1-2.16 2.92M6.12 6.12A13.2 13.2 0 0 0 2 12s3.5 7 10 7a9.74 9.74 0 0 0 4.12-.88" />
+      <path d="m9.9 9.9a3 3 0 0 0 4.2 4.2" />
+      <path d="M2 2l20 20" />
+    </svg>
   );
 }
 

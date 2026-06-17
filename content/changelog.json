@@ -1,6 +1,23 @@
 [
   {
     "date": "2026-06-17",
+    "commit": "990bc89",
+    "title": "Show/hide title, subtitle, and paragraph on cards from the gear",
+    "changes": [
+      "The voice editor (the gear) now has an eyeball next to each element — title, subtitle, paragraph — to show or hide it on every card across the app.",
+      "Cards now show just the title and subtitle by default; the longer paragraph is hidden until you turn it on (a cleaner, more compact default).",
+      "At least one element always stays visible — the last one's eyeball is disabled so a card can never be blank.",
+      "Your choice is remembered across visits."
+    ],
+    "files": [
+      "app/components/VoiceProvider.tsx — global, persisted visibility state + constrained toggle",
+      "app/components/TypographicVoiceModal.tsx — per-element eyeball toggles in the gear",
+      "app/components/SpecimenCard.tsx — every card honors the visibility preference",
+      "lib/types.ts — VoiceVisibility"
+    ]
+  },
+  {
+    "date": "2026-06-17",
     "commit": "c01964d",
     "title": "Discover fonts by feeling — clickable tag pills on every card",
     "changes": [
