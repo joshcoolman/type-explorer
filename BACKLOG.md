@@ -103,6 +103,22 @@ Rethink the "Get Pairings" interaction from a modal overlay into an inline split
 
 ---
 
+## Three-font pairings (spike) `idea`
+
+Explore whether pairings should support a third font — typically a body/reading face distinct from both the display and the secondary text font.
+
+**Current model:** every pairing is two fonts — a heading face and a body face.
+
+**The question:** there are real design scenarios where three fonts make sense (display headline / UI sans / long-form serif body, for example). Is this worth supporting, and if so, how does it change the data model, the card, and the pairing logic?
+
+**This is a spike — no direction yet. Things to think through:**
+- Does the third font have a fixed role, or is it freeform?
+- How does a three-font card look without getting busy?
+- Does the pairing library need to grow to include trios, or is the third font always user-selected?
+- At what point does "three fonts" become "just use the voice editor"?
+
+---
+
 ## Bookmarkable pairing routes `idea`
 
 Replace the current pairings modal (opened via "Get Pairings" on a font card) with URL-routed pages so individual pairings can be bookmarked and shared.
