@@ -145,6 +145,18 @@ Make the Explorer search box useful for non-experts by surfacing Google Fonts' c
 
 ---
 
+## Per-element visibility toggles in the gear `idea`
+
+In the gear menu (the global typographic voice editor, `TypographicVoiceModal`), add eyeball show/hide toggles for the three voice elements — **title, subtitle, paragraph** — so you can control which appear on cards globally.
+
+- Eyeball icon per element (visible/hidden states).
+- Constraint: at least one must stay visible — you can't hide all three; the last visible one's toggle is disabled (or hiding the second-to-last forces one to remain).
+- This is a global setting, like the voice copy itself and the card-color preference — so it'd persist via the same localStorage-backed provider pattern (`VoiceProvider` / `CardThemeProvider`), and every card surface (`SpecimenCard`) reads it. `SpecimenCard` already conditionally renders `paragraph` (the Explorer specimen uses it, pairings don't), so the hooks for skipping an element exist; this generalizes that to user control over title/subtitle too.
+
+**Decide when building:** whether the constraint is "disable the last visible toggle" vs "hiding all is a no-op," and whether hiding an element affects pairing cards (which already omit paragraph).
+
+---
+
 ## Adjustable size and weight on type cards `idea`
 
 When inspecting a specific font or pairing, allow fine-tuning the size and weight of the heading, subheading, and body text — not globally, but scoped to that selection.
