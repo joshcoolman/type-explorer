@@ -50,3 +50,18 @@ Formalize and extend the existing card color palette (`CARD_THEMES` in `lib/card
 UI elements for switching between color palettes — exact scope to be defined.
 
 *(Note: this item was added mid-thought — finish describing what "switch between" means here before building.)*
+
+---
+
+## Bookmarkable pairing routes `idea`
+
+Replace the current pairings modal (opened via "Get Pairings" on a font card) with URL-routed pages so individual pairings can be bookmarked and shared.
+
+**What exists now:**
+- `SuggestedPairingsModal.tsx` opens as an overlay over the Explorer, triggered by a button on each `FontSpecimenCard`
+- No URL change occurs — pairings are ephemeral, not linkable
+
+**Direction:**
+- Give each pairing a readable, bookmarkable URL (e.g. `/fonts/playfair-display` or `/pairings/playfair-display--lora`)
+- Exact URL shape TBD — could be font-centric (one font's pairings) or pair-centric (a specific two-font combination)
+- Modal UX may stay or be replaced by a dedicated page — decide when scoping
