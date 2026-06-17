@@ -73,6 +73,33 @@ A local-only interface for managing `content/suggested-pairings.json` through th
 
 ---
 
+## Split-panel pairing view `idea`
+
+Rethink the "Get Pairings" interaction from a modal overlay into an inline split layout within the Explorer grid.
+
+**What exists now:**
+- A "Get Pairings" button on each `FontSpecimenCard` opens `SuggestedPairingsModal` — a full-screen overlay that replaces the grid entirely
+- The original font card is no longer visible once the modal opens
+
+**Direction:**
+- Clicking a card selects it; the grid transitions to a split layout
+- The selected font card anchors the left column, staying fully visible
+- Remaining columns fill with its pairings — same card size, same grid rhythm
+- No modal, no overlay — the font and its pairings coexist in one continuous view
+- Closing/deselecting returns to the normal full grid
+
+**Why this is better:**
+- Keeps the original card in view so you never lose the reference point
+- Feels native to the grid rather than interrupting it
+- Related to the bookmarkable pairing routes idea — a selected card state maps naturally to a URL
+
+**Open questions:**
+- Transition: does the grid animate the reflow, or is it an instant state swap?
+- Mobile: the split doesn't work at one column — probably falls back to a stacked layout (font card on top, pairings below)
+- Relationship to the bookmarkable routes item: this is the interaction model; routing is the URL layer on top
+
+---
+
 ## Bookmarkable pairing routes `idea`
 
 Replace the current pairings modal (opened via "Get Pairings" on a font card) with URL-routed pages so individual pairings can be bookmarked and shared.
