@@ -4,6 +4,7 @@ import "./globals.css";
 import GlobalNav from "./components/GlobalNav";
 import Footer from "./components/Footer";
 import { VoiceProvider } from "./components/VoiceProvider";
+import { CardThemeProvider } from "./components/CardThemeProvider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -32,11 +33,13 @@ export default function RootLayout({
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="flex min-h-dvh flex-col">
-        <VoiceProvider>
-          <GlobalNav />
-          {children}
-          <Footer />
-        </VoiceProvider>
+        <CardThemeProvider>
+          <VoiceProvider>
+            <GlobalNav />
+            {children}
+            <Footer />
+          </VoiceProvider>
+        </CardThemeProvider>
       </body>
     </html>
   );

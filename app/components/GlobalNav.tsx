@@ -10,6 +10,7 @@ const LINKS = [
   { href: "/", label: "Fonts" },
   { href: "/pairings", label: "Pairings" },
   { href: "/favorites", label: "Favorites" },
+  { href: "/colors", label: "Colors" },
 ];
 
 export default function GlobalNav() {

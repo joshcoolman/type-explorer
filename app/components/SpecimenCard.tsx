@@ -2,7 +2,8 @@
 
 import type { ReactNode, Ref } from "react";
 import type { CardTheme } from "@/lib/card-themes";
-import { themeForIndex } from "@/lib/card-themes";
+import { CARD_THEMES, themeForIndex } from "@/lib/card-themes";
+import { useCardTheme } from "./CardThemeProvider";
 import FavoriteButton from "./FavoriteButton";
 
 /**
@@ -52,7 +53,12 @@ export default function SpecimenCard({
   footer,
   cardRef,
 }: SpecimenCardProps) {
-  const theme = themeForIndex(index);
+  // When the user has pinned a single theme app-wide, every card uses it;
+  // otherwise cards cycle by index for variety (the default). The Colors-page
+  // preview lands here too — its index is the selected theme, so it shows that
+  // theme in either mode without special-casing.
+  const { selectedTheme, useSelected } = useCardTheme();
+  const theme = useSelected ? CARD_THEMES[selectedTheme] : themeForIndex(index);
   const body = bodyFont ?? titleFont;
 
   return (

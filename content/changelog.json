@@ -1,5 +1,25 @@
 [
   {
+    "date": "2026-06-17",
+    "commit": "3890452",
+    "title": "Colors page: preview, swatch view, and a pick-a-theme-for-everything setting",
+    "changes": [
+      "Added a Colors page (in the nav) that shows every card color theme. It opens as a split panel like the pairings page: a sample font card on the left, the themes on the right — click a theme and it paints onto the sample.",
+      "A Preview / Swatches toggle flips the theme cards between full sample cards and tight square-swatch strips for scanning the palette at a glance.",
+      "You can now pick one theme and apply it to every card across the whole app. A Randomize / Use selected theme toggle under the sample card decides whether cards cycle through all themes (the default) or all use your chosen one.",
+      "Your chosen theme now persists — it survives a refresh and is remembered across the app, instead of resetting each visit.",
+      "The page also shows the fixed page-chrome colors (the shell behind the grid and the active-control highlight)."
+    ],
+    "files": [
+      "app/colors/page.tsx — the /colors route",
+      "app/components/ColorsView.tsx — split-panel preview, Preview/Swatches toggle, Randomize/Use-selected toggle",
+      "app/components/CardThemeProvider.tsx — global card-color preference (selected theme + apply mode), persisted to localStorage",
+      "app/components/SpecimenCard.tsx — every card reads the preference: one selected theme app-wide, or cycle as before",
+      "app/components/GlobalNav.tsx — Colors nav item",
+      "app/layout.tsx — wraps the app in CardThemeProvider"
+    ]
+  },
+  {
     "date": "2026-06-16",
     "commit": "477476d",
     "title": "Split-panel pairings page and scroll memory on the way back",
