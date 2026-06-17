@@ -174,7 +174,7 @@ Explore whether pairings should support a third font — typically a body/readin
 
 ---
 
-## Bookmarkable pairing routes `idea`
+## Bookmarkable pairing routes `shipped`
 
 Replace the current pairings modal (opened via "Get Pairings" on a font card) with URL-routed pages so individual pairings can be bookmarked and shared.
 

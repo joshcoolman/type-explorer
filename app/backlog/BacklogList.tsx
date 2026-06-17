@@ -2,25 +2,37 @@
 
 import { useState } from "react";
 import ReactMarkdown from "react-markdown";
-import { PageHeader } from "../components/ui";
-import { PAGE_THEME } from "../../lib/card-themes";
+import { Button, PageHeader } from "../components/ui";
+import { PAGE_THEME, HIGHLIGHT } from "../../lib/card-themes";
 import type { BacklogSection } from "./page";
 
 const UI = { bg: PAGE_THEME.bg, fg: PAGE_THEME.fg, muted: PAGE_THEME.muted };
-const THEME = { bg: "#40534C", fg: "#F0E4D3", muted: "#AEBAB0" };
+
+interface CardTheme {
+  bg: string;
+  fg: string;
+  muted: string;
+}
+
+/** Open ideas wear the forest-roast green; shipped/closed wear the darker blue. */
+const OPEN_THEME: CardTheme = { bg: "#40534C", fg: "#F0E4D3", muted: "#AEBAB0" };
+const CLOSED_THEME: CardTheme = { bg: "#2E434F", fg: "#DEE6EA", muted: "#93AAB6" };
 
 function BacklogCard({
   heading,
   body,
+  theme,
   expanded,
   onToggle,
 }: {
   heading: string;
   status: string | null;
   body: string;
+  theme: CardTheme;
   expanded: boolean;
   onToggle: () => void;
 }) {
+  const THEME = theme;
   return (
     <article
       className="rounded-2xl"
@@ -112,6 +124,7 @@ function BacklogCard({
 
 export default function BacklogList({ sections }: { sections: BacklogSection[] }) {
   const [expanded, setExpanded] = useState<Set<string>>(new Set());
+  const [view, setView] = useState<"open" | "closed">("open");
 
   const toggle = (heading: string) =>
     setExpanded((prev) => {
@@ -120,21 +133,58 @@ export default function BacklogList({ sections }: { sections: BacklogSection[] }
       return next;
     });
 
+  const openCount = sections.filter((s) => !s.closed).length;
+  const closedCount = sections.length - openCount;
+  const visible = sections.filter((s) => (view === "closed" ? s.closed : !s.closed));
+
+  const PILLS = [
+    { key: "open", label: "Open", count: openCount },
+    { key: "closed", label: "Closed", count: closedCount },
+  ] as const;
+
   return (
     <main className="flex-1" style={{ background: UI.bg, color: UI.fg }}>
       <div className="mx-auto w-full max-w-2xl px-5 pt-6 pb-12 sm:px-8 sm:pt-8 sm:pb-16">
-        <PageHeader title="Backlog" className="mb-10" />
+        <PageHeader title="Backlog" className="mb-8" />
+
+        <div className="mb-8 flex gap-1.5">
+          {PILLS.map((p) => {
+            const on = view === p.key;
+            return (
+              <Button
+                key={p.key}
+                size="sm"
+                onClick={() => setView(p.key)}
+                style={
+                  on
+                    ? { background: HIGHLIGHT, color: UI.bg }
+                    : { background: "#1F1D19", color: UI.muted }
+                }
+              >
+                {p.label}
+                <span className="ml-1.5 opacity-60">{p.count}</span>
+              </Button>
+            );
+          })}
+        </div>
+
         <div className="flex flex-col gap-3">
-          {sections.map((s) => (
+          {visible.map((s) => (
             <BacklogCard
               key={s.heading}
               heading={s.heading}
               status={s.status}
               body={s.body}
+              theme={s.closed ? CLOSED_THEME : OPEN_THEME}
               expanded={expanded.has(s.heading)}
               onToggle={() => toggle(s.heading)}
             />
           ))}
+          {visible.length === 0 && (
+            <p className="py-8 text-center text-sm" style={{ color: UI.muted }}>
+              No {view} items.
+            </p>
+          )}
         </div>
       </div>
     </main>

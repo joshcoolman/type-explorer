@@ -8,8 +8,8 @@ import { Textarea, Panel, Label } from "./ui";
  * A pop-up editor for the explorer's typographic voice — the title, subtitle,
  * and paragraph applied to every card. Rendered as a fixed overlay so it stays
  * reachable from anywhere in the (scrolling) font grid, unlike the old inline
- * panel that scrolled out of view. Mirrors SuggestedPairingsModal's plumbing:
- * Escape to close, backdrop click to close, background scroll lock.
+ * panel that scrolled out of view. Standard modal plumbing: Escape to close,
+ * backdrop click to close, background scroll lock.
  */
 export default function TypographicVoiceModal({
   voice,

@@ -11,8 +11,13 @@ export const metadata: Metadata = {
 export interface BacklogSection {
   heading: string;
   status: string | null;
+  /** A shipped/closed item — its status tag marks it done rather than pending. */
+  closed: boolean;
   body: string;
 }
+
+/** Status tags that mark an item as closed (shipped) rather than an open idea. */
+const CLOSED_STATUSES = new Set(["closed", "done", "shipped"]);
 
 function parseSections(raw: string): BacklogSection[] {
   return raw
@@ -25,7 +30,8 @@ function parseSections(raw: string): BacklogSection[] {
       const tagMatch = rawHeading.match(/^(.*?)\s*`([^`]+)`\s*$/);
       const heading = tagMatch ? tagMatch[1].trim() : rawHeading.trim();
       const status = tagMatch ? tagMatch[2] : null;
-      return { heading, status, body };
+      const closed = status ? CLOSED_STATUSES.has(status.toLowerCase()) : false;
+      return { heading, status, closed, body };
     });
 }
 

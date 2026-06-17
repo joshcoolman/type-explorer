@@ -13,7 +13,6 @@ import {
 } from "@/lib/pairing-library";
 import { PAGE_THEME, HIGHLIGHT } from "@/lib/card-themes";
 import FontSpecimenCard from "./FontSpecimenCard";
-import SuggestedPairingsModal from "./SuggestedPairingsModal";
 import { useVoice } from "./VoiceProvider";
 import { Button, Container, Grid, GridAlign, Input, PageHeader } from "./ui";
 
@@ -50,9 +49,8 @@ export default function BrowseView() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Pairing library (lazy-loaded) + which source font's pairings are open.
+  // Pairing library (lazy-loaded); gates the "Get Pairings" link per card.
   const [library, setLibrary] = useState<PairingLibrary | null>(null);
-  const [pairingFor, setPairingFor] = useState<string | null>(null);
 
   const favorites = useFavorites();
   const { voice } = useVoice();
@@ -110,7 +108,7 @@ export default function BrowseView() {
       <Container className="pt-6 pb-12 sm:pt-8 sm:pb-16">
         <GridAlign className="mb-10">
           <PageHeader
-            title="Explorer"
+            title="Fonts"
             className="mb-0"
             actions={
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center lg:justify-end">
@@ -172,7 +170,6 @@ export default function BrowseView() {
               favorited={isFontFavorite(favorites, f.family)}
               onToggleFavorite={() => toggleFontFavorite(f)}
               hasPairings={!!library?.[f.family]}
-              onShowPairings={() => setPairingFor(f.family)}
             />
           ))}
         </Grid>
@@ -200,14 +197,6 @@ export default function BrowseView() {
           </div>
         )}
       </Container>
-
-      {pairingFor && library?.[pairingFor] && (
-        <SuggestedPairingsModal
-          source={pairingFor}
-          entry={library[pairingFor]}
-          onClose={() => setPairingFor(null)}
-        />
-      )}
     </main>
   );
 }

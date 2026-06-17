@@ -7,8 +7,8 @@ import { Button } from "./ui";
 import { useVoice } from "./VoiceProvider";
 
 const LINKS = [
-  { href: "/", label: "Home" },
-  { href: "/explorer", label: "Explorer" },
+  { href: "/", label: "Fonts" },
+  { href: "/pairings", label: "Pairings" },
   { href: "/favorites", label: "Favorites" },
 ];
 

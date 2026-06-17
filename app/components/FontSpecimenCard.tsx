@@ -1,8 +1,10 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import type { FontFamily, VoiceCopy } from "@/lib/types";
 import { fontStack, loadPreviewFont } from "@/lib/font-loader";
+import { slugify } from "@/lib/slug";
 import SpecimenCard from "./SpecimenCard";
 
 /** Shown on every card until the user overrides a field in the voice panel. */
@@ -22,8 +24,6 @@ interface FontSpecimenCardProps {
   onToggleFavorite?: () => void;
   /** Whether the pairing library has suggestions for this font. */
   hasPairings?: boolean;
-  /** Open the suggested-pairings overlay for this font. */
-  onShowPairings?: () => void;
 }
 
 export default function FontSpecimenCard({
@@ -33,7 +33,6 @@ export default function FontSpecimenCard({
   favorited = false,
   onToggleFavorite,
   hasPairings = false,
-  onShowPairings,
 }: FontSpecimenCardProps) {
   const ref = useRef<HTMLDivElement>(null);
   const [inView, setInView] = useState(false);
@@ -89,16 +88,15 @@ export default function FontSpecimenCard({
           {/* Reserve the row whether or not this font has pairings, so the rule
               above stays aligned across the grid. */}
           <div className="mt-2 min-h-[2.25em]">
-            {hasPairings && onShowPairings && (
-              <button
-                type="button"
+            {hasPairings && (
+              <Link
+                href={`/pairings/${slugify(family.family)}`}
                 aria-label={`Get pairings for ${family.family}`}
-                onClick={onShowPairings}
                 className="inline-flex items-center rounded-[4px] px-3 py-1.5 transition-opacity hover:opacity-70"
                 style={{ color: theme.muted, border: `0.5px solid ${theme.muted}` }}
               >
                 Get Pairings
-              </button>
+              </Link>
             )}
           </div>
         </div>
