@@ -8,13 +8,19 @@ auto-loaded each session. (Global `~/.claude/CLAUDE.md` already covers no-emojis
 build-to-verify, never-run-dev, and reporting the last file edited — not repeated
 here.)
 
-## Critical: changelog on commit
+## Critical: the commit ritual
 
-When committing/pushing user-facing work to `main`, add a `content/changelog.json`
-entry (newest-first) **in the same commit** — or run `/changes`. No hook enforces
-this; it's the one thing easy to forget. Trivial commits (typo, dep bump, docs)
-skip it. Entries' `files[]` double as recent-work memory, so **skim the changelog
-first** to see what changed lately and where.
+When committing/pushing user-facing work to `main`, both of these are part of the
+commit — no hook enforces them, they're the easy-to-forget steps:
+
+1. **Changelog** — add a `content/changelog.json` entry (newest-first) **in the
+   same commit**, or run `/changes`. Entries' `files[]` double as recent-work
+   memory, so **skim the changelog first** to see what changed lately and where.
+2. **Continue prompt** — after the commit + push, invoke `/continue-prompt` to
+   refresh `continue.md` to the new HEAD. (It's a gitignored local handoff, so
+   it's updated *alongside* the commit, not in it.)
+
+Trivial commits (typo, dep bump, docs-only) skip both.
 
 ## Commands
 
