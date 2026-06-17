@@ -26,3 +26,27 @@ A single `/learn` page that covers everything someone needs to know about type t
 - Draft the copy — the writing is the design here
 
 **Prior attempt parked:** a more engineered version (sub-routes, canvas-measured anatomy, full classification grid) was built and reverted. The live font metrics idea had merit. Came back too early, before the content strategy was clear.
+
+---
+
+## Color palette system `idea`
+
+Formalize and extend the existing card color palette (`CARD_THEMES` in `lib/card-themes.ts`) into a first-class system.
+
+**What exists now:**
+- 11 hand-curated `CardTheme` entries (bg / fg / muted / accent) cycling across all card surfaces
+- A named source palette (`C`) of ~20 hex values the themes are built from
+- `PAGE_THEME` for chrome and `HIGHLIGHT` for active controls — both fixed
+
+**Direction:**
+- Define the palette system more explicitly — named ramps, roles, relationships between colors
+- Make it possible to add new themes without breaking the existing rotation
+- Potentially expose controls for extending or customizing the palette
+
+---
+
+## Palette switcher UI `idea`
+
+UI elements for switching between color palettes — exact scope to be defined.
+
+*(Note: this item was added mid-thought — finish describing what "switch between" means here before building.)*
