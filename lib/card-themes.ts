@@ -85,17 +85,50 @@ export function themeForIndex(i: number): CardTheme {
   return CARD_THEMES[i % CARD_THEMES.length];
 }
 
-/** Fixed dark-neutral page chrome behind the grid. */
-export const PAGE_THEME: CardTheme = {
-  bg: "#212121", // neutral grey ground (no hue) — matches globals.css --bg
+/**
+ * The default dark-neutral page chrome behind the grid. These literal hexes are
+ * the *defaults*; they're mirrored into the `--page-*` CSS variables in
+ * globals.css and are what the Colors-page editor restores to. The live values
+ * the app actually renders come through `PAGE_THEME` below (the CSS vars), which
+ * `CardThemeProvider` can override at runtime.
+ */
+export const PAGE_THEME_DEFAULT: CardTheme = {
+  bg: "#212121", // neutral grey ground (no hue) — matches globals.css --page-bg
   fg: C.cream,
   muted: "#8A8678",
   accent: C.orioles,
 };
 
 /**
- * The selected/active highlight for interactive page-chrome controls (filter
- * pills, and future toggles). Warm amber/gold. Distinct from `PAGE_THEME.accent`
- * (orange-red), which is reserved for small-type accents like the page eyebrow.
+ * Page chrome as the app reads it — CSS-variable references, not literals, so
+ * user customization (or none) flows through one place. Defaults live in
+ * globals.css `:root` (`--page-*`); `CardThemeProvider` writes overrides onto the
+ * document root. Every chrome consumer uses this, so editing the vars repaints
+ * the whole shell.
  */
-export const HIGHLIGHT = "#e8c07a";
+export const PAGE_THEME: CardTheme = {
+  bg: "var(--page-bg)",
+  fg: "var(--page-fg)",
+  muted: "var(--page-muted)",
+  accent: "var(--page-accent)",
+};
+
+/**
+ * The selected/active highlight for interactive page-chrome controls (filter
+ * pills, toggles). Warm amber/gold. Distinct from `PAGE_THEME.accent`
+ * (orange-red), reserved for small-type accents like the page eyebrow.
+ */
+export const HIGHLIGHT_DEFAULT = "#e8c07a";
+export const HIGHLIGHT = "var(--page-highlight)";
+
+/** Default page-chrome values keyed by role — drives the editor + reset. */
+export const PAGE_CHROME_DEFAULTS = {
+  bg: PAGE_THEME_DEFAULT.bg,
+  fg: PAGE_THEME_DEFAULT.fg,
+  muted: PAGE_THEME_DEFAULT.muted,
+  accent: PAGE_THEME_DEFAULT.accent,
+  highlight: HIGHLIGHT_DEFAULT,
+} as const;
+
+/** The page-chrome role keys, in editor display order. */
+export type PageChromeKey = keyof typeof PAGE_CHROME_DEFAULTS;

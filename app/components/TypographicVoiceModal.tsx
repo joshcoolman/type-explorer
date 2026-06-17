@@ -1,7 +1,9 @@
 "use client";
 
 import { useEffect, useLayoutEffect, useRef } from "react";
+import Link from "next/link";
 import type { VoiceCopy } from "@/lib/types";
+import { useCardTheme } from "./CardThemeProvider";
 import { Textarea, Panel, Label } from "./ui";
 
 /**
@@ -96,7 +98,60 @@ export default function TypographicVoiceModal({
             onChange={(v) => onChange({ ...voice, paragraph: v })}
           />
         </div>
+
+        <CardColorSection onPickTheme={onClose} />
       </Panel>
+    </div>
+  );
+}
+
+/**
+ * The global card-color mode, mirrored into the gear so it's reachable anywhere
+ * (it has an app-wide effect). Writes the same `CardThemeProvider` setting the
+ * Colors page does; picking *which* theme stays on the Colors page (it needs the
+ * visual grid), so the caption links there.
+ */
+function CardColorSection({ onPickTheme }: { onPickTheme: () => void }) {
+  const { useSelected, setUseSelected } = useCardTheme();
+  const options: [boolean, string][] = [
+    [false, "Randomize"],
+    [true, "Use selected theme"],
+  ];
+  return (
+    <div className="mt-5 border-t border-border pt-5">
+      <Label className="font-bold text-muted">Card color</Label>
+      <div className="mt-2 flex gap-2">
+        {options.map(([value, label]) => {
+          const on = useSelected === value;
+          return (
+            <button
+              key={label}
+              type="button"
+              aria-pressed={on}
+              onClick={() => setUseSelected(value)}
+              className={`rounded-full px-3 py-1.5 font-mono text-[11px] font-bold uppercase tracking-wider transition-colors ${
+                on
+                  ? "bg-accent text-bg"
+                  : "border border-border text-muted hover:text-text"
+              }`}
+            >
+              {label}
+            </button>
+          );
+        })}
+      </div>
+      <p className="mt-2.5 text-xs text-muted">
+        {useSelected
+          ? "Every card across the app uses your selected theme. "
+          : "Cards across the app cycle through all themes. "}
+        <Link
+          href="/colors"
+          onClick={onPickTheme}
+          className="font-semibold text-text underline underline-offset-4"
+        >
+          Pick the theme on the Colors page.
+        </Link>
+      </p>
     </div>
   );
 }

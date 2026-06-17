@@ -4,8 +4,10 @@ import { useEffect, useState } from "react";
 import {
   CARD_THEMES,
   HIGHLIGHT,
+  PAGE_CHROME_DEFAULTS,
   PAGE_THEME,
   type CardTheme,
+  type PageChromeKey,
 } from "../../lib/card-themes";
 import { fontStackByName, loadFontByName } from "@/lib/font-loader";
 import { sampleForIndex } from "@/lib/specimen-samples";
@@ -88,7 +90,7 @@ export default function ColorsView() {
 
             <SectionHeading
               label="Page chrome"
-              note="Fixed colors for the shell behind the grid and active controls."
+              note="The colors of the shell behind the grid and active controls. Edit them below — changes apply across the whole site and persist."
               className="mt-16"
             />
             <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-3">
@@ -99,6 +101,7 @@ export default function ColorsView() {
                 extraRoles={[["highlight", HIGHLIGHT]]}
               />
             </div>
+            <PageChromeEditor />
           </div>
         </div>
       </Container>
@@ -179,6 +182,66 @@ function ApplyToggle({
           ? "Every card across Fonts, Pairings, and Favorites uses the selected theme."
           : "Cards across the app cycle through all themes for variety."}
       </p>
+    </div>
+  );
+}
+
+/**
+ * Edits the live page-chrome colors. Each swatch is a native color input bound to
+ * the override (or the default when none); changing it writes a `--page-*` CSS
+ * variable app-wide through `CardThemeProvider`. "Restore defaults" clears every
+ * override. Persisted, so edits survive reloads.
+ */
+const CHROME_ROLES: [PageChromeKey, string][] = [
+  ["bg", "Background"],
+  ["fg", "Text"],
+  ["muted", "Muted"],
+  ["accent", "Accent"],
+  ["highlight", "Highlight"],
+];
+
+function PageChromeEditor() {
+  const { pageChrome, setPageChrome, resetPageChrome } = useCardTheme();
+  const customized = Object.keys(pageChrome).length > 0;
+
+  return (
+    <div className="mt-6 flex flex-wrap items-end gap-x-5 gap-y-4">
+      {CHROME_ROLES.map(([key, label]) => {
+        const value = (pageChrome[key] ?? PAGE_CHROME_DEFAULTS[key]).toLowerCase();
+        return (
+          <label key={key} className="flex flex-col gap-1.5">
+            <span
+              className="font-mono text-[10px] uppercase tracking-[0.16em]"
+              style={{ color: UI.muted }}
+            >
+              {label}
+            </span>
+            <span className="flex items-center gap-2">
+              <input
+                type="color"
+                value={value}
+                aria-label={`${label} color`}
+                onChange={(e) => setPageChrome(key, e.target.value)}
+                className="h-9 w-12 cursor-pointer rounded-lg border bg-transparent p-1"
+                style={{ borderColor: "#2A2823" }}
+              />
+              <span className="font-mono text-[11px]" style={{ color: UI.muted }}>
+                {value.toUpperCase()}
+              </span>
+            </span>
+          </label>
+        );
+      })}
+
+      <button
+        type="button"
+        onClick={resetPageChrome}
+        disabled={!customized}
+        className="font-mono text-[11px] uppercase tracking-[0.16em] underline-offset-4 transition-opacity hover:underline disabled:opacity-40"
+        style={{ color: UI.accent }}
+      >
+        Restore defaults
+      </button>
     </div>
   );
 }

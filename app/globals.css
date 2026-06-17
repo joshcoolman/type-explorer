@@ -11,6 +11,17 @@
   --accent-2: #8ab4ff;
   --good: #6dd58c;
   --bad: #f08a8a;
+
+  /* Page chrome — the shell colors (nav, footer, view backgrounds, eyebrow
+     accent, active-control highlight). Defaults mirror PAGE_THEME_DEFAULT +
+     HIGHLIGHT_DEFAULT in lib/card-themes.ts; CardThemeProvider overrides them on
+     the document root for user customization. Consumed via PAGE_THEME / HIGHLIGHT
+     (which reference these vars), so editing here repaints the whole shell. */
+  --page-bg: #212121;
+  --page-fg: #f0e4d3;
+  --page-muted: #8a8678;
+  --page-accent: #e34712;
+  --page-highlight: #e8c07a;
 }
 
 /* Inverted (light) surface. The site is dark; certain self-contained surfaces —
@@ -56,7 +67,7 @@ body {
 }
 
 body {
-  background: var(--bg);
+  background: var(--page-bg);
   color: var(--text);
   font-family:
     var(--font-sans),

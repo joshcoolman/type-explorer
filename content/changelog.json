@@ -1,6 +1,23 @@
 [
   {
     "date": "2026-06-17",
+    "commit": "f7e9ee7",
+    "title": "Customizable page-chrome colors, and the card-theme toggle in the gear",
+    "changes": [
+      "You can now recolor the whole app's chrome — the shell behind the cards, the nav and footer, and the active-control highlight. The Colors page has a swatch editor under Page chrome with a color picker per role and a Restore defaults button; changes apply site-wide instantly and persist.",
+      "The Randomize / Use selected theme switch is now also in the gear menu (it has an app-wide effect, so it's reachable from anywhere). The gear and the Colors page share one setting and stay in sync; pick which theme on the Colors page.",
+      "Page-chrome colors now flow through CSS variables, so a single edit repaints the entire shell at once. Defaults are unchanged — nothing looks different until you customize."
+    ],
+    "files": [
+      "lib/card-themes.ts — PAGE_THEME/HIGHLIGHT now reference --page-* CSS vars; literals kept as *_DEFAULT + PAGE_CHROME_DEFAULTS for the editor",
+      "app/globals.css — --page-bg/-fg/-muted/-accent/-highlight defaults; body grounds on --page-bg",
+      "app/components/CardThemeProvider.tsx — per-role page-chrome overrides written to the document root and persisted",
+      "app/components/ColorsView.tsx — PageChromeEditor (color picker per role + Restore defaults)",
+      "app/components/TypographicVoiceModal.tsx — Card color (Randomize / Use selected theme) section in the gear"
+    ]
+  },
+  {
+    "date": "2026-06-17",
     "commit": "3890452",
     "title": "Colors page: preview, swatch view, and a pick-a-theme-for-everything setting",
     "changes": [
