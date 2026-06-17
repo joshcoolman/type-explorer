@@ -103,6 +103,19 @@ Rethink the "Get Pairings" interaction from a modal overlay into an inline split
 
 ---
 
+## Adjustable size and weight on type cards `idea`
+
+When inspecting a specific font or pairing, allow fine-tuning the size and weight of the heading, subheading, and body text — not globally, but scoped to that selection.
+
+**Context:** most useful in the split-panel pairing view (see above) where you're evaluating a font seriously, not just browsing. The global typographic voice editor already handles copy; this is about the typographic properties — size and weight — for that one card.
+
+**Low priority, unplanned. Things to think through:**
+- Probably per-card controls, not a global setting — sliders or steppers for size and weight
+- Should it persist per font, or reset when you move on?
+- Relationship to the voice editor: the voice editor owns copy, this would own size/weight — keep them separate or merge?
+
+---
+
 ## Pairing context previews `idea`
 
 Once a pairing is selected, show it applied to a handful of real-world layout templates — so you can feel how the fonts behave in context, not just as a specimen card.
