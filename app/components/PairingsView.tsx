@@ -92,6 +92,8 @@ export default function PairingsView({
       note={p.why}
       titleOverride={voice.title}
       subtitleOverride={voice.subtitle}
+      paragraphOverride={voice.paragraph}
+      sourceFamily={source}
       index={i++}
       favorited={isPairingFavorite(favorites, p.id)}
       onToggleFavorite={() => togglePairingFavorite(p)}

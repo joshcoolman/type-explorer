@@ -1,6 +1,22 @@
 [
   {
     "date": "2026-06-17",
+    "commit": "305ce07",
+    "title": "Pairing cards: paragraph support, always-on fonts, and pivot to a partner",
+    "changes": [
+      "Pairing cards now include the paragraph too (in the text font) when you turn paragraph on in the gear — so the visibility setting reaches pairings, not just single fonts.",
+      "A pairing always shows both of its fonts: the title and subtitle stay visible on pairing cards no matter your hide settings, since hiding one would hide half the pairing. Only the paragraph is optional there.",
+      "Click the partner font's name in a pairing's footer to open its own pairings in a new tab — so you can branch off to explore it without losing your place. The font you're already viewing isn't a link; on the home and favorites cards both names link."
+    ],
+    "files": [
+      "app/components/PairingCard.tsx — paragraph passthrough, pairing flag, partner-name links (new tab)",
+      "app/components/SpecimenCard.tsx — `pairing` forces title+subtitle visible; only paragraph follows visibility",
+      "app/components/PairingsView.tsx — passes the source font so only the partner links",
+      "app/components/SuggestedPairings.tsx + FavoritesView.tsx — paragraph override threaded through"
+    ]
+  },
+  {
+    "date": "2026-06-17",
     "commit": "990bc89",
     "title": "Show/hide title, subtitle, and paragraph on cards from the gear",
     "changes": [

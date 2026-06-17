@@ -60,6 +60,7 @@ export default function FavoritesView() {
                   index={i}
                   titleOverride={voice.title}
                   subtitleOverride={voice.subtitle}
+                  paragraphOverride={voice.paragraph}
                   favorited
                   onToggleFavorite={() => togglePairingFavorite(p)}
                 />

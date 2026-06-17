@@ -38,6 +38,7 @@ export default function SuggestedPairings({
       index={i}
       titleOverride={voice.title}
       subtitleOverride={voice.subtitle}
+      paragraphOverride={voice.paragraph}
       favorited={isPairingFavorite(favorites, p.id)}
       onToggleFavorite={() => togglePairingFavorite(p)}
     />

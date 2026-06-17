@@ -29,8 +29,14 @@ export interface SpecimenCardProps {
   bodyFont?: string;
   title: string;
   subtitle: string;
-  /** Optional third reading block — Explorer specimens use it, pairings don't. */
+  /** Optional third reading block — the only element pairings make optional. */
   paragraph?: string;
+  /**
+   * Two-font pairing card: the title and subtitle ARE the two font samples, so
+   * they always render regardless of the global voice visibility — hiding one
+   * would hide half the pairing. Only the paragraph follows the visibility toggle.
+   */
+  pairing?: boolean;
   favorited?: boolean;
   onToggleFavorite?: () => void;
   /** Accessible noun for the favorite control ("font", "pairing"). */
@@ -48,6 +54,7 @@ export default function SpecimenCard({
   title,
   subtitle,
   paragraph,
+  pairing = false,
   favorited = false,
   onToggleFavorite,
   favoriteLabel = "item",
@@ -63,7 +70,11 @@ export default function SpecimenCard({
   const body = bodyFont ?? titleFont;
 
   // Global per-element visibility (toggled by the eyeballs in the voice editor).
+  // On a pairing the title + subtitle are the two fonts, so they always show;
+  // only the paragraph is optional there.
   const { visibility } = useVoice();
+  const showTitle = pairing || visibility.title;
+  const showSubtitle = pairing || visibility.subtitle;
 
   return (
     <article
@@ -83,7 +94,7 @@ export default function SpecimenCard({
         </div>
       )}
 
-      {visibility.title && (
+      {showTitle && (
         <h2
           className="pr-10 text-3xl leading-[1.05] sm:text-4xl"
           style={{ fontFamily: titleFont, fontWeight: 700 }}
@@ -92,7 +103,7 @@ export default function SpecimenCard({
         </h2>
       )}
 
-      {visibility.subtitle && (
+      {showSubtitle && (
         <p
           className="mt-3 text-lg leading-snug sm:text-xl first:mt-0"
           style={{ fontFamily: body, fontWeight: 400, color: theme.muted }}
