@@ -106,22 +106,35 @@ export default function FontSpecimenCard({
               ))}
             </div>
           )}
-          {/* Reserve the row whether or not this font has pairings, so the rule
-              above stays aligned across the grid. */}
-          <div className="mt-2 min-h-[2.25em]">
+          {/* Pairings action: set off by a rule and right-aligned so it reads as
+              the primary action, distinct from the feeling pills above. The row is
+              reserved even without pairings to keep footers aligned across the grid. */}
+          <div className="mt-3 min-h-[2.25em]">
             {hasPairings && (
-              <Link
-                href={`/pairings/${slugify(family.family)}`}
-                aria-label={`Get pairings for ${family.family}`}
-                // Don't scroll the browse grid to the top on the way out — that
-                // reset would otherwise overwrite the saved scroll position the
-                // back button restores. The pairing view scrolls itself to top.
-                scroll={false}
-                className="inline-flex items-center rounded-[4px] px-3 py-1.5 transition-opacity hover:opacity-70"
-                style={{ color: theme.muted, border: `0.5px solid ${theme.muted}` }}
-              >
-                Get Pairings
-              </Link>
+              <>
+                <div
+                  className="mb-3"
+                  style={{ borderTop: `0.5px solid ${theme.muted}` }}
+                />
+                <div className="flex justify-end">
+                  <Link
+                    href={`/pairings/${slugify(family.family)}`}
+                    aria-label={`Get pairings for ${family.family}`}
+                    // Don't scroll the browse grid to the top on the way out — that
+                    // reset would otherwise overwrite the saved scroll position the
+                    // back button restores. The pairing view scrolls itself to top.
+                    scroll={false}
+                    // Inverted (filled) treatment — the opposite of the outlined
+                    // feeling pills above — so the primary action stands apart from
+                    // the tags: the pills' muted text/border becomes the fill, the
+                    // text flips to the card's field color.
+                    className="inline-flex items-center rounded-[4px] px-3 py-1.5 transition-opacity hover:opacity-70"
+                    style={{ background: theme.muted, color: theme.bg, border: `0.5px solid ${theme.muted}` }}
+                  >
+                    Get Pairings
+                  </Link>
+                </div>
+              </>
             )}
           </div>
         </div>
