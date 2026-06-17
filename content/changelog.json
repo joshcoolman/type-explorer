@@ -1,6 +1,23 @@
 [
   {
     "date": "2026-06-17",
+    "commit": "ca11b2f",
+    "title": "Visual category selector on Fonts, plus a grid breakpoint fix",
+    "changes": [
+      "The Fonts category filter is now visual: a row of tiles above the cards, each showing a big 'Aa' in a font representative of that style (Playfair Display for Serif, Space Grotesk for Sans, Anton for Display, Space Mono for Mono, Pacifico for Script; All in the UI sans). The selected tile inverts to dark-on-light.",
+      "The search box moved to the far right and gained a magnifying-glass icon; the old text pills are gone.",
+      "Fixed a layout gap: between roughly 640 and 784px the grid showed a single narrow card stranded in the middle. It now stays a full-width single card until two cards genuinely fit.",
+      "The Colors page now opens on the Swatches view by default."
+    ],
+    "files": [
+      "app/components/CategoryTiles.tsx — the Aa specimen tiles (representative fonts in a single TILES constant)",
+      "app/components/BrowseView.tsx — search moved right + icon, pills replaced by CategoryTiles",
+      "app/components/ui/Grid.tsx — switch to 22rem columns at min-[49rem] (when two fit), not sm",
+      "app/components/ColorsView.tsx — default to the Swatches view"
+    ]
+  },
+  {
+    "date": "2026-06-17",
     "commit": "305ce07",
     "title": "Pairing cards: paragraph support, always-on fonts, and pivot to a partner",
     "changes": [

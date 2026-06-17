@@ -50,7 +50,7 @@ function rolesFor(theme: CardTheme, extra: [string, string][] = []): [string, st
  * (pure square swatches) — the layout itself never changes.
  */
 export default function ColorsView() {
-  const [view, setView] = useState<View>("preview");
+  const [view, setView] = useState<View>("swatches");
   const { selectedTheme, setSelectedTheme, useSelected, setUseSelected } =
     useCardTheme();
   const swatchOnly = view === "swatches";

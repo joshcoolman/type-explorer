@@ -15,18 +15,10 @@ import {
 } from "@/lib/pairing-library";
 import { PAGE_THEME, HIGHLIGHT } from "@/lib/card-themes";
 import { feelingFromSlug, feelingLabel, feelingSlug } from "@/lib/feelings";
+import CategoryTiles from "./CategoryTiles";
 import FontSpecimenCard from "./FontSpecimenCard";
 import { useVoice } from "./VoiceProvider";
 import { Button, Container, Grid, GridAlign, Input, PageHeader } from "./ui";
-
-const CATEGORIES = [
-  { key: "all", label: "All" },
-  { key: "serif", label: "Serif" },
-  { key: "sans-serif", label: "Sans" },
-  { key: "display", label: "Display" },
-  { key: "monospace", label: "Mono" },
-  { key: "handwriting", label: "Script" },
-] as const;
 
 const PAGE = 60;
 
@@ -253,37 +245,6 @@ export default function BrowseView() {
             className="mb-0"
             actions={
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center lg:justify-end">
-              <Input
-                value={q}
-                onChange={(e) => setQ(e.target.value)}
-                placeholder="Search fonts"
-                className="w-full sm:w-56"
-                style={{
-                  borderColor: UI.border,
-                  background: UI.field,
-                  color: UI.fg,
-                }}
-              />
-              <div className="flex flex-wrap gap-1.5">
-                {CATEGORIES.map((c) => {
-                  const on = category === c.key;
-                  return (
-                    <Button
-                      key={c.key}
-                      size="sm"
-                      onClick={() => setCategory(c.key)}
-                      style={
-                        on
-                          ? { background: HIGHLIGHT, color: UI.bg }
-                          : { background: UI.pill, color: UI.muted }
-                      }
-                    >
-                      {c.label}
-                    </Button>
-                  );
-                })}
-              </div>
-
               {tag && (
                 <Link
                   href="/"
@@ -297,10 +258,33 @@ export default function BrowseView() {
                   </span>
                 </Link>
               )}
+              <div className="relative w-full sm:w-72">
+                <span
+                  aria-hidden
+                  className="pointer-events-none absolute inset-y-0 left-3 flex items-center"
+                  style={{ color: UI.muted }}
+                >
+                  <SearchIcon />
+                </span>
+                <Input
+                  value={q}
+                  onChange={(e) => setQ(e.target.value)}
+                  placeholder="Search fonts"
+                  aria-label="Search fonts"
+                  className="w-full pl-9"
+                  style={{
+                    borderColor: UI.border,
+                    background: UI.field,
+                    color: UI.fg,
+                  }}
+                />
+              </div>
             </div>
             }
           />
         </GridAlign>
+
+        <CategoryTiles value={category} onChange={setCategory} />
 
         {error && (
           <div
@@ -353,5 +337,24 @@ export default function BrowseView() {
         )}
       </Container>
     </main>
+  );
+}
+
+function SearchIcon() {
+  return (
+    <svg
+      width="16"
+      height="16"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <circle cx="11" cy="11" r="8" />
+      <path d="m21 21-4.3-4.3" />
+    </svg>
   );
 }
