@@ -49,6 +49,22 @@ function toAxes(item) {
   }));
 }
 
+// Google's FAMILY_TAGS include a /Expressive/* mood layer (Cute, Playful, …) with
+// a 0–100 weight. Keep only those, as the bare leaf name + weight, strongest
+// first — they drive the clickable "feeling" pills on each card. Other namespaces
+// (/Sans, /Serif, /Technology…) are left out; genre is already the category.
+function toFeelings(item) {
+  if (!item.tags || item.tags.length === 0) return undefined;
+  const feelings = item.tags
+    .map((t) => {
+      const m = /^\/Expressive\/(.+)$/.exec(t.name);
+      return m ? { name: m[1], weight: t.weight } : null;
+    })
+    .filter(Boolean)
+    .sort((a, b) => b.weight - a.weight);
+  return feelings.length ? feelings : undefined;
+}
+
 async function fetchSorted(key, sort, capabilities = []) {
   const params = new URLSearchParams({ key, sort });
   for (const c of capabilities) params.append("capability", c);
@@ -64,9 +80,11 @@ async function fetchSorted(key, sort, capabilities = []) {
 async function main() {
   const key = readApiKey();
 
-  // One call carries families + axes in popularity order; a second supplies trending ranks.
+  // One call carries families + axes + feeling tags in popularity order; a second
+  // supplies trending ranks. (capability params augment the response, they don't
+  // filter the set — FAMILY_TAGS just adds the `tags` array.)
   const [base, trending] = await Promise.all([
-    fetchSorted(key, "popularity", ["WOFF2", "VF"]),
+    fetchSorted(key, "popularity", ["WOFF2", "VF", "FAMILY_TAGS"]),
     fetchSorted(key, "trending").catch(() => []),
   ]);
 
@@ -78,6 +96,7 @@ async function main() {
     category: normalizeCategory(item.category),
     variants: item.variants,
     axes: toAxes(item),
+    feelings: toFeelings(item),
     subsets: item.subsets,
     popularityRank: i,
     trendingRank: trendingRankByFamily.get(item.family),

@@ -114,7 +114,16 @@ Rethink the "Get Pairings" interaction from a modal overlay into an inline split
 
 ---
 
-## Mood/feeling-based font discovery `idea`
+## Mood/feeling-based font discovery `shipped`
+
+**Shipped via a different mechanism than originally sketched.** Rather than a
+mood dropdown in the search box (judged overwhelming — it'd be a giant tag-cloud),
+discovery moved to the **card level**: every font card shows its top Google
+`/Expressive` feeling tags as clickable pills, and clicking one focuses the Fonts
+grid on that feeling (strongest-first) via a shareable `/?tag=cute` URL. Tags are
+now baked into the catalog (`build-catalog.mjs` → `data/fonts.json`, 99% coverage).
+The **semantic-search half** (typing "professional" matching tags in the search
+box) was deliberately deferred — reopen if that's still wanted.
 
 Make the Explorer search box useful for non-experts by surfacing Google Fonts' canonical mood/feeling tags — so someone can find a font by how it feels rather than by knowing its name.
 

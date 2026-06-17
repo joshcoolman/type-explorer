@@ -102,9 +102,9 @@ export function CardThemeProvider({ children }: { children: React.ReactNode }) {
 
   // Hydrate persisted settings after mount (avoids SSR hydration mismatch), then
   // push any page-chrome overrides onto the document root.
-  // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => {
     const next = read();
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setSettings(next);
     applyChrome(next.pageChrome);
   }, []);

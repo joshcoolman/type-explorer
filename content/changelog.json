@@ -1,6 +1,25 @@
 [
   {
     "date": "2026-06-17",
+    "commit": "c01964d",
+    "title": "Discover fonts by feeling — clickable tag pills on every card",
+    "changes": [
+      "Every font card now shows its Google 'feeling' tags (Cute, Playful, Futuristic, Sophisticated…) as small pills beneath the name.",
+      "Click a feeling to focus the Fonts grid on fonts that share it, strongest match first — browse by mood instead of by name.",
+      "The focused view is a shareable URL (e.g. /?tag=cute) with an active-feeling chip you can clear; browser back/forward and direct links work.",
+      "These tags come from Google Fonts' own semantic data, now refreshed into the catalog — 99% of families are tagged."
+    ],
+    "files": [
+      "scripts/build-catalog.mjs — fetches FAMILY_TAGS, writes per-font feelings into data/fonts.json",
+      "lib/feelings.ts — the 20 /Expressive moods + slug/label helpers",
+      "app/api/fonts/route.ts — ?tag filter, sorted by feeling strength",
+      "app/components/BrowseView.tsx — URL-driven feeling filter + active-feeling chip",
+      "app/components/FontSpecimenCard.tsx — feeling pills on each card",
+      "app/page.tsx — Suspense boundary so the URL filter keeps the route static"
+    ]
+  },
+  {
+    "date": "2026-06-17",
     "commit": "f7e9ee7",
     "title": "Customizable page-chrome colors, and the card-theme toggle in the gear",
     "changes": [

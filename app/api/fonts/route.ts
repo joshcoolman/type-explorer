@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getCatalog } from "@/lib/catalog";
+import { feelingFromSlug, feelingSlug } from "@/lib/feelings";
 import type { FontFamily } from "@/lib/types";
 
 export const runtime = "nodejs";
@@ -15,6 +16,11 @@ const ICON_FONT_RE = /\b(icons?|symbols?|emoji)\b/i;
 
 function isIconFont(f: FontFamily): boolean {
   return ICON_FONT_RE.test(f.family);
+}
+
+/** Weight of a given feeling slug on a family (0 if untagged) — for focus sort. */
+function feelingWeight(f: FontFamily, slug: string): number {
+  return f.feelings?.find((t) => t.name.toLowerCase() === slug)?.weight ?? 0;
 }
 
 function sortFamilies(families: FontFamily[], sort: SortKey): FontFamily[] {
@@ -51,13 +57,27 @@ export async function GET(req: NextRequest) {
   const sort = (sp.get("sort") ?? "popularity") as SortKey;
   const limit = Math.min(Number(sp.get("limit") ?? 60) || 60, 500);
   const offset = Math.max(Number(sp.get("offset") ?? 0) || 0, 0);
+  // A `tag` is a /Expressive feeling slug ("cute"). Validate against the known 20
+  // so junk params just no-op rather than returning an empty grid.
+  const feeling = feelingFromSlug(sp.get("tag") ?? "");
 
   let families = catalog.families.filter((f) => !isIconFont(f));
   if (q) families = families.filter((f) => f.family.toLowerCase().includes(q));
   if (category && category !== "all") {
     families = families.filter((f) => f.category === category);
   }
-  families = sortFamilies(families, sort);
+  if (feeling) {
+    const slug = feelingSlug(feeling);
+    families = families.filter((f) =>
+      f.feelings?.some((t) => feelingSlug(t.name) === slug),
+    );
+    // A focused feeling view reads best strongest-first, not by popularity.
+    families = [...families].sort(
+      (a, b) => feelingWeight(b, slug) - feelingWeight(a, slug),
+    );
+  } else {
+    families = sortFamilies(families, sort);
+  }
 
   const total = families.length;
   const page = families.slice(offset, offset + limit);

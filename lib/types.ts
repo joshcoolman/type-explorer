@@ -12,11 +12,18 @@ export interface FontAxis {
   defaultValue: number;
 }
 
+/** A Google /Expressive mood tag — leaf name ("Cute") + 0–100 weight. */
+export interface FontFeeling {
+  name: string;
+  weight: number;
+}
+
 export interface FontFamily {
   family: string; // "Bricolage Grotesque"
   category: FontCategory;
   variants: string[]; // ["200", "300", ..., "800italic", "regular", "italic"]
   axes?: FontAxis[]; // variable-font axes, if any
+  feelings?: FontFeeling[]; // Google /Expressive mood tags, strongest first
   subsets: string[];
   popularityRank: number; // index in the popularity-sorted response (0-based)
   trendingRank?: number; // index in the trending-sorted response

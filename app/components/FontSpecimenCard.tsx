@@ -4,8 +4,12 @@ import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import type { FontFamily, VoiceCopy } from "@/lib/types";
 import { fontStack, loadPreviewFont } from "@/lib/font-loader";
+import { feelingLabel, feelingSlug } from "@/lib/feelings";
 import { slugify } from "@/lib/slug";
 import SpecimenCard from "./SpecimenCard";
+
+/** Top feeling tags to surface as pills on a card. */
+const MAX_FEELINGS = 5;
 
 /** Shown on every card until the user overrides a field in the voice panel. */
 export const DEFAULT_VOICE: VoiceCopy = {
@@ -85,6 +89,23 @@ export default function FontSpecimenCard({
           <div className="min-h-[2.75em]" style={{ color: theme.accent }}>
             {family.family}
           </div>
+          {/* Feeling pills — Google's /Expressive moods. Click to pivot the grid
+              to fonts with that feeling. Absent for the ~20-30% Google untags. */}
+          {family.feelings && family.feelings.length > 0 && (
+            <div className="mt-2 flex flex-wrap gap-1.5">
+              {family.feelings.slice(0, MAX_FEELINGS).map((f) => (
+                <Link
+                  key={f.name}
+                  href={`/?tag=${feelingSlug(f.name)}`}
+                  aria-label={`Show ${feelingLabel(f.name)} fonts`}
+                  className="rounded-[4px] px-2 py-1 transition-opacity hover:opacity-70"
+                  style={{ color: theme.muted, border: `0.5px solid ${theme.muted}` }}
+                >
+                  {feelingLabel(f.name)}
+                </Link>
+              ))}
+            </div>
+          )}
           {/* Reserve the row whether or not this font has pairings, so the rule
               above stays aligned across the grid. */}
           <div className="mt-2 min-h-[2.25em]">

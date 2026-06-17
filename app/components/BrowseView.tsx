@@ -1,6 +1,8 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import type { FontFamily } from "@/lib/types";
 import {
   useFavorites,
@@ -12,6 +14,7 @@ import {
   type PairingLibrary,
 } from "@/lib/pairing-library";
 import { PAGE_THEME, HIGHLIGHT } from "@/lib/card-themes";
+import { feelingFromSlug, feelingLabel, feelingSlug } from "@/lib/feelings";
 import FontSpecimenCard from "./FontSpecimenCard";
 import { useVoice } from "./VoiceProvider";
 import { Button, Container, Grid, GridAlign, Input, PageHeader } from "./ui";
@@ -83,6 +86,16 @@ const UI = {
 };
 
 export default function BrowseView() {
+  // The active feeling filter lives on the URL (?tag=cute) — shareable, and a tag
+  // pill anywhere (including the pairings page) can deep-link into a focused view.
+  const searchParams = useSearchParams();
+  // useMemo so `tag` is a compiler-trackable dependency of fetchPage (a plain
+  // derived local trips react-hooks/preserve-manual-memoization).
+  const tag = useMemo(
+    () => feelingFromSlug(searchParams.get("tag") ?? ""),
+    [searchParams],
+  );
+
   const [q, setQ] = useState("");
   const [debouncedQ, setDebouncedQ] = useState("");
   const [category, setCategory] = useState<string>("all");
@@ -123,6 +136,9 @@ export default function BrowseView() {
       pendingRestore.current = saved;
       restoreScrollY.current = saved.scrollY;
       snap.current = saved;
+      // Restoring persisted browse state into React state on mount — the one-shot
+      // hydration the set-state-in-effect rule doesn't account for.
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setQ(saved.q);
       setDebouncedQ(saved.q);
       setCategory(saved.category);
@@ -153,6 +169,7 @@ export default function BrowseView() {
           limit: String(count ?? PAGE),
           offset: String(nextOffset),
         });
+        if (tag) params.set("tag", feelingSlug(tag));
         const res = await fetch(`/api/fonts?${params.toString()}`);
         const data = await res.json();
         if (!res.ok) throw new Error(data.error ?? "Failed to load fonts");
@@ -169,7 +186,7 @@ export default function BrowseView() {
         setLoading(false);
       }
     },
-    [debouncedQ, category],
+    [debouncedQ, category, tag],
   );
 
   // Reset and refetch whenever the query parameters change (after hydration).
@@ -266,6 +283,20 @@ export default function BrowseView() {
                   );
                 })}
               </div>
+
+              {tag && (
+                <Link
+                  href="/"
+                  aria-label={`Clear ${feelingLabel(tag)} filter`}
+                  className="inline-flex items-center gap-1.5 self-start rounded-[8px] px-2.5 py-1 text-xs font-medium transition-opacity hover:opacity-80 sm:self-auto"
+                  style={{ background: HIGHLIGHT, color: UI.bg }}
+                >
+                  Feeling: {feelingLabel(tag)}
+                  <span aria-hidden className="text-sm leading-none">
+                    ×
+                  </span>
+                </Link>
+              )}
             </div>
             }
           />
