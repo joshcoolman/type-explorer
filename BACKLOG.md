@@ -93,8 +93,11 @@ Rethink the "Get Pairings" interaction from a modal overlay into an inline split
 - Feels native to the grid rather than interrupting it
 - Related to the bookmarkable pairing routes idea — a selected card state maps naturally to a URL
 
+**Transition:**
+- The selected card slides/moves into the left column position, then the pairing cards appear in the remaining columns — motion communicates the parent-child relationship
+- Pairings could fade or stagger in after the card settles
+
 **Open questions:**
-- Transition: does the grid animate the reflow, or is it an instant state swap?
 - Mobile: the split doesn't work at one column — probably falls back to a stacked layout (font card on top, pairings below)
 - Relationship to the bookmarkable routes item: this is the interaction model; routing is the URL layer on top
 
