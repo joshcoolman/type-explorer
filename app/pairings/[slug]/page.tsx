@@ -5,7 +5,7 @@ import type { PairingLibrary } from "@/lib/pairing-library";
 import { slugify, familyForSlug } from "@/lib/slug";
 import { PAGE_THEME } from "@/lib/card-themes";
 import PairingsView from "@/app/components/PairingsView";
-import { Container, GridAlign, PageHeader } from "@/app/components/ui";
+import { PageHeader } from "@/app/components/ui";
 
 const library = libraryJson as PairingLibrary;
 
@@ -30,8 +30,12 @@ export default async function PairingsPage({
       className="flex-1"
       style={{ background: PAGE_THEME.bg, color: PAGE_THEME.fg }}
     >
-      <Container className="pt-6 pb-12 sm:pt-8 sm:pb-16">
-        <GridAlign className="mb-10">
+      {/* Full-bleed page: unlike the rest of the app (capped at the 4-card
+          92.5rem measure), pairings spread as wide as the viewport so the
+          partner grid can show as many columns as fit. Generous side padding;
+          the extra left room on sm+ holds the back caret in the gutter. */}
+      <div className="w-full px-5 pt-6 pb-12 sm:pl-16 sm:pr-8 sm:pt-8 sm:pb-16">
+        <div className="mb-10 w-full">
           <div className="flex flex-col gap-4 sm:relative sm:block sm:gap-0">
             {/* Circular caret — mirrors the nav gear (h-8 w-8 pill). On sm+ it
                 floats into the left gutter, vertically centered on the title and
@@ -41,6 +45,9 @@ export default async function PairingsPage({
             <Link
               href="/"
               aria-label="Back to fonts"
+              // Skip Next's scroll-to-top so BrowseView can restore the saved
+              // scroll position on return (it lands you back at the card you left).
+              scroll={false}
               className="inline-flex h-8 w-8 shrink-0 items-center justify-center self-start rounded-full border transition-colors hover:opacity-70 sm:absolute sm:right-full sm:top-1/2 sm:mr-4 sm:-translate-y-1/2"
               style={{ borderColor: "#2A2823", color: PAGE_THEME.muted }}
             >
@@ -49,10 +56,10 @@ export default async function PairingsPage({
 
             <PageHeader title={`Pairings for ${source}`} className="mb-0" />
           </div>
-        </GridAlign>
+        </div>
 
         <PairingsView source={source} entry={entry} />
-      </Container>
+      </div>
     </main>
   );
 }

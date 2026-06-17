@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import type { FontFamily } from "@/lib/types";
 import {
   useFavorites,
@@ -26,6 +26,50 @@ const CATEGORIES = [
 ] as const;
 
 const PAGE = 60;
+
+/**
+ * A per-tab snapshot of the browse state, so returning from a pairing page (or
+ * any navigation away) lands you back where you were instead of at the top of a
+ * freshly-reset grid. We persist the filters and how many cards were loaded
+ * (the scroll target won't exist until those are restored) alongside the scroll
+ * offset. sessionStorage keeps it scoped to the tab and read post-mount, so no
+ * SSR/hydration mismatch.
+ */
+interface BrowseSnapshot {
+  q: string;
+  category: string;
+  loaded: number;
+  scrollY: number;
+}
+
+const SESSION_KEY = "type-explorer:browse";
+
+function readBrowseSnapshot(): BrowseSnapshot | null {
+  if (typeof window === "undefined") return null;
+  try {
+    const raw = window.sessionStorage.getItem(SESSION_KEY);
+    if (!raw) return null;
+    const s = JSON.parse(raw) as Partial<BrowseSnapshot>;
+    if (typeof s.q !== "string" || typeof s.category !== "string") return null;
+    return {
+      q: s.q,
+      category: s.category,
+      loaded: typeof s.loaded === "number" && s.loaded > 0 ? s.loaded : PAGE,
+      scrollY: typeof s.scrollY === "number" ? s.scrollY : 0,
+    };
+  } catch {
+    return null;
+  }
+}
+
+function writeBrowseSnapshot(s: BrowseSnapshot): void {
+  if (typeof window === "undefined") return;
+  try {
+    window.sessionStorage.setItem(SESSION_KEY, JSON.stringify(s));
+  } catch {
+    /* sessionStorage unavailable (private mode, quota) — non-fatal */
+  }
+}
 
 /** Page-chrome surface colors, matching the rest of the app's dark surfaces. */
 const UI = {
@@ -55,6 +99,37 @@ export default function BrowseView() {
   const favorites = useFavorites();
   const { voice } = useVoice();
 
+  // --- Browse-state restoration ----------------------------------------------
+  // Read once after mount (not during render, to avoid a hydration mismatch).
+  // pendingRestore drives the first fetch to load the saved page count; the
+  // refs hold the target values so the live "save" effects below can't clobber
+  // them before the restore completes.
+  const [hydrated, setHydrated] = useState(false);
+  const pendingRestore = useRef<BrowseSnapshot | null>(null);
+  const restoreScrollY = useRef<number | null>(null);
+  // Single in-memory source of truth for the persisted snapshot, so the
+  // filters/count save and the scroll save each touch only their own fields
+  // (a filter change must not stamp a stale scrollY over the real one).
+  const snap = useRef<BrowseSnapshot>({
+    q: "",
+    category: "all",
+    loaded: 0,
+    scrollY: 0,
+  });
+
+  useEffect(() => {
+    const saved = readBrowseSnapshot();
+    if (saved) {
+      pendingRestore.current = saved;
+      restoreScrollY.current = saved.scrollY;
+      snap.current = saved;
+      setQ(saved.q);
+      setDebouncedQ(saved.q);
+      setCategory(saved.category);
+    }
+    setHydrated(true);
+  }, []);
+
   // Pull in the pairing library once; the magic icon appears as it resolves.
   useEffect(() => {
     loadPairingLibrary().then(setLibrary).catch(() => setLibrary({}));
@@ -67,7 +142,7 @@ export default function BrowseView() {
   }, [q]);
 
   const fetchPage = useCallback(
-    async (nextOffset: number, replace: boolean) => {
+    async (nextOffset: number, replace: boolean, count?: number) => {
       setLoading(true);
       setError(null);
       try {
@@ -75,14 +150,16 @@ export default function BrowseView() {
           q: debouncedQ,
           category,
           sort: "popularity",
-          limit: String(PAGE),
+          limit: String(count ?? PAGE),
           offset: String(nextOffset),
         });
         const res = await fetch(`/api/fonts?${params.toString()}`);
         const data = await res.json();
         if (!res.ok) throw new Error(data.error ?? "Failed to load fonts");
         setTotal(data.total);
-        setOffset(nextOffset);
+        // On a restore we fetch many cards at once; point `offset` at the last
+        // page so the next "load more" continues from the restored count.
+        setOffset(count ? Math.max(0, data.families.length - PAGE) : nextOffset);
         setFamilies((prev) =>
           replace ? data.families : [...prev, ...data.families],
         );
@@ -95,11 +172,58 @@ export default function BrowseView() {
     [debouncedQ, category],
   );
 
-  // Reset and refetch whenever the query parameters change.
+  // Reset and refetch whenever the query parameters change (after hydration).
+  // The first run consumes a pending restore to reload the saved page count.
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    fetchPage(0, true);
-  }, [fetchPage]);
+    if (!hydrated) return;
+    const snap = pendingRestore.current;
+    pendingRestore.current = null;
+    if (snap && snap.q === debouncedQ && snap.category === category) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      fetchPage(0, true, snap.loaded);
+    } else {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      fetchPage(0, true);
+    }
+  }, [hydrated, fetchPage]);
+
+  // Once the restored cards have rendered, jump back to the saved scroll
+  // position. Two frames so layout (and reserved card heights) has settled.
+  useEffect(() => {
+    if (restoreScrollY.current == null || families.length === 0) return;
+    const y = restoreScrollY.current;
+    restoreScrollY.current = null;
+    requestAnimationFrame(() =>
+      requestAnimationFrame(() => window.scrollTo(0, y)),
+    );
+  }, [families]);
+
+  // Keep the snapshot's filters/count current (scroll field left untouched).
+  useEffect(() => {
+    if (!hydrated) return;
+    snap.current = { ...snap.current, q: debouncedQ, category, loaded: families.length };
+    writeBrowseSnapshot(snap.current);
+  }, [hydrated, debouncedQ, category, families.length]);
+
+  // Persist scroll position (throttled to a frame) so "back" returns here. The
+  // forward "Get Pairings" link uses scroll={false}, so navigating away never
+  // resets the page to the top — this only ever records real user scrolling.
+  useEffect(() => {
+    let raf = 0;
+    const onScroll = () => {
+      if (raf) return;
+      raf = requestAnimationFrame(() => {
+        raf = 0;
+        snap.current = { ...snap.current, scrollY: window.scrollY };
+        writeBrowseSnapshot(snap.current);
+      });
+    };
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      if (raf) cancelAnimationFrame(raf);
+    };
+  }, []);
 
   const canLoadMore = families.length < total;
 

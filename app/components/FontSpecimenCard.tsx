@@ -92,6 +92,10 @@ export default function FontSpecimenCard({
               <Link
                 href={`/pairings/${slugify(family.family)}`}
                 aria-label={`Get pairings for ${family.family}`}
+                // Don't scroll the browse grid to the top on the way out — that
+                // reset would otherwise overwrite the saved scroll position the
+                // back button restores. The pairing view scrolls itself to top.
+                scroll={false}
                 className="inline-flex items-center rounded-[4px] px-3 py-1.5 transition-opacity hover:opacity-70"
                 style={{ color: theme.muted, border: `0.5px solid ${theme.muted}` }}
               >

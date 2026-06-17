@@ -1,6 +1,23 @@
 [
   {
     "date": "2026-06-16",
+    "commit": "477476d",
+    "title": "Split-panel pairings page and scroll memory on the way back",
+    "changes": [
+      "Redesigned the per-font pairings page: the font you picked now sits on its own to the left as a full specimen, with its partners laid out in their own grid to the right — so the pairing relationship reads at a glance.",
+      "The selected font stays put (sticky) as you scroll its partners, keeping the comparison anchored.",
+      "Gave the pairings page room to breathe — it now spreads to the full width of the window so more partners show at once, instead of the four-across measure the rest of the app uses.",
+      "Returning from a pairings page now drops you right back where you were on the Fonts grid — your search, category, how many fonts you'd loaded, and your scroll position are all remembered, instead of resetting to the top."
+    ],
+    "files": [
+      "app/components/PairingsView.tsx — two-column split layout, sticky source card, scroll-to-top on open",
+      "app/pairings/[slug]/page.tsx — full-bleed page, back-caret gutter guard, scroll={false} on the back link",
+      "app/components/BrowseView.tsx — per-tab snapshot restores filters, loaded count, and scroll on return",
+      "app/components/FontSpecimenCard.tsx — Get Pairings link opts out of scroll-to-top so the browse position survives"
+    ]
+  },
+  {
+    "date": "2026-06-16",
     "commit": "5ea4f53",
     "title": "Bookmarkable pairings, a Fonts-first nav, and backlog status",
     "changes": [
