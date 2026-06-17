@@ -1,6 +1,26 @@
 [
   {
     "date": "2026-06-16",
+    "commit": "5ea4f53",
+    "title": "Bookmarkable pairings, a Fonts-first nav, and backlog status",
+    "changes": [
+      "Opening a font's pairings now changes the URL instead of a pop-up, so any pairing can be bookmarked and shared — every font has its own /pairings/{font} page.",
+      "Renamed and reordered the nav: the font browser is now the home page under \"Fonts\", the old home page of suggested pairings moved under \"Pairings\", and Favorites is unchanged.",
+      "Cleaned up the pairings page — one \"Pairings for {Font}\" heading lined up with the cards, all pairings shown as a single set, and a round back button tucked into the left margin opposite the voice gear.",
+      "Gave the backlog an open/closed view: two pills toggle between active ideas and shipped ones, with closed items set apart in blue.",
+      "Marked \"Bookmarkable pairing routes\" as shipped — the first closed backlog item."
+    ],
+    "files": [
+      "app/pairings/[slug]/page.tsx — per-font pairings page (SSG, one per font)",
+      "app/pairings/page.tsx — the suggested-pairings showcase (was the home page)",
+      "app/page.tsx — root is now the Fonts browser; /explorer redirects here",
+      "app/components/PairingsView.tsx — shared pairings grid (replaced the modal)",
+      "lib/slug.ts — font-name <-> URL-slug, the single source of truth",
+      "app/backlog/BacklogList.tsx — Open/Closed pills and the closed (blue) card theme"
+    ]
+  },
+  {
+    "date": "2026-06-16",
     "commit": "52e9f0e",
     "title": "Unified page header, neutral palette, and a footer",
     "changes": [
