@@ -103,6 +103,28 @@ Rethink the "Get Pairings" interaction from a modal overlay into an inline split
 
 ---
 
+## Mood/feeling-based font discovery `idea`
+
+Make the Explorer search box useful for non-experts by surfacing Google Fonts' canonical mood/feeling tags — so someone can find a font by how it feels rather than by knowing its name.
+
+**What exists now:**
+- The search box does a substring match on font family name only — useless unless you already know what you're looking for
+- The pairing engine already uses Google Fonts' `FAMILY_TAGS` (moods/feelings) internally to compute contrast distances, but that data is never exposed to the user
+- Tags include things like: rugged, happy, stiff, professional, elegant, playful, etc.
+
+**Two connected improvements:**
+
+1. **Mood picker in the search dropdown** — clicking into the search box opens a dropdown of available mood tags. Clicking one filters the grid to fonts tagged with that feeling. No typing required — pure discovery for someone who doesn't know font names.
+
+2. **Semantic search** — if someone types a mood word (or something adjacent to one), the search matches against tags and other metadata, not just the font name. Typing "professional" surfaces fonts tagged professional; typing "friendly" surfaces humanist faces even if "friendly" isn't an exact tag.
+
+**Things to think through:**
+- Where does the tag data live? `FAMILY_TAGS` is already used in the pairing scripts — check whether it's committed to the static catalog or only used at build time
+- How many tags are there? May need grouping or a truncated "most useful" subset for the dropdown
+- The dropdown and semantic search are independent — could ship one without the other
+
+---
+
 ## Adjustable size and weight on type cards `idea`
 
 When inspecting a specific font or pairing, allow fine-tuning the size and weight of the heading, subheading, and body text — not globally, but scoped to that selection.
