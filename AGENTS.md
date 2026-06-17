@@ -24,7 +24,7 @@ in the code.
 
 | Area | File(s) | Touch when… |
 |---|---|---|
-| Explorer page (browse, search, filter, sort, voice) | `app/components/BrowseView.tsx` | changing the catalog grid, controls, or page wiring |
+| Fonts browser (browse, search, filter, voice) | `app/components/BrowseView.tsx` | changing the catalog grid, controls, or page wiring |
 | Single specimen card | `app/components/FontSpecimenCard.tsx` | card layout; owns `VoiceCopy` type + `DEFAULT_VOICE` |
 | Typographic voice editor | `app/components/TypographicVoiceModal.tsx` | the voice pop-up (title/subtitle/paragraph overrides) |
 | Pairings overlay | `app/components/SuggestedPairingsModal.tsx`, `PairingCard.tsx`, `SuggestedPairings.tsx` | pairing UI / cards |
@@ -35,7 +35,7 @@ in the code.
 | Static data | `lib/catalog.ts`, `lib/pairing-library.ts`, `lib/specimen-samples.ts` | catalog/pairing/sample-copy data access |
 | Fonts API | `app/api/fonts/route.ts` | search / sort / paginate endpoint behind the explorer |
 | Shared types | `lib/types.ts` | `FontFamily` and other cross-module types |
-| Pages / shell | `app/page.tsx` (home), `app/explorer/page.tsx`, `app/favorites/page.tsx`, `app/layout.tsx`, `app/components/GlobalNav.tsx` | routes and app shell |
+| Pages / shell | `app/page.tsx` (Fonts browser — root), `app/pairings/page.tsx` (pairings showcase) + `app/pairings/[slug]/page.tsx` (per-font pairings, SSG), `app/favorites/page.tsx`, `app/explorer/page.tsx` (redirects to `/`), `app/layout.tsx`, `app/components/GlobalNav.tsx` | routes and app shell |
 | Changelog | `content/changelog.json` (data), `app/changelog/page.tsx` (page), `.claude/commands/changes.md` (`/changes`) | recording user-facing changes |
 | Design docs | `docs/design-system.md` | design-system reference |
 
@@ -44,12 +44,12 @@ in the code.
 - **Verify with `npm run build`**, not the dev server. Fix all errors until the build passes.
 - **No emojis** anywhere — code, docs, or UI.
 - UI primitives carry no color; per-card light/dark themes flow through via `className`/`style` (see `Card.tsx`). Reach for `app/components/ui` before hand-rolling markup.
-- Overlays (voice editor, pairings) share one pattern: fixed overlay, Escape to close, backdrop-click to close, `document.body` scroll lock. Copy `SuggestedPairingsModal.tsx` / `TypographicVoiceModal.tsx` rather than reinventing.
+- Overlays (e.g. the voice editor) share one pattern: fixed overlay, Escape to close, backdrop-click to close, `document.body` scroll lock. Copy `TypographicVoiceModal.tsx` rather than reinventing. (Pairings are no longer an overlay — they're the `/pairings/[slug]` route.)
 - State like favorites and typographic voice persists to `localStorage`; hydrate after mount to avoid SSR mismatch (see the `readVoice` pattern in `BrowseView.tsx`).
 - The font catalog and pairing library are **static JSON built offline** via the `catalog:refresh` / `pairings:build` scripts — not fetched live at runtime.
 - **Cards**: every card surface (Explorer, Home, pairings) renders the one presentational base `SpecimenCard` inside the one `Grid`. Add card variation through props/the `footer` slot, not new card shells.
 - **Light surfaces**: wrap a self-contained surface in the `theme-light` class (`globals.css`) to flip it to the warm cream "light mode"; the usual semantic utilities re-resolve. The site itself stays dark.
-- **Changelog**: after a meaningful change, add an entry to `content/changelog.json` (newest-first) — or run `/changes` to draft one. Keep bullets user-facing. Each entry's `files[]` notes the key files it touched, so this file doubles as recent-work memory: **skim `content/changelog.json` first to orient on what changed lately and where it lives** before diving into this map.
+- **Changelog**: a changelog entry is part of committing user-facing work, not an afterthought — when committing/pushing feature work to `main`, add an entry to `content/changelog.json` (newest-first) **in the same commit** (or run `/changes` to draft one). There is no hook enforcing this; it's a convention. Trivial commits (typo, dep bump) can skip it. Keep bullets user-facing. Each entry's `files[]` notes the key files it touched, so this file doubles as recent-work memory: **skim `content/changelog.json` first to orient on what changed lately and where it lives** before diving into this map.
 
 ## Product direction
 
