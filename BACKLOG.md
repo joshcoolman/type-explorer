@@ -2,28 +2,105 @@
 
 Lightweight idea tracker. Status tags: `idea` · `ready` · `in progress` · `parked`
 
+> **Generated file — do not edit by hand.** The source of truth is
+> [GitHub Issues](https://github.com/joshcoolman/type-explorer/issues); run `pnpm backlog:sync` to
+> regenerate this from them, then commit the diff. Hand edits are lost on the next
+> sync.
+
 ---
 
-## `/compose`: a "Tweak it" sidebar `idea`
+## Three-font pairings (spike) `idea`
 
-A UI affordance on a composed page — something like **"Tweak it"** — that opens a sidebar exposing every element of the composition as a direct control: sliders for the dials (`scale`, `density`, `contrast`, `measure`) and the absolute overrides (`h1`, `h2`, `p`), palette pickers for every color role (`bg`, `title`, `subtitle`, `paragraph`, `accent`, and the `page` field). Tweak to your heart's content without going back through the agent.
+Explore whether pairings should support a third font — typically a body/reading face distinct from both the display and the secondary text font.
 
-**Stretch, explicitly not important:** font selection in the same sidebar.
+**Current model:** every pairing is two fonts — a heading face and a body face.
 
-**Why it fits:**
-The color key already runs human → agent rather than agent → human — it gives a person the exact vocabulary to revise with ("make `A32B25` darker" instead of "the red's too bright"). A sidebar is the next step along that axis: skip the round trip entirely for changes faster to *do* than to *describe*. The plumbing largely exists — every control listed is already a validated, clamped, contrast-checked param in `lib/compose-params.ts`, so this is a control surface over a grammar that's already designed.
+**The question:** there are real design scenarios where three fonts make sense (display headline / UI sans / long-form serif body, for example). Is this worth supporting, and if so, how does it change the data model, the card, and the pairing logic?
 
-**The question worth settling first:**
-What does a tweak *produce*? If the sidebar only mutates local state, the result is unshareable and invisible to the agent — which breaks the property that makes composed pages work at all (the URL *is* the entire state). It should almost certainly rewrite the URL as you tweak, leaving a link you can hand straight back: *"I adjusted it, here's where I landed, keep going."* That closes the loop in both directions. This is the difference between a toy and a loop, so decide it before building.
+**This is a spike — no direction yet. Things to think through:**
+- Does the third font have a fixed role, or is it freeform?
+- How does a three-font card look without getting busy?
+- Does the pairing library need to grow to include trios, or is the third font always user-selected?
+- At what point does "three fonts" become "just use the voice editor"?
 
-**Constraints to respect:**
-- `/compose` reads no viewer state, deliberately — a composed URL must render identically for everyone it's sent to (see `CLAUDE.md`). A sidebar must not become a localStorage preference that silently changes what *other* people see at that link.
-- Contrast validation lives in `completeTheme` / `completePageChrome`. A picker should surface those nudges, not bypass them, or someone can hand-pick something illegible that the URL path would have caught.
-- Keep it invisible to the recipient. The composed page is a design surface; the affordance should be quiet.
+[#12](https://github.com/joshcoolman/type-explorer/issues/12)
 
-**Prior art in-repo:** `TypographicVoiceModal.tsx` (overlay pattern), `ColorsView.tsx` (swatch/picker treatment), `ComposeColorKey.tsx` (already names every effective color — the natural place to hang "click a swatch to edit").
+---
 
-Related: `docs/plans/agent-surface-v1.md`, V2 candidates.
+## Pairing context previews `idea`
+
+Once a pairing is selected, show it applied to a handful of real-world layout templates — so you can feel how the fonts behave in context, not just as a specimen card.
+
+**Examples mentioned:**
+- Social media card
+- Business card
+- Editorial layout
+- Basic web page layout
+
+**The idea:** these are static mock layouts, pre-built templates that swap in the active heading and body fonts. No design tool, no export — just enough to answer "does this pairing actually work for what I'm building?"
+
+**This is unplanned — nothing decided yet. Things to think through:**
+- Where does this live? Inline below the pairing card, a dedicated panel, or a new route?
+- How many templates is useful without being overwhelming?
+- Templates are static HTML/CSS — authored once, fonts injected at render time
+- Relationship to the split-panel pairing view: context previews could be a natural extension of that layout
+
+[#11](https://github.com/joshcoolman/type-explorer/issues/11)
+
+---
+
+## Adjustable size and weight on type cards `idea`
+
+When inspecting a specific font or pairing, allow fine-tuning the size and weight of the heading, subheading, and body text — not globally, but scoped to that selection.
+
+**Context:** most useful in the split-panel pairing view (see above) where you're evaluating a font seriously, not just browsing. The global typographic voice editor already handles copy; this is about the typographic properties — size and weight — for that one card.
+
+**Low priority, unplanned. Things to think through:**
+- Probably per-card controls, not a global setting — sliders or steppers for size and weight
+- Should it persist per font, or reset when you move on?
+- Relationship to the voice editor: the voice editor owns copy, this would own size/weight — keep them separate or merge?
+
+[#10](https://github.com/joshcoolman/type-explorer/issues/10)
+
+---
+
+## Local admin UI for curating suggested pairings `idea`
+
+A local-only interface for managing `content/suggested-pairings.json` through the app rather than by hand-editing JSON.
+
+**What exists now:**
+- `content/suggested-pairings.json` is hand-maintained — the only way to add or remove a suggested pairing is to edit the file directly
+- The home page renders whatever is in that file; a `HIDDEN_PAIRING_IDS` set in `app/page.tsx` is used to suppress specific entries without removing them
+
+**Direction:**
+- Local-only: gated behind an env flag or dev-only route (never ships as a public feature)
+- Discovery flow: find a pairing naturally while using the app, then promote it to suggested pairings from the UI rather than switching to a code editor
+- Management: reorder, hide, or remove existing suggested pairings from the same interface
+- Agent handoff: the UI could accumulate a set of changes and generate a structured prompt describing them — so the actual JSON edit is handed to an agent rather than done by hand
+
+**Open questions:**
+- Gate mechanism: env var (`NEXT_PUBLIC_ADMIN=true`), a secret route (`/admin`), or a local-only config file?
+- Whether changes write directly to the JSON file (requires a local API route) or are expressed as a prompt/diff for an agent to apply
+
+[#6](https://github.com/joshcoolman/type-explorer/issues/6)
+
+---
+
+## Color palette system `idea`
+
+Formalize and extend the existing card color palette (`CARD_THEMES` in `lib/card-themes.ts`) into a first-class system.
+
+**What exists now:**
+- 11 hand-curated `CardTheme` entries (bg / fg / muted / accent) cycling across all card surfaces
+- A named source palette (`C`) of ~20 hex values the themes are built from
+- `PAGE_THEME` for chrome and `HIGHLIGHT` for active controls — both fixed
+
+**Direction:**
+- Define the palette system more explicitly — named ramps, roles, relationships between colors
+- Make it possible to add new themes without breaking the existing rotation
+- Potentially expose controls for extending or customizing the palette
+
+[#4](https://github.com/joshcoolman/type-explorer/issues/4)
 
 ---
 
@@ -50,54 +127,98 @@ A single `/learn` page that covers everything someone needs to know about type t
 
 **Prior attempt parked:** a more engineered version (sub-routes, canvas-measured anatomy, full classification grid) was built and reverted. The live font metrics idea had merit. Came back too early, before the content strategy was clear.
 
+[#3](https://github.com/joshcoolman/type-explorer/issues/3)
+
 ---
 
-## Color palette system `idea`
+## `/compose`: a "Tweak it" sidebar `idea`
 
-Formalize and extend the existing card color palette (`CARD_THEMES` in `lib/card-themes.ts`) into a first-class system.
+A UI affordance on a composed page — something like **"Tweak it"** — that opens a sidebar exposing every element of the composition as a direct control: sliders for the dials (`scale`, `density`, `contrast`, `measure`) and the absolute overrides (`h1`, `h2`, `p`), palette pickers for every color role (`bg`, `title`, `subtitle`, `paragraph`, `accent`, and the `page` field). Tweak to your heart's content without going back through the agent.
+
+**Stretch, explicitly not important:** font selection in the same sidebar.
+
+**Why it fits:**
+The color key already runs human → agent rather than agent → human — it gives a person the exact vocabulary to revise with ("make `A32B25` darker" instead of "the red's too bright"). A sidebar is the next step along that axis: skip the round trip entirely for changes faster to *do* than to *describe*. The plumbing largely exists — every control listed is already a validated, clamped, contrast-checked param in `lib/compose-params.ts`, so this is a control surface over a grammar that's already designed.
+
+**The question worth settling first:**
+What does a tweak *produce*? If the sidebar only mutates local state, the result is unshareable and invisible to the agent — which breaks the property that makes composed pages work at all (the URL *is* the entire state). It should almost certainly rewrite the URL as you tweak, leaving a link you can hand straight back: *"I adjusted it, here's where I landed, keep going."* That closes the loop in both directions. This is the difference between a toy and a loop, so decide it before building.
+
+**Constraints to respect:**
+- `/compose` reads no viewer state, deliberately — a composed URL must render identically for everyone it's sent to (see `CLAUDE.md`). A sidebar must not become a localStorage preference that silently changes what *other* people see at that link.
+- Contrast validation lives in `completeTheme` / `completePageChrome`. A picker should surface those nudges, not bypass them, or someone can hand-pick something illegible that the URL path would have caught.
+- Keep it invisible to the recipient. The composed page is a design surface; the affordance should be quiet.
+
+**Prior art in-repo:** `TypographicVoiceModal.tsx` (overlay pattern), `ColorsView.tsx` (swatch/picker treatment), `ComposeColorKey.tsx` (already names every effective color — the natural place to hang "click a swatch to edit").
+
+Related: `docs/plans/agent-surface-v1.md`, V2 candidates.
+
+[#2](https://github.com/joshcoolman/type-explorer/issues/2)
+
+---
+
+## Bookmarkable pairing routes `shipped`
+
+Replace the current pairings modal (opened via "Get Pairings" on a font card) with URL-routed pages so individual pairings can be bookmarked and shared.
 
 **What exists now:**
-- 11 hand-curated `CardTheme` entries (bg / fg / muted / accent) cycling across all card surfaces
-- A named source palette (`C`) of ~20 hex values the themes are built from
-- `PAGE_THEME` for chrome and `HIGHLIGHT` for active controls — both fixed
+- `SuggestedPairingsModal.tsx` opens as an overlay over the Explorer, triggered by a button on each `FontSpecimenCard`
+- No URL change occurs — pairings are ephemeral, not linkable
 
 **Direction:**
-- Define the palette system more explicitly — named ramps, roles, relationships between colors
-- Make it possible to add new themes without breaking the existing rotation
-- Potentially expose controls for extending or customizing the palette
+- Give each pairing a readable, bookmarkable URL (e.g. `/fonts/playfair-display` or `/pairings/playfair-display--lora`)
+- Exact URL shape TBD — could be font-centric (one font's pairings) or pair-centric (a specific two-font combination)
+- Modal UX may stay or be replaced by a dedicated page — decide when scoping
+
+[#13](https://github.com/joshcoolman/type-explorer/issues/13)
 
 ---
 
-## Palette switcher UI `shipped`
+## Per-element visibility toggles in the gear `shipped`
 
-UI elements for switching between color palettes — exact scope to be defined.
+In the gear menu (the global typographic voice editor, `TypographicVoiceModal`), add eyeball show/hide toggles for the three voice elements — **title, subtitle, paragraph** — so you can control which appear on cards globally.
 
-*(Note: this item was added mid-thought — finish describing what "switch between" means here before building.)*
+- Eyeball icon per element (visible/hidden states).
+- Constraint: at least one must stay visible — you can't hide all three; the last visible one's toggle is disabled (or hiding the second-to-last forces one to remain).
+- This is a global setting, like the voice copy itself and the card-color preference — so it'd persist via the same localStorage-backed provider pattern (`VoiceProvider` / `CardThemeProvider`), and every card surface (`SpecimenCard`) reads it. `SpecimenCard` already conditionally renders `paragraph` (the Explorer specimen uses it, pairings don't), so the hooks for skipping an element exist; this generalizes that to user control over title/subtitle too.
 
-**Shipped via the Colors page:** you can now select one card theme and apply it to
-every card app-wide (Randomize / Use selected theme, on the Colors page and in the
-gear), and recolor the page chrome with a live editor. That covers the practical
-"switch between palettes" intent; reopen if a multi-preset switcher was meant.
+**Decide when building:** whether the constraint is "disable the last visible toggle" vs "hiding all is a no-op," and whether hiding an element affects pairing cards (which already omit paragraph).
+
+**Shipped:** constraint resolved as "disable the last visible toggle" (the toggle itself also refuses an all-hidden state). Visibility is global at the `SpecimenCard` level, so hiding title/subtitle affects pairing cards too — but the default only hides **paragraph** (off by default), which pairing cards never had, so they're unchanged out of the box. Persisted under `type-explorer:voice-visibility` in `VoiceProvider`.
+
+[#9](https://github.com/joshcoolman/type-explorer/issues/9)
 
 ---
 
-## Local admin UI for curating suggested pairings `idea`
+## Mood/feeling-based font discovery `shipped`
 
-A local-only interface for managing `content/suggested-pairings.json` through the app rather than by hand-editing JSON.
+**Shipped via a different mechanism than originally sketched.** Rather than a
+mood dropdown in the search box (judged overwhelming — it'd be a giant tag-cloud),
+discovery moved to the **card level**: every font card shows its top Google
+`/Expressive` feeling tags as clickable pills, and clicking one focuses the Fonts
+grid on that feeling (strongest-first) via a shareable `/?tag=cute` URL. Tags are
+now baked into the catalog (`build-catalog.mjs` → `data/fonts.json`, 99% coverage).
+The **semantic-search half** (typing "professional" matching tags in the search
+box) was deliberately deferred — reopen if that's still wanted.
+
+Make the Explorer search box useful for non-experts by surfacing Google Fonts' canonical mood/feeling tags — so someone can find a font by how it feels rather than by knowing its name.
 
 **What exists now:**
-- `content/suggested-pairings.json` is hand-maintained — the only way to add or remove a suggested pairing is to edit the file directly
-- The home page renders whatever is in that file; a `HIDDEN_PAIRING_IDS` set in `app/page.tsx` is used to suppress specific entries without removing them
+- The search box does a substring match on font family name only — useless unless you already know what you're looking for
+- The pairing engine already uses Google Fonts' `FAMILY_TAGS` (moods/feelings) internally to compute contrast distances, but that data is never exposed to the user
+- Tags include things like: rugged, happy, stiff, professional, elegant, playful, etc.
 
-**Direction:**
-- Local-only: gated behind an env flag or dev-only route (never ships as a public feature)
-- Discovery flow: find a pairing naturally while using the app, then promote it to suggested pairings from the UI rather than switching to a code editor
-- Management: reorder, hide, or remove existing suggested pairings from the same interface
-- Agent handoff: the UI could accumulate a set of changes and generate a structured prompt describing them — so the actual JSON edit is handed to an agent rather than done by hand
+**Two connected improvements:**
 
-**Open questions:**
-- Gate mechanism: env var (`NEXT_PUBLIC_ADMIN=true`), a secret route (`/admin`), or a local-only config file?
-- Whether changes write directly to the JSON file (requires a local API route) or are expressed as a prompt/diff for an agent to apply
+1. **Mood picker in the search dropdown** — clicking into the search box opens a dropdown of available mood tags. Clicking one filters the grid to fonts tagged with that feeling. No typing required — pure discovery for someone who doesn't know font names.
+
+2. **Semantic search** — if someone types a mood word (or something adjacent to one), the search matches against tags and other metadata, not just the font name. Typing "professional" surfaces fonts tagged professional; typing "friendly" surfaces humanist faces even if "friendly" isn't an exact tag.
+
+**Things to think through:**
+- Where does the tag data live? `FAMILY_TAGS` is already used in the pairing scripts — check whether it's committed to the static catalog or only used at build time
+- How many tags are there? May need grouping or a truncated "most useful" subset for the dropdown
+- The dropdown and semantic search are independent — could ship one without the other
+
+[#8](https://github.com/joshcoolman/type-explorer/issues/8)
 
 ---
 
@@ -135,111 +256,19 @@ Rethink the "Get Pairings" interaction from a modal overlay into an inline split
 - Mobile: the split doesn't work at one column — probably falls back to a stacked layout (font card on top, pairings below)
 - Relationship to the bookmarkable routes item: this is the interaction model; routing is the URL layer on top
 
----
-
-## Mood/feeling-based font discovery `shipped`
-
-**Shipped via a different mechanism than originally sketched.** Rather than a
-mood dropdown in the search box (judged overwhelming — it'd be a giant tag-cloud),
-discovery moved to the **card level**: every font card shows its top Google
-`/Expressive` feeling tags as clickable pills, and clicking one focuses the Fonts
-grid on that feeling (strongest-first) via a shareable `/?tag=cute` URL. Tags are
-now baked into the catalog (`build-catalog.mjs` → `data/fonts.json`, 99% coverage).
-The **semantic-search half** (typing "professional" matching tags in the search
-box) was deliberately deferred — reopen if that's still wanted.
-
-Make the Explorer search box useful for non-experts by surfacing Google Fonts' canonical mood/feeling tags — so someone can find a font by how it feels rather than by knowing its name.
-
-**What exists now:**
-- The search box does a substring match on font family name only — useless unless you already know what you're looking for
-- The pairing engine already uses Google Fonts' `FAMILY_TAGS` (moods/feelings) internally to compute contrast distances, but that data is never exposed to the user
-- Tags include things like: rugged, happy, stiff, professional, elegant, playful, etc.
-
-**Two connected improvements:**
-
-1. **Mood picker in the search dropdown** — clicking into the search box opens a dropdown of available mood tags. Clicking one filters the grid to fonts tagged with that feeling. No typing required — pure discovery for someone who doesn't know font names.
-
-2. **Semantic search** — if someone types a mood word (or something adjacent to one), the search matches against tags and other metadata, not just the font name. Typing "professional" surfaces fonts tagged professional; typing "friendly" surfaces humanist faces even if "friendly" isn't an exact tag.
-
-**Things to think through:**
-- Where does the tag data live? `FAMILY_TAGS` is already used in the pairing scripts — check whether it's committed to the static catalog or only used at build time
-- How many tags are there? May need grouping or a truncated "most useful" subset for the dropdown
-- The dropdown and semantic search are independent — could ship one without the other
+[#7](https://github.com/joshcoolman/type-explorer/issues/7)
 
 ---
 
-## Per-element visibility toggles in the gear `shipped`
+## Palette switcher UI `shipped`
 
-In the gear menu (the global typographic voice editor, `TypographicVoiceModal`), add eyeball show/hide toggles for the three voice elements — **title, subtitle, paragraph** — so you can control which appear on cards globally.
+UI elements for switching between color palettes — exact scope to be defined.
 
-- Eyeball icon per element (visible/hidden states).
-- Constraint: at least one must stay visible — you can't hide all three; the last visible one's toggle is disabled (or hiding the second-to-last forces one to remain).
-- This is a global setting, like the voice copy itself and the card-color preference — so it'd persist via the same localStorage-backed provider pattern (`VoiceProvider` / `CardThemeProvider`), and every card surface (`SpecimenCard`) reads it. `SpecimenCard` already conditionally renders `paragraph` (the Explorer specimen uses it, pairings don't), so the hooks for skipping an element exist; this generalizes that to user control over title/subtitle too.
+*(Note: this item was added mid-thought — finish describing what "switch between" means here before building.)*
 
-**Decide when building:** whether the constraint is "disable the last visible toggle" vs "hiding all is a no-op," and whether hiding an element affects pairing cards (which already omit paragraph).
+**Shipped via the Colors page:** you can now select one card theme and apply it to
+every card app-wide (Randomize / Use selected theme, on the Colors page and in the
+gear), and recolor the page chrome with a live editor. That covers the practical
+"switch between palettes" intent; reopen if a multi-preset switcher was meant.
 
-**Shipped:** constraint resolved as "disable the last visible toggle" (the toggle itself also refuses an all-hidden state). Visibility is global at the `SpecimenCard` level, so hiding title/subtitle affects pairing cards too — but the default only hides **paragraph** (off by default), which pairing cards never had, so they're unchanged out of the box. Persisted under `type-explorer:voice-visibility` in `VoiceProvider`.
-
----
-
-## Adjustable size and weight on type cards `idea`
-
-When inspecting a specific font or pairing, allow fine-tuning the size and weight of the heading, subheading, and body text — not globally, but scoped to that selection.
-
-**Context:** most useful in the split-panel pairing view (see above) where you're evaluating a font seriously, not just browsing. The global typographic voice editor already handles copy; this is about the typographic properties — size and weight — for that one card.
-
-**Low priority, unplanned. Things to think through:**
-- Probably per-card controls, not a global setting — sliders or steppers for size and weight
-- Should it persist per font, or reset when you move on?
-- Relationship to the voice editor: the voice editor owns copy, this would own size/weight — keep them separate or merge?
-
----
-
-## Pairing context previews `idea`
-
-Once a pairing is selected, show it applied to a handful of real-world layout templates — so you can feel how the fonts behave in context, not just as a specimen card.
-
-**Examples mentioned:**
-- Social media card
-- Business card
-- Editorial layout
-- Basic web page layout
-
-**The idea:** these are static mock layouts, pre-built templates that swap in the active heading and body fonts. No design tool, no export — just enough to answer "does this pairing actually work for what I'm building?"
-
-**This is unplanned — nothing decided yet. Things to think through:**
-- Where does this live? Inline below the pairing card, a dedicated panel, or a new route?
-- How many templates is useful without being overwhelming?
-- Templates are static HTML/CSS — authored once, fonts injected at render time
-- Relationship to the split-panel pairing view: context previews could be a natural extension of that layout
-
----
-
-## Three-font pairings (spike) `idea`
-
-Explore whether pairings should support a third font — typically a body/reading face distinct from both the display and the secondary text font.
-
-**Current model:** every pairing is two fonts — a heading face and a body face.
-
-**The question:** there are real design scenarios where three fonts make sense (display headline / UI sans / long-form serif body, for example). Is this worth supporting, and if so, how does it change the data model, the card, and the pairing logic?
-
-**This is a spike — no direction yet. Things to think through:**
-- Does the third font have a fixed role, or is it freeform?
-- How does a three-font card look without getting busy?
-- Does the pairing library need to grow to include trios, or is the third font always user-selected?
-- At what point does "three fonts" become "just use the voice editor"?
-
----
-
-## Bookmarkable pairing routes `shipped`
-
-Replace the current pairings modal (opened via "Get Pairings" on a font card) with URL-routed pages so individual pairings can be bookmarked and shared.
-
-**What exists now:**
-- `SuggestedPairingsModal.tsx` opens as an overlay over the Explorer, triggered by a button on each `FontSpecimenCard`
-- No URL change occurs — pairings are ephemeral, not linkable
-
-**Direction:**
-- Give each pairing a readable, bookmarkable URL (e.g. `/fonts/playfair-display` or `/pairings/playfair-display--lora`)
-- Exact URL shape TBD — could be font-centric (one font's pairings) or pair-centric (a specific two-font combination)
-- Modal UX may stay or be replaced by a dedicated page — decide when scoping
+[#5](https://github.com/joshcoolman/type-explorer/issues/5)

@@ -4,6 +4,36 @@
 ideas / future-work surface, parsed at build time from the markdown — there is no
 database.
 
+## Where the content comes from
+
+**GitHub Issues are the source of truth.** `BACKLOG.md` is a *generated artifact*,
+written by `pnpm backlog:sync` (`scripts/sync-backlog.mjs`) and committed.
+
+```
+GitHub Issues  --(pnpm backlog:sync, run locally)-->  BACKLOG.md  --(build)-->  /backlog
+```
+
+Do not hand-edit `BACKLOG.md`; the next sync overwrites it. To add a backlog item,
+open an issue. To close one, close the issue and re-sync.
+
+Three reasons for the indirection rather than fetching issues at build time:
+
+- **The site stays static.** `/backlog` is prerendered from a file on disk, with no
+  runtime API call and no dependency on GitHub being reachable — the same posture
+  as `data/fonts.json` and `content/pairing-library.json`.
+- **The commit is the moderation gate.** The repo is public with issues open, so
+  anyone can file one. Nothing a stranger writes reaches the site until someone
+  runs the sync, reads the diff, and commits it.
+- **The backlog stays in git history** next to the code it describes.
+
+Status comes from labels (`idea`, `ready`, `in progress`, `parked`), except that a
+**closed issue is always `shipped`** — state beats label. An unlabelled open issue
+defaults to `idea`.
+
+The script refuses to write an empty `BACKLOG.md` unless passed `--force`: zero
+issues almost always means issues got disabled or `gh` lost auth, not that the
+backlog is genuinely empty. `--dry-run` previews without writing.
+
 ## How it's parsed
 
 `app/backlog/page.tsx` reads `BACKLOG.md` and splits on `## ` headings. Each
