@@ -1,6 +1,21 @@
 [
   {
     "date": "2026-07-18",
+    "commit": "",
+    "title": "Fill-in template: the agent edits a finished URL, the human just says 'give me ideas'",
+    "changes": [
+      "The root quickstart now leads with a single fully-formed /compose URL — every parameter filled with a real, working value. The instruction to the agent is just 'change the values to match your user, delete what you don't need, hand it over.' Editing a finished URL is far more reliable for a weak agent than composing one from grammar, and it's the floor: even a swap-the-copy-and-colors pass yields a working page.",
+      "The human never touches a URL. They point at the domain and say 'give me ideas'; the finished template lives in the response for the agent to adapt.",
+      "The ceiling, stated right after the floor: don't reuse the default fonts — query /api/fonts?feeling=calm (20 feelings) for candidates and /api/pairings?font=<slug> for a display partner, each carrying a ready-to-paste composeValue, then drop it into pairs=. So a capable agent researches real faces that fit the request; a limited one still succeeds by editing the template.",
+      "The parameter list is demoted to reference ('only if you need to hand-tune a value') — it's no longer the primary path."
+    ],
+    "files": [
+      "app/page.tsx — the AgentQuickstart now leads with the fully-formed fill-in URL and the /api enrichment note; grammar demoted to reference",
+      "content/changelog.json — this entry"
+    ]
+  },
+  {
+    "date": "2026-07-18",
     "commit": "5b779e5",
     "title": "The one-fetch fix: the agent contract now lives in the root response",
     "changes": [
