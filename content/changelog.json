@@ -1,7 +1,7 @@
 [
   {
     "date": "2026-07-18",
-    "commit": "PENDING",
+    "commit": "f1806bc",
     "title": "Near-miss font slugs resolve; the surface stops asking agents to verify",
     "changes": [
       "An evaluation run showed /compose working but over-processed: asked for 'three cards for a kid's party', the agent spent several sequential round-trips (query /api/fonts, query /api/pairings, fetch the composed page back to read #agent-notes) before emitting a URL. Asked afterward to hand-write one from the grammar, it produced an equally good result in zero tool calls. This closes the gap between those two runs.",
