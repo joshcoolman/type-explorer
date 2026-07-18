@@ -1,6 +1,25 @@
 [
   {
     "date": "2026-07-18",
+    "commit": "PENDING",
+    "title": "status means \"the page differs from your ask\" — not \"a note exists\"",
+    "changes": [
+      "Same-day fix to the note model shipped with /compose.json. Two bugs, both of which punished exactly the behavior the surface is built to encourage.",
+      "statusOf was `notes.length ? degraded : ok` — it computed a severity field and then ignored it. So `?bogus=1` (an ignored param, nothing rendered differently) reported `degraded`, and so did a brand color deliberately rendered below AA. An agent optimizing for a clean status would rationally stop stating colors, which is the opposite of the hex freedom shipped hours earlier. `status` is now `degraded` only when a note is `warn`.",
+      "`contrast_below_bar` meant two opposite things. It fired at the page-chrome site, where the color WAS adjusted, and at the card-theme site, where it was NOT — so a consumer branching on it could not tell whether its hex survived. Split into `contrast_below_bar` (advisory, your hex rendered untouched, info) and `contrast_adjusted` (we moved it, warn).",
+      "Severity now answers one question everywhere: did the rendered page end up different from what was asked? warn = card_dropped, font_substituted, pairs_truncated, pairs_fallback, theme_fallback, hex_invalid, url_stripped, text_truncated, contrast_adjusted. info = param_ignored, value_clamped, slug_resolved, contrast_below_bar. text_truncated moved info -> warn (your headline got cut) and pairs_truncated was mixed across its two sites, now warn at both.",
+      "Net: the yoga and party URLs go back to `status: ok` with the contrast fact still attached as an advisory note. The information is preserved; the false verdict is gone."
+    ],
+    "files": [
+      "lib/compose-notes.ts — statusOf keys off severity; contrast_adjusted added; the severity rule documented as one question",
+      "lib/card-themes.ts — the two contrast sites take different codes and severities",
+      "lib/compose-params.ts — text_truncated and pairs_truncated corrected to warn",
+      "lib/compose-resolve.test.ts — 6 new tests pinning ok-vs-degraded per case",
+      "public/agent.md — status documented as the differs-from-your-ask question, with an explicit 'do not avoid stating colors to keep this clean'"
+    ]
+  },
+  {
+    "date": "2026-07-18",
     "commit": "48e187f",
     "title": "/compose.json — the composed page as data, with colors that say where they came from",
     "changes": [

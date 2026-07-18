@@ -257,7 +257,7 @@ function readText(
   if (text.length > cap) {
     text = `${text.slice(0, cap - 1).trimEnd()}…`;
     notes.push(
-      note("text_truncated", "info", name, `${name}: longer than ${cap} characters — truncated`),
+      note("text_truncated", "warn", name, `${name}: longer than ${cap} characters — truncated`),
     );
   }
   return text;
@@ -331,7 +331,7 @@ function parsePairs(
       notes.push(
         note(
           "pairs_truncated",
-          "info",
+          "warn",
           chunk,
           `pairs: "${chunk}" names more than two fonts — only the first two were used`,
         ),
