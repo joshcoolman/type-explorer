@@ -16,7 +16,8 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "catalog:refresh": "node scripts/build-catalog.mjs",
-    "pairings:build": "node scripts/build-pairing-library.mjs"
+    "pairings:build": "node scripts/build-pairing-library.mjs",
+    "backlog:sync": "node scripts/sync-backlog.mjs"
   },
   "dependencies": {
     "next": "16.2.6",

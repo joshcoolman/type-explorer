@@ -17,11 +17,15 @@ commit — no hook enforces them, they're the easy-to-forget steps:
    same commit**, or run `/changes`. Entries' `files[]` double as recent-work
    memory, so **skim the changelog first** to see what changed lately and where.
 2. **Backlog sweep** — the same shipped work often closes a backlog item, and the
-   two drift apart because nothing links them. After the changelog entry, skim
-   `BACKLOG.md` for any open item (status not `shipped`/`done`/`closed`) this work
-   now sufficiently covers and flip its tag to `shipped` **in the same commit**
-   (leave the body; add a one-line "Shipped via …" note if it differs from the
-   ask). See `docs/backlog.md`.
+   two drift apart because nothing links them. After the changelog entry, check
+   [open issues](https://github.com/joshcoolman/type-explorer/issues) for anything
+   this work now covers, close it (`gh issue close <n> --reason completed`), then
+   run `pnpm backlog:sync` and commit the regenerated `BACKLOG.md` **in the same
+   commit**.
+
+   **Never hand-edit `BACKLOG.md`** — GitHub Issues are the source of truth and
+   the file is generated from them; hand edits are lost on the next sync. See
+   `docs/backlog.md`.
 3. **Continue prompt** — after the commit + push, invoke `/continue-prompt` to
    refresh `continue.md` to the new HEAD. (It's a gitignored local handoff, so
    it's updated *alongside* the commit, not in it.)
@@ -33,6 +37,7 @@ Trivial commits (typo, dep bump, docs-only) skip all three.
 - `npm run build` — verify changes with this (do **not** run `npm run dev`; the user runs it)
 - `npm run test` / `npm run lint`
 - `npm run catalog:refresh` / `npm run pairings:build` — rebuild the static font catalog / pairing library
+- `pnpm backlog:sync` — regenerate `BACKLOG.md` from GitHub Issues (local only; needs `gh` auth)
 
 ## Key files
 
