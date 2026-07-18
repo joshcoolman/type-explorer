@@ -20,7 +20,7 @@ import { familyForSlug, slugify } from "@/lib/slug";
 export const runtime = "nodejs";
 
 const library = libraryJson as PairingLibrary;
-const KNOWN_PARAMS = ["font", "limit", "offset", "kind"] as const;
+const KNOWN_PARAMS = ["font", "limit", "offset"] as const;
 
 export async function GET(req: NextRequest) {
   const sp = req.nextUrl.searchParams;
@@ -28,7 +28,6 @@ export async function GET(req: NextRequest) {
   if (strictError) return strictError;
 
   const fontParam = (sp.get("font") ?? "").trim().toLowerCase();
-  const kind = (sp.get("kind") ?? "").trim().toLowerCase();
   const limit = Math.min(Number(sp.get("limit") ?? 50) || 50, 200);
   const offset = Math.max(Number(sp.get("offset") ?? 0) || 0, 0);
 
@@ -50,7 +49,7 @@ export async function GET(req: NextRequest) {
     const { curated, suggested } = groupedPairingsFor(source, library[source]);
     return NextResponse.json({
       ignored,
-      applied: { font: slugify(source), kind: kind || null },
+      applied: { font: slugify(source) },
       source: { family: source, slug: slugify(source), category: library[source].category },
       curated: curated.map(shape),
       suggested: suggested.map(shape),
@@ -61,7 +60,7 @@ export async function GET(req: NextRequest) {
   const page = names.slice(offset, offset + limit);
   return NextResponse.json({
     ignored,
-    applied: { font: null, kind: kind || null },
+    applied: { font: null },
     total: names.length,
     offset,
     limit,

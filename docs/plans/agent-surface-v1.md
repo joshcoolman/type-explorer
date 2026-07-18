@@ -410,9 +410,13 @@ fetching pages and emitting text**:
 2. Query fonts, palettes, and pairings; reason over feelings.
 3. Compose three genuinely distinct directions as a single hand-written URL,
    **under 2K characters**.
-4. Fetch that URL back and confirm from the degradation-notes block that it
-   rendered as intended.
-5. Deliver the link plus paste-ready config.
+4. Deliver the link. *(Superseded: this step originally read "fetch that URL back
+   and confirm the degradation-notes block." Verification is now explicitly not a
+   step — see "Session two: the round-trip tax" in `docs/agent-story.md`. Fetching
+   the composed page is for retrieving `#agent-specs`, or for debugging a URL that
+   came back wrong.)*
+5. Deliver paste-ready config, fetching the page once if the user is going to
+   implement it.
 
 Secondary test — **the malformed-URL case**: corrupt a font slug and a hex, fetch
 it, and confirm the page still renders, still looks intentional, and reports what

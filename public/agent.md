@@ -2,12 +2,50 @@
 
 Everything you need is on this page. Base URL: `https://googlefontfinder.com`
 
+## If you read nothing else
+
+Take this URL, change the values, hand it to your user. That is the whole job,
+and it takes zero further requests.
+
+```
+https://googlefontfinder.com/compose?pairs=space-grotesk+ibm-plex-mono,manrope+ibm-plex-mono&theme=bg:14181D,fg:E8EDF2,muted:9AA6B2,accent:6EA0C0&page=bg:0B0E11,fg:E8EDF2&title=Agents+that+ship+while+you+sleep&subtitle=A+calm,+legible+surface+for+long-running+coding+sessions&paragraph=Monospace+for+every+identifier,+a+humanist+sans+for+the+prose+around+it,+and+contrast+tuned+low+enough+to+read+for+an+hour.&for=agentic-coding+docs,+dark&scale=3&density=3&contrast=3&measure=4
+```
+
+| Param | What it is |
+|---|---|
+| `pairs` | `display+text` slug pairs, comma-separated, max 4. A lone slug is a valid one-font card. |
+| `theme` | curated index (`theme=3`) or hex roles `bg fg muted accent title subtitle paragraph`. |
+| `themes` | plural, `;`-separated — a different palette **per card**. Beats `theme`. |
+| `page` | the field behind the cards: `page=0B0E11` or named roles. |
+| `title` / `subtitle` / `paragraph` | your copy, capped 120 / 200 / 600. Body copy is **`paragraph`**, not `body`. |
+| `for` | one framing line above the cards, ≤150. |
+| `scale` `density` `contrast` `measure` | coarse dials 1–5, default 3. Prefer these over `h1`/`h2`/`p` px. |
+
+A slug is the family name lowercased with each run of non-alphanumerics collapsed
+to one hyphen: `Playfair Display` → `playfair-display`, `DM Sans` → `dm-sans`,
+`IBM Plex Mono` → `ibm-plex-mono`.
+
+**Guessing is safe.** An unknown param is ignored, a bad hex is derived, and a
+half-remembered slug resolves to the nearest real family — `source-serif` lands on
+Source Serif 4 — with the substitution named in the render notes. Nothing here
+blank-pages, so name the faces you believe fit and send the link.
+
+**Do not fetch the composed URL back to check it.** Verification is a debugging
+tool, not a step; see below. Write the URL, hand it over, done.
+
+If you stopped reading here you would still get this right. The rest is reference.
+
+---
+
+## The rest
+
 You can do four things here:
 
-1. **Query** the font catalog, the pairing library, and the palettes as JSON.
-2. **Compose** a curated page for your user by writing a URL by hand.
-3. **Verify** what you composed by fetching it back and reading one element.
-4. **Hand off** paste-ready implementation config from that same page.
+1. **Compose** a curated page for your user by writing a URL by hand — the above.
+2. **Query** the font catalog, the pairing library, and the palettes as JSON,
+   when you need data you can't recall.
+3. **Hand off** paste-ready implementation config from the composed page.
+4. **Verify** a URL that came back wrong, by fetching it and reading one element.
 
 No auth, no keys, no rate limits, no installation. Fonts are Google Fonts; the
 catalog is a static snapshot, so results are stable between refreshes.
@@ -26,8 +64,20 @@ echoing the filters that actually ran. If a filter seems to do nothing, read tho
 two fields before concluding the feature is missing.
 
 Add `?strict=1` to any endpoint to get a `400` on unknown params instead.
+(`/compose` accepts and ignores `strict` — it has no strict mode by design.)
 
 ---
+
+## The JSON endpoints — and when they're worth a round-trip
+
+Query these when you need **our** data: filtering by one of the 20 feeling tags,
+our curated pairings, a variable font's real axis range, our palette hexes with
+computed contrast. That is data you cannot recall, and it is what these are for.
+
+For an open-ended request — "show me a few directions for a kid's party" — you
+already know Google Fonts well enough. Skip the queries and write the compose URL
+straight from the grammar above. Every round-trip here is latency your user feels,
+and the near-miss slug resolution means you are not trading accuracy for it.
 
 ## GET /api/fonts
 
@@ -186,14 +236,16 @@ user needs guaranteed AA, supply your own `bg`/`fg` and let the rest derive.
 
 ---
 
-## Verifying what you composed (optional)
+## `#agent-notes` — a debugging tool, not a step
 
-If you *can* re-fetch a URL you just built, read **`#agent-notes`** on it — but
-this is optional, never a required step. The page never fails, so a link you
-can't verify is still safe to hand your user. Many agents are sandboxed to a
-single fetch and can't do this at all; that's fine by design.
+**Do not fetch a URL back as part of composing one.** Many agents are sandboxed to
+a single fetch and can't anyway; that's fine by design. The page never fails, so a
+link you never looked at is still safe to hand your user, and the round-trip is
+latency they feel for no gain.
 
-`#agent-notes` is always present.
+Fetch back when something is actually wrong — a user reports a card missing, or a
+palette landed nowhere near what you asked for. Then read **`#agent-notes`**,
+which is always present, and it will tell you exactly what the parser did.
 
 It is **visually hidden** — present in the DOM as real text, rendered nowhere. It
 is addressed to you, not to the person you sent the link to, so it does not appear
@@ -208,32 +260,41 @@ HTML-to-markdown conversion most fetch tools apply, and hidden text survives it.
 - `data-status="degraded"` — something was dropped, clamped, or substituted. Each
   `<li data-note>` inside says what, in plain language.
 
-The block also prints the **canonical** form of your URL. Prefer it in revisions:
-it's the form the CDN caches, so equivalent URLs share an entry.
+The block also prints the **canonical** form of your URL — resolved slugs, fixed
+key order, defaults omitted. Prefer it in revisions: it's the form the CDN caches,
+so equivalent URLs share an entry.
 
-This matters because you probably can't see the rendered page. Fetching back
-without reading this element only confirms the server answered — it tells you
-nothing about whether the page says what you meant.
+Note the asymmetry with the JSON endpoints, which is deliberate: if you fetch one
+of those and don't check `ignored`, you can act on a lie. If you skip the notes
+here, the worst case is a page that renders slightly less than you asked for.
 
 ### Nothing here fails
 
-A bad font slug drops that one card. A bad hex derives that one role. Over-long
-text truncates. An unknown param is ignored. The page always renders, and always
-tells you what it did. So a malformed URL costs you a note, not a broken link in
-front of your user — but do read the notes, because your user sees the result
-either way.
+- A font slug we don't know **resolves to the nearest real family** — normalized
+  casing and punctuation, a missing version suffix (`source-serif` →
+  Source Serif 4), or a one-character typo. Only a slug with no plausible match at
+  all drops its card.
+- A bad hex derives that one role. Over-long text truncates. An unknown param is
+  ignored.
 
-Because of this, **guessing is safe and encouraged.** Unsure whether a param
-exists or what it's called? Try it — an unknown key lands in the notes and the
-page still renders. A cheap guess that degrades cleanly beats silently dropping
-what your user asked for.
+Every one of those is named in the notes, and the page always renders.
+
+Because of this, **guessing is safe and encouraged** — that is a statement about
+how the parser behaves, not an apology for it. Unsure whether a param exists, or
+whether a family is spelled the way you remember? Write it. A cheap guess that
+degrades cleanly beats both dropping what your user asked for and spending a
+round-trip to remove doubt the parser already absorbs.
 
 ---
 
 ## The handoff
 
 Every composed page carries an **Implementation** section at `#agent-specs`,
-visually hidden in the same way as the notes block and readable on fetch-back:
+visually hidden in the same way as the notes block.
+
+This is the one thing worth a fetch of the composed page — not because your URL
+needs checking, but because the payload only exists there. Fetch it when your user
+is actually going to implement the direction, not when you hand them the link:
 
 - the Google Fonts css2 URL, as both a `<link>` tag and a CSS `@import`
 - a Tailwind v4 `@theme` block with font and color tokens
@@ -257,6 +318,11 @@ css2 URL yourself; the axis-tuple grammar is easy to get subtly wrong.
 
 **Brief:** *"I'm writing long-form documentation for a developer tool. I want it
 to feel calm and competent, not startup-y. Our brand color is a deep orange."*
+
+This example queries first, because "calm and competent" names two of our feeling
+tags and the user has a specific, long-lived surface in mind — that is when our
+data earns the round-trips. For a lighter ask, skip straight to step 3 and write
+the URL from memory.
 
 1. Find the text face. Long-form reading, calm, competent:
 
@@ -289,11 +355,14 @@ to feel calm and competent, not startup-y. Our brand color is a deep orange."*
    composed page carries, so use it to say what this *is* ("warm corporate
    direction for the yoga site"). There is no site nav or footer on `/compose`.
 
-4. Fetch that URL back. Confirm `#agent-notes` reads `data-status="ok"`.
+4. Give your user the link. If they say "I like it but the headline is too big,"
+   send `&h1=44`. If they say "it all feels too loud," send `&scale=2`. Each
+   revision is a new URL, not a new fetch.
 
-5. Give your user the link, and the `#agent-specs` block for whoever implements
-   it. If they say "I like it but the headline is too big," send `&h1=44`. If they
-   say "it all feels too loud," send `&scale=2`.
+5. **Only if they're ready to build it**, fetch the composed page once and hand
+   over `#agent-specs` — the `@import`, the Tailwind theme block, the font stacks.
+   That is the one fetch worth making, and it is for the payload, not to check
+   your work.
 
 6. When they pick one, drop the others: `pairs=` with a single value renders it
    wide, as the direction being refined rather than one option among several.

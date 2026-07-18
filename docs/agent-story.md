@@ -2,9 +2,10 @@
 
 A cold-agent friction log, kept because feeding a real agent's experience back
 into the surface is how `/compose` gets better. This is the run that drove the
-per-card `themes=` work and the one-fetch root quickstart.
+per-card `themes=` work and the one-fetch root quickstart; a later evaluation on a
+second brief added friction #7 and drove near-miss slug resolution.
 
-> **This log spans two sessions — read it as a before/after, not one trace.**
+> **This log spans separate sessions — read it as a before/after, not one trace.**
 > The friction points below are the *pre-fix* cold failure. Where a later run
 > "worked," that smoothness was carryover — the `/compose` grammar was already in
 > the agent's context from earlier fixes, not something a genuinely cold agent
@@ -64,6 +65,51 @@ is the product.**
   verification as optional for agents that can re-fetch, and blesses
   guess-and-degrade: an unknown param is ignored and the page still renders, so
   attempting an uncertain one beats dropping the intent.
+
+## Session two: the round-trip tax
+
+A later evaluation ran a different brief — "three cards for a kid's party" —
+against the fixed surface. It worked. It was also **slower than the task
+deserved**, and the agent's own post-mortem was the useful artifact: asked
+afterward to just hand-write a URL from the grammar, it produced an equally good
+result in **zero tool calls**. Everything between those two runs was tax.
+
+- **7 → the surface invited round-trips it didn't need.** Three causes, in
+  descending order of how much we control them:
+
+  1. **We gave contradictory instructions.** The root quickstart said "Do NOT
+     fetch the URL back to check it." `public/agent.md`'s worked example said
+     "Fetch that URL back. Confirm `data-status="ok"`." An agent reading both
+     resolves the conflict by doing the slower thing — that is the safe read.
+  2. **"Guessing is safe" wasn't fully true.** It covered params but not slugs: a
+     near miss like `source-serif` for Source Serif 4 dropped a whole card. That
+     residual risk is *exactly* what a verification round-trip buys down, so
+     verifying was the rational move, not an over-cautious one. Prose telling an
+     agent to skip a check it has a real reason to make will lose.
+  3. **A fetch-tool detour we don't control.** The agent's client refused a
+     relative `/agent.md` because it wasn't a URL from a prior result, costing two
+     failed fetches and a junk search before falling back to `curl`. Worth knowing
+     other agents hit this differently; already mitigated by the one-fetch root
+     block and by rendering the pointers as real anchors (friction 2).
+
+  **Fixes.** Cause 2 first, because it's load-bearing and the rest is only
+  documentation: `lib/font-match.ts` resolves near misses — normalization, missing
+  version suffix, edit distance ≤ 2 under a ratio guard — and names the
+  substitution in the notes. The guard matters as much as the match: `helvetica`
+  still resolves to nothing, because a matcher that always finds *something* turns
+  a wrong guess into a silently wrong specimen. Then cause 1: one stance
+  everywhere — fetch-back is a debugging tool, never a step — and `agent.md` gained
+  a front-loaded one-shot block so an agent that reads only the first screen can
+  already emit correctly.
+
+  The honest exception, now stated rather than papered over: `#agent-specs` only
+  exists on the composed page, so a user who is actually going to *build* the
+  direction does cost one fetch. That fetch is for the payload, not to check the
+  work.
+
+**The generalizable lesson.** An agent's extra round-trips are usually a rational
+response to real residual risk. Removing the *risk* removes the round-trip;
+telling the agent not to worry does not.
 
 ## The target URL (what a fixed surface lets an agent produce on turn one)
 

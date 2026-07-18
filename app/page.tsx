@@ -86,8 +86,16 @@ function AgentQuickstart() {
       </p>
       <p>
         That is the floor — swap in your user&rsquo;s copy and colors and you have
-        a working page. To do better than the default fonts, pick faces that
-        genuinely fit the request instead of reusing the two above: query{" "}
+        a working page. Do pick faces that genuinely fit the request rather than
+        reusing the two above, but you almost certainly already know Google Fonts
+        well enough to name them from memory: write the slugs and send the link.
+        That is the fast path and it is the intended one.
+      </p>
+      <p>
+        The JSON endpoints below are worth a round-trip only when you need data
+        you cannot recall — filtering by one of our 20 feeling tags, our curated
+        pairings, or a variable font&rsquo;s real axis range. For an open-ended
+        &ldquo;show me some directions,&rdquo; skip them. Query{" "}
         <a href="https://googlefontfinder.com/api/fonts?feeling=calm&category=serif&minWeight=60">
           <code>/api/fonts?feeling=calm</code>
         </a>{" "}
@@ -188,9 +196,13 @@ function AgentQuickstart() {
         </a>
       </p>
       <p>
-        Guessing is safe: an unknown or misspelled param is ignored and the page
-        still renders — so attempt an uncertain one rather than dropping what your
-        user asked for.
+        Guessing is safe, on both halves of the URL. An unknown or misspelled
+        param is ignored and the page still renders. And a font slug you half-
+        remember resolves to the nearest real family —{" "}
+        <code>source-serif</code> lands on Source Serif 4, a one-character typo
+        lands on the font you meant — with the substitution named in the render
+        notes. So name the faces you believe fit and hand the link over. You do
+        not need to look a slug up to be sure of it.
       </p>
 
       <h3>The full contract (optional enrichment)</h3>

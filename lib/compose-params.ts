@@ -127,6 +127,10 @@ const KNOWN_PARAMS = new Set([
   "h1",
   "h2",
   "p",
+  // Not a compose param, but `?strict=1` is real on every /api route. An agent
+  // carrying it over here shouldn't be told it made a mistake — /compose has no
+  // strict mode by design (rule 1: it never fails), so it's simply inert.
+  "strict",
 ]);
 
 /**
@@ -148,6 +152,17 @@ const URLISH_TOKEN_RE =
  * `+` decodes to a space in a query string, so `pairs=gloock+inter` arrives as
  * `"gloock inter"`. Both forms are accepted; slugs never contain either.
  */
+/**
+ * The resolver forgives near misses (see `lib/font-match.ts`), so a slug can
+ * resolve to a family it doesn't spell. Rule 2 says we report that.
+ */
+function noteNearMatch(asked: string, got: FontFamily, notes: string[]): void {
+  if (asked.trim().toLowerCase() === slugify(got.family)) return;
+  notes.push(
+    `pairs: "${asked}" is not a slug we know — rendered ${got.family}, the nearest match`,
+  );
+}
+
 function splitPair(chunk: string): string[] {
   return chunk.split(/[+\s]+/).map((s) => s.trim()).filter(Boolean);
 }
@@ -247,12 +262,14 @@ function parsePairs(
       notes.push(`pairs: "${slugs[0]}" is not a known font slug — that card was dropped`);
       continue;
     }
+    noteNearMatch(slugs[0], display, notes);
     // A lone slug is a valid monovoice card, not an error.
     let text = display;
     if (slugs.length > 1) {
       const resolved = resolve(slugs[1]);
       if (resolved) {
         text = resolved;
+        noteNearMatch(slugs[1], resolved, notes);
       } else {
         notes.push(
           `pairs: "${slugs[1]}" is not a known font slug — that card fell back to ${display.family} for both roles`,
