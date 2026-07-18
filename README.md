@@ -223,6 +223,12 @@ _Snapshot of where the project is. Overwrite freely — it's a snapshot, not a l
 
 **Last shipped**
 
+- **Per-card palettes (`themes=`)** — one `/compose` URL can now show three cards
+  with three distinct color looks (a `;`-separated palette list, one per card,
+  same grammar as `theme`). Parser-only change; the render layer already indexed a
+  themes array per card. Plus a contract-clarity pass in `agent.md` (two-facets
+  model, optional fetch-back, guess-and-degrade blessed) and `docs/agent-story.md`,
+  the cold-agent run that drove it.
 - **The one-fetch fix** — the whole construct-a-URL contract is now inlined into
   the home page's server-rendered HTML (and a short pointer sits on every other
   route). A plain chat agent given only the bare domain can now compose a working

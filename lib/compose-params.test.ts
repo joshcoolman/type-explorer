@@ -127,6 +127,58 @@ describe("theme", () => {
   });
 });
 
+describe("themes (per-card palettes)", () => {
+  // Three resolvable cards to map palettes onto.
+  const three = "pairs=gloock+inter,inter+gloock,gloock+inter";
+
+  it("applies a single palette to every card", () => {
+    const spec = parse(`${three}&themes=bg:1D4ED8`);
+    expect(spec.themes).toHaveLength(3);
+    expect(new Set(spec.themes.map((t) => t.bg)).size).toBe(1);
+    expect(spec.themes[0].bg).toBe("#1d4ed8");
+  });
+
+  it("maps palettes to cards by index", () => {
+    const spec = parse(`${three}&themes=bg:1D4ED8;bg:DC2626;bg:2563EB`);
+    expect(spec.themes[0].bg).toBe("#1d4ed8");
+    expect(spec.themes[1].bg).toBe("#dc2626");
+    expect(spec.themes[2].bg).toBe("#2563eb");
+  });
+
+  it("cycles when fewer palettes than cards are given", () => {
+    const spec = parse(`${three}&themes=bg:1D4ED8;bg:DC2626`);
+    expect(spec.themes[2].bg).toBe("#1d4ed8"); // wraps back to the first
+  });
+
+  it("derives the roles each palette omits", () => {
+    const spec = parse(`${three}&themes=bg:1D4ED8;bg:DC2626`);
+    for (const t of spec.themes) {
+      expect(t.fg).toMatch(/^#[0-9a-f]{6}$/);
+      expect(t.muted).toMatch(/^#[0-9a-f]{6}$/);
+      expect(t.accent).toMatch(/^#[0-9a-f]{6}$/);
+    }
+  });
+
+  it("falls back to a curated palette for an unusable item, and says so", () => {
+    const spec = parse(`${three}&themes=bg:1D4ED8;bg:zzz`);
+    expect(spec.themes[1].bg).toMatch(/^#[0-9a-fA-F]{6}$/);
+    expect(spec.notes.join(" ")).toContain("themes");
+  });
+
+  it("takes precedence over a simultaneously-given theme, with a note", () => {
+    const spec = parse(`${three}&theme=bg:000000&themes=bg:1D4ED8`);
+    expect(spec.themes[0].bg).toBe("#1d4ed8");
+    expect(spec.notes.join(" ")).toContain("themes and theme");
+  });
+
+  it("serializes to a stable canonical form across equivalent URLs", () => {
+    const a = parse("pairs=gloock+inter&themes=bg:1D4ED8;bg:DC2626&scale=3");
+    const b = parse("themes=bg:1D4ED8;bg:DC2626&pairs=gloock inter");
+    expect(a.canonical).toBe(b.canonical);
+    expect(a.canonical).toContain("themes=");
+  });
+});
+
 describe("canonical form", () => {
   it("is stable across equivalent URLs, so they share a CDN cache entry", () => {
     const a = parse("pairs=gloock+inter&scale=4&mood=warm");

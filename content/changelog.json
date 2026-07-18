@@ -1,7 +1,27 @@
 [
   {
     "date": "2026-07-18",
-    "commit": "",
+    "commit": "467f8a4",
+    "title": "Per-card palettes: three distinct looks in one /compose URL",
+    "changes": [
+      "New `themes=` param (plural): a ;-separated list of palettes, one per card, so a single URL can show three cards with three distinct color looks — the reaction-loop the product is built around ('love the red one, warm up the first'). Each item uses the exact same grammar as `theme` (a curated index or named bg:/fg:/accent: roles). One item applies to all cards; N map by card index; fewer-than-cards cycle; an unusable item falls back to a curated palette with a note. `themes` wins over `theme`/`mood`.",
+      "The render layer already indexed a themes array per card (ComposeCard, ComposeColorKey which de-dupes distinct palettes, and buildHandoff), so this was a parser-only change — parseOneTheme was extracted as the shared unit behind both single `theme=` and each `themes=` item.",
+      "Contract clarity, no behavior change: agent.md now states the 'two facets per element' model plainly (title/subtitle/paragraph each have a text facet as a top-level param and a color facet as a role inside theme=/themes= — not a collision), reframes #agent-notes fetch-back as optional (sandboxed single-fetch agents can't do it and don't need to), and explicitly blesses guess-and-degrade (an unknown param is ignored and the page still renders, so guessing beats dropping intent).",
+      "The root quickstart gains a 'three distinct looks' worked example (a comic-book birthday party in three palettes) and a themes= reference entry.",
+      "Added docs/agent-story.md — the real cold-agent 'three birthday-invite looks' run that drove this work, kept as the rationale behind the surface."
+    ],
+    "files": [
+      "lib/compose-params.ts — parseOneTheme (shared), parseThemesList (per-card), themes precedence + canonicalization; `themes` added to KNOWN_PARAMS",
+      "lib/compose-params.test.ts — 8 new tests: apply-to-all, by-index, cycle, derive, fallback, precedence, canonical round-trip",
+      "public/agent.md — themes row + Per-card palettes section, two-facets model, optional fetch-back, guess-and-degrade blessing",
+      "app/page.tsx — quickstart: themes= reference, three-looks example, guess-safe line",
+      "docs/agent-story.md — the cold-agent friction log and acceptance test",
+      "CLAUDE.md — feature-docs row pointing at docs/agent-story.md"
+    ]
+  },
+  {
+    "date": "2026-07-18",
+    "commit": "fa1f7a3",
     "title": "Fill-in template: the agent edits a finished URL, the human just says 'give me ideas'",
     "changes": [
       "The root quickstart now leads with a single fully-formed /compose URL — every parameter filled with a real, working value. The instruction to the agent is just 'change the values to match your user, delete what you don't need, hand it over.' Editing a finished URL is far more reliable for a weak agent than composing one from grammar, and it's the floor: even a swap-the-copy-and-colors pass yields a working page.",
