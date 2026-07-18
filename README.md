@@ -9,9 +9,10 @@ scrolling a wall of font names.
 
 **Live:** [type-explorer-pi.vercel.app](https://type-explorer-pi.vercel.app/)
 
-> **Status:** a personal project, shared publicly as a work sample. Not accepting
-> contributions — issues and pull requests may be closed without response. You're
-> welcome to fork it and make it your own (see [Licensing](#licensing)).
+> **Status:** a personal project, shared publicly as a work sample. Issues and pull
+> requests are welcome, but I make no promises about response time or whether
+> anything gets merged — treat it as a conversation, not a support channel. You're
+> also welcome to fork it and make it your own (see [Licensing](#licensing)).
 
 ![The home page — a gallery of suggested display and text pairings](docs/screenshots/home.png)
 
