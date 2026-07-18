@@ -1,7 +1,7 @@
 [
   {
     "date": "2026-07-18",
-    "commit": "PENDING",
+    "commit": "7739979",
     "title": "Every painted slot takes a hex; omitted ones come from taste, not arithmetic",
     "changes": [
       "A composed page came back flat: the subtitle and the paragraph rendered the same dull grey, and an explicitly chosen accent did no visible work. Three separate causes, all fixed.",
