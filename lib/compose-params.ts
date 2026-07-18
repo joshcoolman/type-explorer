@@ -21,9 +21,10 @@
  * surface that refuses to render is worse than one that renders a little less.
  */
 
-import type { CardTheme } from "./card-themes";
+import type { CardTheme, ResolvedCardTheme } from "./card-themes";
 import {
   CARD_THEMES,
+  resolveTheme,
   completePageChrome,
   completeTheme,
   derivePageChrome,
@@ -66,8 +67,8 @@ export interface ComposeSizes {
 
 export interface ComposeSpec {
   pairs: ComposePair[];
-  /** One resolved theme per pair, same order. */
-  themes: CardTheme[];
+  /** One fully-resolved theme per pair, same order — every slot painted. */
+  themes: ResolvedCardTheme[];
   /**
    * The viewport: page field, nav, footer. Derived from the first card theme
    * unless `page` says otherwise, so a light composition gets a light page for
@@ -383,6 +384,8 @@ const THEME_ROLES = new Set([
   "title",
   "subtitle",
   "paragraph",
+  "rule",
+  "label",
 ]);
 
 /**
@@ -536,10 +539,14 @@ export function parseComposeParams(
   if (themesRaw?.trim() && params.get("theme")?.trim()) {
     notes.push("themes and theme were both given — themes (per-card) wins");
   }
-  const themes =
+  // One resolve pass over every card, whatever produced it. Curated palettes go
+  // through the same door as hand-written ones, so `theme=3` gets an accent-borne
+  // subtitle and a distinct paragraph exactly like `theme=bg:…,accent:…` does.
+  const themes = (
     themesRaw?.trim()
       ? parseThemesList(themesRaw, count, notes)
-      : parseThemes(params.get("theme"), params.get("mood"), count, notes);
+      : parseThemes(params.get("theme"), params.get("mood"), count, notes)
+  ).map(resolveTheme);
 
   const voice: VoiceCopy = {
     title: readText(params.get("title"), "title", notes),

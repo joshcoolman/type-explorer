@@ -1,6 +1,31 @@
 [
   {
     "date": "2026-07-18",
+    "commit": "7739979",
+    "title": "Every painted slot takes a hex; omitted ones come from taste, not arithmetic",
+    "changes": [
+      "A composed page came back flat: the subtitle and the paragraph rendered the same dull grey, and an explicitly chosen accent did no visible work. Three separate causes, all fixed.",
+      "The subtitle and paragraph were identical BY CONSTRUCTION — neither was ever derived. ComposeCard painted both from `theme.muted` via `?? theme.muted`, so omitting either guaranteed they matched. The CardTheme doc comment already named this as a known defect.",
+      "`muted` itself was `mix(fg, bg, 0.42)`. Blending the ink into the field is an average, and averages trend to grey; no coefficient fixes that. It now borrows from the curated palette nearest the background — a designer's actual choice — the same way `accent` already did.",
+      "A stated hex did not survive: `accent:EF5DA8` shipped as `E358A0`, silently walked toward black until it cleared 4.5:1. Contrast handling now splits by who chose the color. A hex an agent wrote down is an intention (a brand color, a palette from a reference) and renders exactly, with a note if it sits under the bar; a value we derived carries no intention and is still clamped. The tradeoff is real — a fully-specified palette can now be made unreadable — and the note is how the contract stays honest instead of silently substituting.",
+      "Every painted element is now addressable: `rule` (the hairline above the font-name line) and `label` (the line itself) join the existing roles, so nothing on the card is off-limits to a hex. New `resolveTheme` fills whatever is unstated and is applied to EVERY card theme, curated ones included, so `theme=3` gets the same treatment as a hand-written palette. Dominant text roles come from curated relationships; ancillary chrome derives off the accent, which is where derivation is genuinely fine.",
+      "Net effect: `bg` + `fg` + `accent` — the three an agent actually knows — now produce a page with a point of view rather than a neutral box with one colored word in it.",
+      "The color key follows the cards. With per-card `themes=` it was flattening three palettes into a single row, leaving the reader to work out which swatch belonged to which card; each palette now sits in a column under its card, sharing the card row's flex sizing. A single shared palette has nothing to align to, so it stays a left-aligned strip of fixed chips rather than stretching five swatches to card width.",
+      "Nudges agents toward `themes=` (plural) when showing more than one direction — the run that prompted this used `theme=` singular for a three-option request, which makes three options look like one option typeset three ways."
+    ],
+    "files": [
+      "lib/card-themes.ts — ResolvedCardTheme + resolveTheme; curated `muted` default; contrast split by stated-vs-derived; `rule`/`label` roles",
+      "lib/compose-params.ts — resolveTheme applied to every card theme; `rule`/`label` in THEME_ROLES",
+      "app/components/ComposeCard.tsx — paints resolved slots directly, no per-use-site fallback",
+      "app/components/ComposeColorKey.tsx — a column per card under the cards; left-aligned chips when one palette is shared",
+      "lib/handoff.ts — carries the new slots as CSS vars and Tailwind tokens",
+      "lib/compose-params.test.ts — 4 new tests: distinct subtitle/paragraph, honored-exact hex, derived still clamped, ancillary slots",
+      "public/agent.md — role table, what-you-state-renders, what-you-omit-comes-from-taste",
+      "app/page.tsx — quickstart: full role list, honored-exact note, reach-for-themes nudge"
+    ]
+  },
+  {
+    "date": "2026-07-18",
     "commit": "f1806bc",
     "title": "Near-miss font slugs resolve; the surface stops asking agents to verify",
     "changes": [

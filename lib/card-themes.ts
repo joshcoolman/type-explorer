@@ -13,6 +13,7 @@
 
 import type { Rgb } from "./color";
 import {
+  contrastRatio,
   ensureContrast,
   isDark,
   luminance,
@@ -27,20 +28,82 @@ export interface CardTheme {
   muted: string; // subtitle (text font)
   accent: string; // pairing label at the bottom
   /**
-   * Per-element color overrides, used only by `/compose`.
+   * Per-element color slots, used only by `/compose`.
    *
-   * The four palette roles are a *palette*, not a type spec: `fg` carries the
-   * title and `muted` carries both the subtitle and the paragraph. That collapses
-   * three typographic roles into two color slots, so "make the subheads red"
-   * has no expressible answer without dragging the body copy along.
+   * The four palette roles above are a *palette*, not a type spec: `fg` carries
+   * the title and `muted` carries both the subtitle and the paragraph. That
+   * collapses three typographic roles into two color slots, so "make the subheads
+   * red" has no expressible answer without dragging the body copy along.
    *
-   * These three name the elements directly and default to the palette roles above,
-   * so a theme that sets none renders exactly as before. Optional throughout —
-   * no curated theme sets them.
+   * These name every painted element directly. Any one of them accepts a hex, so
+   * an agent can place a specific color on a specific element; omitted ones are
+   * filled by `resolveTheme`. Optional throughout — no curated theme sets them.
    */
   title?: string;
   subtitle?: string;
   paragraph?: string;
+  /** The hairline above the font-name line. */
+  rule?: string;
+  /** The font-name line itself. */
+  label?: string;
+}
+
+/**
+ * A theme with every paintable slot filled — what the render layer consumes.
+ *
+ * `CardTheme` is what an agent (or a curated palette) *states*; this is what
+ * actually gets painted. Keeping them separate is what lets the components read
+ * `theme.subtitle` unconditionally instead of re-deciding a fallback at each use
+ * site, which is how the subtitle and paragraph ended up sharing one color.
+ */
+export interface ResolvedCardTheme {
+  bg: string;
+  fg: string;
+  muted: string;
+  accent: string;
+  title: string;
+  subtitle: string;
+  paragraph: string;
+  rule: string;
+  label: string;
+}
+
+/**
+ * Fill every unstated slot.
+ *
+ * The split here is deliberate, and it is the fix for palettes that came out
+ * muddy. **Dominant** roles — the text you actually read — are never computed by
+ * blending the field into the ink: averaging two colors trends to grey, which is
+ * exactly how `mix(fg, bg, 0.42)` produced the same dull tone for both the
+ * subtitle and the paragraph. Instead the subtitle takes the *accent*, so the one
+ * color the agent chose with intent does visible work, and the paragraph takes
+ * `muted`, which now comes from a hand-tuned curated palette rather than
+ * arithmetic.
+ *
+ * **Ancillary** chrome — the hairline, the font-name line — is fine to derive,
+ * since nothing rests on it. Both come off the accent so the card reads as one
+ * idea rather than a neutral box with a colored word in it.
+ *
+ * Anything stated explicitly is passed through untouched.
+ */
+export function resolveTheme(theme: CardTheme): ResolvedCardTheme {
+  const bg = parseHex(theme.bg)!;
+  const accent = parseHex(theme.accent)!;
+
+  return {
+    bg: theme.bg,
+    fg: theme.fg,
+    muted: theme.muted,
+    accent: theme.accent,
+    title: theme.title ?? theme.fg,
+    // The accent, pushed only as far as body-size legibility requires. This is
+    // the ambition: a subtitle that carries the palette's hue instead of a grey.
+    subtitle: theme.subtitle ?? toHex(ensureContrast(accent, bg, 4.5)),
+    paragraph: theme.paragraph ?? theme.muted,
+    // A tinted hairline, mostly field with a trace of accent.
+    rule: theme.rule ?? toHex(mix(accent, bg, 0.72)),
+    label: theme.label ?? theme.accent,
+  };
 }
 
 /** The limited source palette. Named hexes, reused across themes. */
@@ -310,21 +373,34 @@ export function completeTheme(partial: Partial<CardTheme>): {
   let accent = partial.accent ? parseHex(partial.accent)! : null;
   if (!accent) accent = parseHex(nearestCuratedTheme(bgHex).accent)!;
 
-  // muted: given, or fg dialed back toward the field until it is quiet but still
-  // clears body-text contrast.
+  // muted: given, or borrowed from the curated palette nearest this field.
+  // Deliberately NOT `mix(fg, bg, …)` any more: blending the ink into the field
+  // is an average, and averages trend to grey. Borrowing keeps a designer's
+  // actual choice, the same way the accent above already did.
   let muted = partial.muted ? parseHex(partial.muted)! : null;
-  if (!muted) muted = mix(fg, bg, 0.42);
+  if (!muted) muted = parseHex(nearestCuratedTheme(bgHex).muted)!;
 
+  /**
+   * Contrast handling, split by who chose the color.
+   *
+   * A hex an agent wrote down is an intention — a brand color, a palette pulled
+   * from a reference — so we render it exactly and *say* if it falls short.
+   * Silently walking it toward black meant `accent:EF5DA8` shipped as `E358A0`
+   * and nobody could tell why. A value we derived carries no such intention, so
+   * we still clamp those to stay legible.
+   */
   const nudge = (
     role: keyof CardTheme,
     value: Rgb,
     target: number,
   ): Rgb => {
     const fixed = ensureContrast(value, bg, target);
-    if (toHex(fixed) !== toHex(value) && partial[role]) {
+    if (toHex(fixed) === toHex(value)) return value;
+    if (partial[role]) {
       notes.push(
-        `theme: ${role} ${toHex(value)} fell short of ${target}:1 on the background — adjusted to ${toHex(fixed)}`,
+        `theme: ${role} ${toHex(value)} sits at ${contrastRatio(value, bg).toFixed(2)}:1 on this background, under the ${target}:1 bar — rendered as written`,
       );
+      return value;
     }
     return fixed;
   };
@@ -335,13 +411,19 @@ export function completeTheme(partial: Partial<CardTheme>): {
    * regular and the paragraph ~14px: both under the large-text threshold, so both
    * owe the full 4.5:1.
    */
-  const element = (role: "title" | "subtitle" | "paragraph", target: number) =>
-    partial[role] ? toHex(nudge(role, parseHex(partial[role])!, target)) : undefined;
+  const element = (
+    role: "title" | "subtitle" | "paragraph" | "rule" | "label",
+    target: number,
+  ) => (partial[role] ? toHex(nudge(role, parseHex(partial[role])!, target)) : undefined);
 
   const overrides = {
     title: element("title", 3),
     subtitle: element("subtitle", 4.5),
     paragraph: element("paragraph", 4.5),
+    // A hairline is decoration, not text — it owes no reading contrast, and
+    // holding it to one would forbid the quiet dividers that actually look right.
+    rule: element("rule", 0),
+    label: element("label", 3),
   };
 
   return {

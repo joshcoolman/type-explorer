@@ -121,16 +121,25 @@ function AgentQuickstart() {
         <li>
           <code>theme</code> — a curated palette index (<code>theme=3</code>) OR
           named hex roles: <code>theme=bg:14181D,fg:E8EDF2,accent:6EA0C0</code>.
-          Roles are <code>bg</code>, <code>fg</code>, <code>muted</code>,{" "}
-          <code>accent</code>, plus <code>title</code>, <code>subtitle</code>,{" "}
-          <code>paragraph</code> to color those text elements. Omitted roles are
-          derived and contrast-checked. Note: as a <em>theme</em> role,{" "}
+          Every painted element is addressable: <code>bg</code>, <code>fg</code>,{" "}
+          <code>muted</code>, <code>accent</code>, plus <code>title</code>,{" "}
+          <code>subtitle</code>, <code>paragraph</code>, <code>rule</code> (the
+          hairline) and <code>label</code> (the font-name line). A hex you state
+          renders <em>exactly</em>, with a note if it falls under the contrast bar
+          — so a brand color arrives intact. What you omit is filled from a
+          curated palette: the subtitle takes your accent, so{" "}
+          <code>bg</code> + <code>fg</code> + <code>accent</code> is already
+          enough for a page with a point of view. Note: as a <em>theme</em> role,{" "}
           <code>subtitle:9AA6B2</code> is a color; as a top-level param,{" "}
           <code>subtitle=Some+words</code> is copy.
         </li>
         <li>
           <code>themes</code> (plural) — <strong>per-card</strong> palettes for
-          three distinct looks in one URL. A <code>;</code>-separated list, one
+          three distinct looks in one URL. <strong>
+            Reach for this whenever you are showing more than one direction
+          </strong>{" "}
+          — <code>theme</code> (singular) paints every card the same, which makes
+          three options look like one option typeset three ways. A <code>;</code>-separated list, one
           spec per card, each spec the same grammar as <code>theme</code>:{" "}
           <code>themes=bg:1D4ED8;bg:DC2626;bg:2563EB</code>. One spec applies to
           all cards; N map by card index; it wins over <code>theme</code>. Set an

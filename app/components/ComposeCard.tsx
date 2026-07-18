@@ -1,4 +1,4 @@
-import type { CardTheme } from "@/lib/card-themes";
+import type { ResolvedCardTheme } from "@/lib/card-themes";
 import type { ComposePair, ComposeSizes } from "@/lib/compose-params";
 import { fontStack } from "@/lib/font-stack";
 import type { VoiceCopy } from "@/lib/types";
@@ -23,7 +23,7 @@ export default function ComposeCard({
   sizes,
 }: {
   pair: ComposePair;
-  theme: CardTheme;
+  theme: ResolvedCardTheme;
   voice: VoiceCopy;
   sizes: ComposeSizes;
 }) {
@@ -45,7 +45,7 @@ export default function ComposeCard({
           fontWeight: sizes.displayWeight,
           fontSize: `${sizes.h1}px`,
           lineHeight: sizes.h1Leading,
-          color: theme.title ?? theme.fg,
+          color: theme.title,
         }}
       >
         {voice.title}
@@ -62,9 +62,10 @@ export default function ComposeCard({
           // without one it runs the full width of a two-up card and stops
           // scanning as a deck. `ch` is font-relative, so this tracks `h2`.
           maxWidth: `${sizes.measureCh}ch`,
-          // Each text element gets its own slot when the palette names one;
-          // otherwise it falls back to the palette role, as curated themes do.
-          color: theme.subtitle ?? theme.muted,
+          // Every slot is resolved upstream by `resolveTheme`, so there is no
+          // fallback to re-decide here — which is how the subtitle and the
+          // paragraph used to end up sharing one color.
+          color: theme.subtitle,
         }}
       >
         {voice.subtitle}
@@ -78,7 +79,7 @@ export default function ComposeCard({
           fontSize: `${sizes.p}px`,
           lineHeight: sizes.pLeading,
           maxWidth: `${sizes.measureCh}ch`,
-          color: theme.paragraph ?? theme.muted,
+          color: theme.paragraph,
         }}
       >
         {voice.paragraph}
@@ -87,9 +88,9 @@ export default function ComposeCard({
       <div className="mt-auto pt-12">
         <div
           className="pt-4 font-mono text-[11px] uppercase leading-snug tracking-[0.16em]"
-          style={{ borderTop: `0.5px solid ${theme.muted}` }}
+          style={{ borderTop: `0.5px solid ${theme.rule}` }}
         >
-          <div style={{ color: theme.accent }}>
+          <div style={{ color: theme.label }}>
             {pair.monovoice
               ? `${pair.display.family} (both roles)`
               : `${pair.display.family} & ${pair.text.family}`}

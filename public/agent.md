@@ -14,8 +14,8 @@ https://googlefontfinder.com/compose?pairs=space-grotesk+ibm-plex-mono,manrope+i
 | Param | What it is |
 |---|---|
 | `pairs` | `display+text` slug pairs, comma-separated, max 4. A lone slug is a valid one-font card. |
-| `theme` | curated index (`theme=3`) or hex roles `bg fg muted accent title subtitle paragraph`. |
-| `themes` | plural, `;`-separated — a different palette **per card**. Beats `theme`. |
+| `theme` | curated index (`theme=3`) or hex roles `bg fg muted accent title subtitle paragraph rule label`. A hex you state renders exactly; what you omit is filled from a curated palette. |
+| `themes` | plural, `;`-separated — a different palette **per card**. Beats `theme`. Reach for this whenever you're showing more than one direction. |
 | `page` | the field behind the cards: `page=0B0E11` or named roles. |
 | `title` / `subtitle` / `paragraph` | your copy, capped 120 / 200 / 600. Body copy is **`paragraph`**, not `body`. |
 | `for` | one framing line above the cards, ≤150. |
@@ -183,15 +183,40 @@ Three ways in, in precedence order:
 - `theme=bg:212121,accent:E34712` — **named** roles (never positional). Anything
   you omit is derived from what you gave.
 
-**Roles.** `bg`, `fg`, `muted`, `accent` are the palette. `title`, `subtitle` and
-`paragraph` override one text element each and fall back to the palette when
-absent — `fg` carries the title, `muted` carries both the subtitle and the
-paragraph, so without these there is no way to color the deck without dragging the
-body copy with it.
+**Roles — every painted element is addressable.** `bg`, `fg`, `muted`, `accent`
+are the palette. The rest name one element each, so you can put a specific color
+on a specific thing:
+
+| Role | Paints |
+|---|---|
+| `title` | the display line |
+| `subtitle` | the deck |
+| `paragraph` | the body copy |
+| `rule` | the hairline above the font-name line |
+| `label` | the font-name line itself |
 
 ```
-theme=bg:D4DCE2,fg:1E262B,accent:36596C,subtitle:A32B25
+theme=bg:D4DCE2,fg:1E262B,accent:36596C,subtitle:A32B25,rule:C6D0D6
 ```
+
+**What you state is what renders.** A hex you write down is treated as an
+intention — a brand color, a palette from a reference — so it is painted exactly
+as given, even if it lands below the contrast bar. You get a note saying so; you
+do not get a different color than the one you asked for.
+
+**What you omit is filled from taste, not arithmetic.** Blending the ink into the
+field is an average, and averages go grey — that's how the subtitle and the
+paragraph used to come back as the same dull tone. So instead:
+
+- `title` → `fg`
+- `subtitle` → the **accent**, darkened only as far as body-size legibility needs.
+  The color you chose does visible work rather than sitting on one small label.
+- `paragraph` → `muted`, which is itself borrowed from the curated palette nearest
+  your background — a designer's actual choice, not a computed midpoint.
+- `rule` → a trace of accent over the field. `label` → `accent`.
+
+Practical consequence: **`bg` + `fg` + `accent` is enough for a page with a point
+of view.** You do not have to specify all eight to avoid a flat result.
 
 **Two facets per element.** Each of `title`, `subtitle`, `paragraph` has a *text*
 facet and a *color* facet, told apart by position: `subtitle=Some words` sets the
@@ -225,9 +250,12 @@ The bring-your-own path exists for the case the curated set can't answer: *"here
 are my brand colors, show me type that works with them."* Give us `bg` and
 `accent` — the two you actually know — and let `fg` and `muted` be derived.
 
-Derived roles are contrast-checked against the background (4.5:1 for text roles,
-3:1 for accent) and nudged if they fall short, with a note. Values you supply
-yourself are checked too, and adjusted if they'd be illegible.
+Contrast handling splits by who chose the color. Roles **we** derived are
+contrast-checked against the background (4.5:1 for text, 3:1 for accent) and
+nudged if they fall short — there's no intention there to preserve. Roles **you**
+stated render untouched, with a note if they sit under the bar. That means you can
+place any hex anywhere; it also means you can make a page unreadable if you insist,
+so read the notes when you've supplied a full palette.
 
 **One honest caveat:** the 11 *curated* palettes are hand-tuned for editorial feel
 and several have a `muted` role below 4.5:1 — they are not all WCAG AA. Real
