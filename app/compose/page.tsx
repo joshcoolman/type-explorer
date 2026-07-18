@@ -1,15 +1,8 @@
 import type { Metadata } from "next";
-import suggested from "@/content/suggested-pairings.json";
-
-import {
-  parseComposeParams,
-  type ComposePair,
-  type FontResolver,
-} from "@/lib/compose-params";
+import type { Note } from "@/lib/compose-notes";
+import { resolveCompose, toSearchParams } from "@/lib/compose-resolve";
 import { getFontResolver } from "@/lib/font-index";
-import { buildHandoff } from "@/lib/handoff";
-import { DEFAULT_VOICE } from "@/lib/specimen-samples";
-import type { Pairing, VoiceCopy } from "@/lib/types";
+import type { buildHandoff } from "@/lib/handoff";
 import ComposeCard from "@/app/components/ComposeCard";
 import ComposeColorKey from "@/app/components/ComposeColorKey";
 import { Container, typeRole } from "@/app/components/ui";
@@ -51,47 +44,16 @@ const VISUALLY_HIDDEN: React.CSSProperties = {
   borderWidth: 0,
 };
 
-/** Fall back to the site's own curated opener when nothing resolvable was named. */
-function defaultPairs(resolve: FontResolver): ComposePair[] {
-  const { pairings } = suggested as { pairings: Pairing[] };
-  const out: ComposePair[] = [];
-  for (const p of pairings.slice(0, 3)) {
-    const display = resolve(slugifyName(p.heading));
-    const text = resolve(slugifyName(p.body));
-    if (display && text) {
-      out.push({ display, text, monovoice: display.family === text.family });
-    }
-  }
-  return out;
-}
-
-function slugifyName(name: string): string {
-  return name.trim().toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
-}
-
 export default async function ComposePage({
   searchParams,
 }: {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
-  const raw = await searchParams;
-  const params = new URLSearchParams();
-  for (const [key, value] of Object.entries(raw)) {
-    if (typeof value === "string") params.set(key, value);
-    else if (Array.isArray(value) && value.length) params.set(key, value[0]);
-  }
-
   const resolve = await getFontResolver();
-  const spec = parseComposeParams(params, resolve);
-
-  const pairs = spec.pairs.length ? spec.pairs : defaultPairs(resolve);
-  const voice: VoiceCopy = {
-    title: spec.voice.title || DEFAULT_VOICE.title,
-    subtitle: spec.voice.subtitle || DEFAULT_VOICE.subtitle,
-    paragraph: spec.voice.paragraph || DEFAULT_VOICE.paragraph,
-  };
-
-  const handoff = buildHandoff(pairs, spec.themes);
+  const { spec, pairs, voice, handoff } = resolveCompose(
+    toSearchParams(await searchParams),
+    resolve,
+  );
 
   const chrome = spec.pageChrome;
   const solo = pairs.length === 1;
@@ -166,6 +128,7 @@ export default async function ComposePage({
                 theme={spec.themes[i % spec.themes.length]}
                 voice={voice}
                 sizes={spec.sizes}
+                ordinal={solo ? undefined : i + 1}
               />
             </div>
           ))}
@@ -210,7 +173,7 @@ export default async function ComposePage({
  * nothing was dropped — silence would be indistinguishable from a parse the agent
  * never saw.
  */
-function AgentNotes({ notes, canonical }: { notes: string[]; canonical: string }) {
+function AgentNotes({ notes, canonical }: { notes: Note[]; canonical: string }) {
   return (
     <section
       id="agent-notes"
@@ -228,9 +191,9 @@ function AgentNotes({ notes, canonical }: { notes: string[]; canonical: string }
         </p>
       ) : (
         <ul className="mt-3 list-disc space-y-1 pl-5 text-sm leading-relaxed">
-          {notes.map((note, i) => (
-            <li key={i} data-note>
-              {note}
+          {notes.map((n, i) => (
+            <li key={i} data-note data-code={n.code} data-severity={n.severity}>
+              {n.message}
             </li>
           ))}
         </ul>

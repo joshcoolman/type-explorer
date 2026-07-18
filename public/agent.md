@@ -21,6 +21,8 @@ https://googlefontfinder.com/compose?pairs=space-grotesk+ibm-plex-mono,manrope+i
 | `for` | one framing line above the cards, ≤150. |
 | `scale` `density` `contrast` `measure` | coarse dials 1–5, default 3. Prefer these over `h1`/`h2`/`p` px. |
 
+Need the payload to build with? Swap `/compose?` → `/compose.json?`, same params.
+
 A slug is the family name lowercased with each run of non-alphanumerics collapsed
 to one hyphen: `Playfair Display` → `playfair-display`, `DM Sans` → `dm-sans`,
 `IBM Plex Mono` → `ibm-plex-mono`.
@@ -315,10 +317,55 @@ round-trip to remove doubt the parser already absorbs.
 
 ---
 
-## The handoff
+## The handoff — use `/compose.json`
 
-Every composed page carries an **Implementation** section at `#agent-specs`,
-visually hidden in the same way as the notes block.
+**Swap `/compose?` for `/compose.json?` and keep every param identical.** Same
+page, same grammar, served as JSON instead of HTML. One fetch answers both
+questions — *did it render as I asked* and *give me the payload* — with no tag
+stripping and nothing to regex.
+
+```
+/compose.json?pairs=fraunces+dm-sans&theme=bg:23302A,fg:EDE7D8,accent:C98A3B
+```
+
+You get `status` and `notes` (each with a stable `code` and `severity`),
+`content`, `type`, `page`, deck-wide `assets`, and a `cards[]` array. Each card
+carries its **own** palette, faces with real axis ranges, a css2 URL scoped to
+its two faces, and paste-ready `tokens.tailwind` / `tokens.css`.
+
+### Colors say where they came from
+
+Every role in `cards[].colors` is `{ hex, source }`:
+
+- `"stated"` — the user wrote this hex. Rendered exactly, contrast bar or not.
+- `"derived"` — we computed it, and therefore clamped it for legibility.
+- `"from:<role>"` — it inherits (`title` ← `fg`, `subtitle`/`label` ← `accent`,
+  `paragraph` ← `muted`).
+
+`source` names the *origin*; `hex` is what actually rendered. They need not match
+— a `from:accent` subtitle is routinely darker than the accent, because derived
+values get clamped and stated ones don't.
+
+This is the field worth having: it tells whoever implements the page which colors
+are the client's and must be pinned, and which are ours and can be regenerated.
+
+### The revision loop
+
+Fetch `/compose.json` **once** and keep all the cards. Your user is looking at a
+page whose cards are numbered `01`, `02`, `03` — those are `cards[].index`. When
+they say *"let's go with the second one,"* you already hold its fonts, its
+palette and its tokens, so the follow-up costs **zero** further fetches: build a
+single-card `/compose` URL from that card's `fonts` and `colors` and hand it over.
+
+One caution: if a card was dropped for an unknown slug, render position and the
+order you asked for diverge. `index` is what the user sees on the page and is the
+one to trust; `requestedIndex` tells you which of your original pairs it was.
+
+## The handoff, as HTML
+
+Every composed page also carries an **Implementation** section at `#agent-specs`,
+visually hidden in the same way as the notes block. Prefer `/compose.json` — this
+exists for agents that can only read a page.
 
 This is the one thing worth a fetch of the composed page — not because your URL
 needs checking, but because the payload only exists there. Fetch it when your user

@@ -214,6 +214,18 @@ function AgentQuickstart() {
         not need to look a slug up to be sure of it.
       </p>
 
+      <h3>Getting the payload back out</h3>
+      <p>
+        When your user picks a direction and wants it built, swap{" "}
+        <code>/compose?</code> for <code>/compose.json?</code> — same params,
+        same page, served as JSON. Each card carries its own palette (with{" "}
+        <code>source</code> saying which hexes the user stated and which we
+        filled), its faces and axis ranges, and paste-ready Tailwind and CSS
+        tokens. Fetch it once and hold every card: the cards are numbered{" "}
+        <code>01</code>, <code>02</code>, <code>03</code> on the page, so
+        &ldquo;the second one&rdquo; costs no further request.
+      </p>
+
       <h3>The full contract (optional enrichment)</h3>
       <p>
         You can construct a working link from this block alone. If you can follow

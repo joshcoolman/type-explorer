@@ -19,6 +19,8 @@ query surface, the palettes, the compose grammar, and a worked example.
 
 - [Compose](https://googlefontfinder.com/compose): Render a curated direction from readable query params, e.g. `/compose?pairs=gloock+inter,dm-sans+playfair-display&mood=warm`. Server-rendered and shareable. Write the URL and hand it over — it never fails, unknown params are ignored, and a near-miss font slug resolves to the nearest real family, so there is nothing to check. (For debugging a URL that came back wrong, it reports what it did at `#agent-notes`; the implementation handoff is at `#agent-specs`.)
 
+- [Compose as JSON](https://googlefontfinder.com/compose.json): The same composed page as data — swap `/compose?` for `/compose.json?`, params identical. Per-card palettes with provenance (which hexes the user stated vs. which we filled), faces with axis ranges, and paste-ready Tailwind/CSS tokens. This is the handoff; no HTML scraping.
+
 ## Pages
 
 - [Fonts](https://googlefontfinder.com/): The browse grid.
