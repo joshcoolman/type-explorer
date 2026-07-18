@@ -32,11 +32,16 @@ export interface FontSpec {
 }
 
 export interface CardHandoff {
+  /** Position in `pairs=` as written — see `ComposePair.requestedIndex`. */
+  requestedIndex: number;
   role: "display" | "text" | "both";
   fonts: FontSpec[];
   theme: ResolvedCardTheme;
   /** One css2 URL covering every face this card uses. */
   css2: string;
+  /** Tokens scoped to *this* card — its faces, its palette. */
+  tailwind: string;
+  cssVars: string;
 }
 
 export interface Handoff {
@@ -93,58 +98,62 @@ function dedupe(families: FontFamily[]): FontFamily[] {
   return out;
 }
 
+/**
+ * The colour half of a token block. Extracted so a card can emit its *own*
+ * palette: the deck-wide blocks below necessarily pick one theme, which meant a
+ * three-direction page handed off a single card's colours and silently
+ * misdescribed the other two.
+ */
+function colorTokens(theme: ResolvedCardTheme | undefined, prefix: string): string[] {
+  if (!theme) return [];
+  const roles = ["bg", "fg", "muted", "accent", "title", "subtitle", "paragraph", "rule", "label"] as const;
+  return roles.map((role) => `  --${prefix}${role}: ${theme[role]};`);
+}
+
+function tailwindBlock(families: FontFamily[], theme: ResolvedCardTheme | undefined): string {
+  return [
+    "@theme {",
+    ...families.map((f) => `  --font-${tokenFor(f)}: "${f.family}", ${fallbackTail(f)};`),
+    ...colorTokens(theme, "color-card-"),
+    "}",
+  ].join("\n");
+}
+
+function cssVarsBlock(families: FontFamily[], theme: ResolvedCardTheme | undefined): string {
+  return [
+    ":root {",
+    ...families.map(
+      (f) => `  --font-${tokenFor(f)}: ${JSON.stringify(f.family)}, ${fallbackTail(f)};`,
+    ),
+    ...colorTokens(theme, "card-"),
+    "}",
+  ].join("\n");
+}
+
 export function buildHandoff(pairs: ComposePair[], themes: ResolvedCardTheme[]): Handoff {
-  const cards: CardHandoff[] = pairs.map((pair, i) => ({
-    role: pair.monovoice ? "both" : "display",
-    fonts: pair.monovoice
-      ? [specFor(pair.display)]
-      : [specFor(pair.display), specFor(pair.text)],
-    theme: themes[i % themes.length],
-    css2: css2ForFamilies(pair.monovoice ? [pair.display] : [pair.display, pair.text]),
-  }));
+  const cards: CardHandoff[] = pairs.map((pair, i) => {
+    const faces = dedupe(pair.monovoice ? [pair.display] : [pair.display, pair.text]);
+    const theme = themes[i % themes.length];
+    return {
+      requestedIndex: pair.requestedIndex,
+      role: pair.monovoice ? "both" : "display",
+      fonts: faces.map(specFor),
+      theme,
+      css2: css2ForFamilies(faces),
+      tailwind: tailwindBlock(faces, theme),
+      cssVars: cssVarsBlock(faces, theme),
+    };
+  });
 
   const allFamilies = dedupe(pairs.flatMap((p) => [p.display, p.text]));
   const css2All = allFamilies.length ? css2ForFamilies(allFamilies) : "";
 
   // Tailwind v4 registers fonts as theme variables in CSS, not a JS config —
-  // which is what this repo uses, so that's the form we hand over.
-  const tailwind = [
-    "@theme {",
-    ...allFamilies.map((f) => `  --font-${tokenFor(f)}: "${f.family}", ${fallbackTail(f)};`),
-    ...(themes[0]
-      ? [
-          `  --color-card-bg: ${themes[0].bg};`,
-          `  --color-card-fg: ${themes[0].fg};`,
-          `  --color-card-muted: ${themes[0].muted};`,
-          `  --color-card-accent: ${themes[0].accent};`,
-          `  --color-card-title: ${themes[0].title};`,
-          `  --color-card-subtitle: ${themes[0].subtitle};`,
-          `  --color-card-paragraph: ${themes[0].paragraph};`,
-          `  --color-card-rule: ${themes[0].rule};`,
-          `  --color-card-label: ${themes[0].label};`,
-        ]
-      : []),
-    "}",
-  ].join("\n");
-
-  const cssVars = [
-    ":root {",
-    ...allFamilies.map((f) => `  --font-${tokenFor(f)}: ${JSON.stringify(f.family)}, ${fallbackTail(f)};`),
-    ...(themes[0]
-      ? [
-          `  --card-bg: ${themes[0].bg};`,
-          `  --card-fg: ${themes[0].fg};`,
-          `  --card-muted: ${themes[0].muted};`,
-          `  --card-accent: ${themes[0].accent};`,
-          `  --card-title: ${themes[0].title};`,
-          `  --card-subtitle: ${themes[0].subtitle};`,
-          `  --card-paragraph: ${themes[0].paragraph};`,
-          `  --card-rule: ${themes[0].rule};`,
-          `  --card-label: ${themes[0].label};`,
-        ]
-      : []),
-    "}",
-  ].join("\n");
+  // which is what this repo uses, so that's the form we hand over. Deck-wide
+  // blocks necessarily pick one palette; `cards[].tailwind` / `cards[].cssVars`
+  // carry each card's own, which is what a consumer picking one direction wants.
+  const tailwind = tailwindBlock(allFamilies, themes[0]);
+  const cssVars = cssVarsBlock(allFamilies, themes[0]);
 
   return {
     cards,

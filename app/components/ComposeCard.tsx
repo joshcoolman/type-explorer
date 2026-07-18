@@ -21,11 +21,19 @@ export default function ComposeCard({
   theme,
   voice,
   sizes,
+  ordinal,
 }: {
   pair: ComposePair;
   theme: ResolvedCardTheme;
   voice: VoiceCopy;
   sizes: ComposeSizes;
+  /**
+   * 1-based position, shown on the card. The revision loop is spoken — "let's go
+   * with the second one" — and until this existed nothing on the page carried a
+   * number, so the human's reference and `/compose.json`'s `index` were only
+   * related by counting. Multi-card only: a lone card has no ordinal to disambiguate.
+   */
+  ordinal?: number;
 }) {
   const displayFont = fontStack(pair.display);
   const textFont = fontStack(pair.text);
@@ -39,6 +47,15 @@ export default function ComposeCard({
         padding: `${sizes.padding}rem`,
       }}
     >
+      {ordinal !== undefined && (
+        <div
+          className="mb-4 font-mono text-[11px] uppercase tracking-[0.16em]"
+          style={{ color: theme.label }}
+        >
+          {String(ordinal).padStart(2, "0")}
+        </div>
+      )}
+
       <h2
         style={{
           fontFamily: displayFont,

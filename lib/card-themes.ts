@@ -12,6 +12,7 @@
  */
 
 import type { Rgb } from "./color";
+import { note, type Note } from "./compose-notes";
 import {
   contrastRatio,
   ensureContrast,
@@ -66,6 +67,63 @@ export interface ResolvedCardTheme {
   paragraph: string;
   rule: string;
   label: string;
+}
+
+/** Where a rendered color came from. */
+export type ColorSource =
+  /** The URL named this hex. Rendered exactly, contrast bar or not. */
+  | "stated"
+  /** We computed it — and therefore clamped it for legibility. */
+  | "derived"
+  /** It inherits another role: `from:fg`, `from:accent`, `from:muted`. */
+  | `from:${string}`;
+
+export interface ColorProvenance {
+  hex: string;
+  source: ColorSource;
+}
+
+/** Which role each slot falls back to when the URL doesn't name it. */
+const INHERITS: Partial<Record<keyof ResolvedCardTheme, string>> = {
+  title: "fg",
+  subtitle: "accent",
+  paragraph: "muted",
+  label: "accent",
+};
+
+/**
+ * Pair every painted slot with where its value came from.
+ *
+ * This is what `/compose.json` reports and the one thing the HTML handoff cannot
+ * express: `#2F6E6A` on a card might be a brand color the client chose or a value
+ * we filled, and a developer needs to know which to pin.
+ *
+ * Kept separate from `resolveTheme` on purpose — the render path never needs
+ * provenance and shouldn't pay to compute it.
+ *
+ * Note `source` names the *origin*, not an equality claim: a `from:accent`
+ * subtitle is routinely darker than the accent, because derived values are
+ * clamped for legibility while a stated accent is not.
+ */
+export function themeProvenance(
+  resolved: ResolvedCardTheme,
+  stated: readonly string[],
+): Record<keyof ResolvedCardTheme, ColorProvenance> {
+  const statedSet = new Set(stated);
+  const roles = Object.keys(resolved) as (keyof ResolvedCardTheme)[];
+
+  return Object.fromEntries(
+    roles.map((role) => {
+      const hex = resolved[role];
+      if (statedSet.has(role)) return [role, { hex, source: "stated" as const }];
+      const inherited = INHERITS[role];
+      // Only claim inheritance when the source role wasn't stated either — if the
+      // user gave `accent`, the subtitle's origin is that stated accent, which is
+      // more useful to report than a bare "derived".
+      if (inherited) return [role, { hex, source: `from:${inherited}` as const }];
+      return [role, { hex, source: "derived" as const }];
+    }),
+  ) as Record<keyof ResolvedCardTheme, ColorProvenance>;
 }
 
 /**
@@ -277,8 +335,8 @@ export function derivePageChrome(card: CardTheme): PageChrome {
 export function completePageChrome(
   partial: Partial<PageChrome>,
   fallback: PageChrome,
-): { chrome: PageChrome; notes: string[] } {
-  const notes: string[] = [];
+): { chrome: PageChrome; notes: Note[] } {
+  const notes: Note[] = [];
   const bgHex = partial.bg ?? fallback.bg;
   const bg = parseHex(bgHex)!;
 
@@ -294,7 +352,12 @@ export function completePageChrome(
     const fixed = ensureContrast(value, bg, target);
     if (toHex(fixed) !== toHex(value) && partial[role]) {
       notes.push(
-        `page: ${role} ${toHex(value)} fell short of ${target}:1 on the page background — adjusted to ${toHex(fixed)}`,
+        note(
+          "contrast_below_bar",
+          "warn",
+          role,
+          `page: ${role} ${toHex(value)} fell short of ${target}:1 on the page background — adjusted to ${toHex(fixed)}`,
+        ),
       );
     }
     return fixed;
@@ -358,9 +421,9 @@ export function themesForMood(mood: Mood | null): CardTheme[] {
  */
 export function completeTheme(partial: Partial<CardTheme>): {
   theme: CardTheme;
-  notes: string[];
+  notes: Note[];
 } {
-  const notes: string[] = [];
+  const notes: Note[] = [];
   const bgHex = partial.bg ?? PAGE_THEME_DEFAULT.bg;
   const bg = parseHex(bgHex)!;
 
@@ -398,7 +461,12 @@ export function completeTheme(partial: Partial<CardTheme>): {
     if (toHex(fixed) === toHex(value)) return value;
     if (partial[role]) {
       notes.push(
-        `theme: ${role} ${toHex(value)} sits at ${contrastRatio(value, bg).toFixed(2)}:1 on this background, under the ${target}:1 bar — rendered as written`,
+        note(
+          "contrast_below_bar",
+          "warn",
+          role,
+          `theme: ${role} ${toHex(value)} sits at ${contrastRatio(value, bg).toFixed(2)}:1 on this background, under the ${target}:1 bar — rendered as written`,
+        ),
       );
       return value;
     }

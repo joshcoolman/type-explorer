@@ -34,6 +34,7 @@ import {
   type PageChrome,
 } from "./card-themes";
 import { HEX_RE, normalizeHex } from "./color";
+import { note, type Note } from "./compose-notes";
 import { slugify } from "./slug";
 import type { FontFamily, VoiceCopy } from "./types";
 
@@ -47,6 +48,13 @@ export interface ComposePair {
   text: FontFamily;
   /** True when one family carries both roles. */
   monovoice: boolean;
+  /**
+   * 0-based position in the `pairs=` param as written, which is NOT the render
+   * position once a card drops. A user saying "the third one" means the third
+   * thing the agent asked for; if card two was dropped for an unknown slug, that
+   * is render index 1. Carrying both is what keeps the reference honest.
+   */
+  requestedIndex: number;
 }
 
 /** Resolved type sizes in px, with leading derived per role. */
@@ -80,9 +88,17 @@ export interface ComposeSpec {
   framing: string | null;
   sizes: ComposeSizes;
   /** Degradation report. Empty means everything parsed as written. */
-  notes: string[];
+  notes: Note[];
   /** Params we don't know, echoed so the agent can spot a typo'd key. */
   ignored: string[];
+  /**
+   * Per card, the color roles the URL actually named — parallel to `themes`.
+   *
+   * The render path doesn't need this; `/compose.json` does. A stated hex is the
+   * user's intention and rendered untouched, so a consumer can tell "pin these,
+   * regenerate the rest" — which is the one thing the HTML handoff can't say.
+   */
+  statedRoles: string[][];
   /** Stable re-serialization of the resolved spec — the CDN cache key. */
   canonical: string;
 }
@@ -157,10 +173,15 @@ const URLISH_TOKEN_RE =
  * The resolver forgives near misses (see `lib/font-match.ts`), so a slug can
  * resolve to a family it doesn't spell. Rule 2 says we report that.
  */
-function noteNearMatch(asked: string, got: FontFamily, notes: string[]): void {
+function noteNearMatch(asked: string, got: FontFamily, notes: Note[]): void {
   if (asked.trim().toLowerCase() === slugify(got.family)) return;
   notes.push(
-    `pairs: "${asked}" is not a slug we know — rendered ${got.family}, the nearest match`,
+    note(
+      "slug_resolved",
+      "info",
+      asked,
+      `pairs: "${asked}" is not a slug we know — rendered ${got.family}, the nearest match`,
+    ),
   );
 }
 
@@ -173,16 +194,20 @@ function clampInt(value: number, min: number, max: number): number {
 }
 
 /** Read a 1..5 dial, defaulting on anything unparseable. */
-function readDial(raw: string | null, name: string, notes: string[]): number {
+function readDial(raw: string | null, name: string, notes: Note[]): number {
   if (raw === null || raw.trim() === "") return DIAL_DEFAULT;
   const n = Number(raw);
   if (!Number.isFinite(n)) {
-    notes.push(`${name}: "${raw}" is not a number — using the default (${DIAL_DEFAULT})`);
+    notes.push(
+      note("value_clamped", "info", name, `${name}: "${raw}" is not a number — using the default (${DIAL_DEFAULT})`),
+    );
     return DIAL_DEFAULT;
   }
   const clamped = clampInt(n, DIAL_MIN, DIAL_MAX);
   if (clamped !== n) {
-    notes.push(`${name}: ${raw} is outside ${DIAL_MIN}-${DIAL_MAX} — clamped to ${clamped}`);
+    notes.push(
+      note("value_clamped", "info", name, `${name}: ${raw} is outside ${DIAL_MIN}-${DIAL_MAX} — clamped to ${clamped}`),
+    );
   }
   return clamped;
 }
@@ -191,18 +216,22 @@ function readDial(raw: string | null, name: string, notes: string[]): number {
 function readOverride(
   raw: string | null,
   name: keyof typeof OVERRIDE_BOUNDS,
-  notes: string[],
+  notes: Note[],
 ): number | null {
   if (raw === null || raw.trim() === "") return null;
   const n = Number(raw);
   if (!Number.isFinite(n)) {
-    notes.push(`${name}: "${raw}" is not a number — ignored, falling back to scale`);
+    notes.push(
+      note("value_clamped", "info", name, `${name}: "${raw}" is not a number — ignored, falling back to scale`),
+    );
     return null;
   }
   const [min, max] = OVERRIDE_BOUNDS[name];
   const clamped = clampInt(n, min, max);
   if (clamped !== n) {
-    notes.push(`${name}: ${raw}px is outside ${min}-${max}px — clamped to ${clamped}px`);
+    notes.push(
+      note("value_clamped", "info", name, `${name}: ${raw}px is outside ${min}-${max}px — clamped to ${clamped}px`),
+    );
   }
   return clamped;
 }
@@ -211,7 +240,7 @@ function readOverride(
 function readText(
   raw: string | null,
   name: keyof typeof CAPS,
-  notes: string[],
+  notes: Note[],
 ): string {
   if (raw === null) return "";
   let text = raw.replace(/\s+/g, " ").trim();
@@ -220,12 +249,16 @@ function readText(
   const kept = tokens.filter((t) => !URLISH_TOKEN_RE.test(t.replace(/[.,;:!?]+$/, "")));
   if (kept.length !== tokens.length) {
     text = kept.join(" ").trim();
-    notes.push(`${name}: a URL was removed — composed pages don't carry outbound links`);
+    notes.push(
+      note("url_stripped", "warn", name, `${name}: a URL was removed — composed pages don't carry outbound links`),
+    );
   }
   const cap = CAPS[name];
   if (text.length > cap) {
     text = `${text.slice(0, cap - 1).trimEnd()}…`;
-    notes.push(`${name}: longer than ${cap} characters — truncated`);
+    notes.push(
+      note("text_truncated", "info", name, `${name}: longer than ${cap} characters — truncated`),
+    );
   }
   return text;
 }
@@ -245,22 +278,34 @@ function leadingFor(role: "h1" | "h2" | "p", size: number): number {
 function parsePairs(
   raw: string | null,
   resolve: FontResolver,
-  notes: string[],
+  notes: Note[],
 ): ComposePair[] {
   if (!raw || !raw.trim()) return [];
   const chunks = raw.split(",").map((c) => c.trim()).filter(Boolean);
   if (chunks.length > MAX_PAIRS) {
     notes.push(
-      `pairs: ${chunks.length} given, ${MAX_PAIRS} is the maximum — the extra ${chunks.length - MAX_PAIRS} were dropped`,
+      note(
+        "pairs_truncated",
+        "warn",
+        "pairs",
+        `pairs: ${chunks.length} given, ${MAX_PAIRS} is the maximum — the extra ${chunks.length - MAX_PAIRS} were dropped`,
+      ),
     );
   }
   const pairs: ComposePair[] = [];
-  for (const chunk of chunks.slice(0, MAX_PAIRS)) {
+  for (const [requestedIndex, chunk] of chunks.slice(0, MAX_PAIRS).entries()) {
     const slugs = splitPair(chunk);
     if (!slugs.length) continue;
     const display = resolve(slugs[0]);
     if (!display) {
-      notes.push(`pairs: "${slugs[0]}" is not a known font slug — that card was dropped`);
+      notes.push(
+        note(
+          "card_dropped",
+          "warn",
+          slugs[0],
+          `pairs: "${slugs[0]}" is not a known font slug — that card was dropped`,
+        ),
+      );
       continue;
     }
     noteNearMatch(slugs[0], display, notes);
@@ -273,14 +318,26 @@ function parsePairs(
         noteNearMatch(slugs[1], resolved, notes);
       } else {
         notes.push(
-          `pairs: "${slugs[1]}" is not a known font slug — that card fell back to ${display.family} for both roles`,
+          note(
+            "font_substituted",
+            "warn",
+            slugs[1],
+            `pairs: "${slugs[1]}" is not a known font slug — that card fell back to ${display.family} for both roles`,
+          ),
         );
       }
     }
     if (slugs.length > 2) {
-      notes.push(`pairs: "${chunk}" names more than two fonts — only the first two were used`);
+      notes.push(
+        note(
+          "pairs_truncated",
+          "info",
+          chunk,
+          `pairs: "${chunk}" names more than two fonts — only the first two were used`,
+        ),
+      );
     }
-    pairs.push({ display, text, monovoice: text.family === display.family });
+    pairs.push({ display, text, monovoice: text.family === display.family, requestedIndex });
   }
   return pairs;
 }
@@ -291,20 +348,29 @@ function parsePairs(
  * so the caller can fall back. This is the shared unit behind both the single
  * `theme=` param and each item of the `themes=` per-card list.
  */
-function parseOneTheme(spec: string, notes: string[]): CardTheme | null {
+function parseOneTheme(spec: string, notes: Note[]): ThemeSpec | null {
   const value = spec.trim();
   if (!value) return null;
   if (/^\d+$/.test(value)) {
     const i = Number(value);
-    if (i < CARD_THEMES.length) return CARD_THEMES[i];
+    if (i < CARD_THEMES.length) return curated(CARD_THEMES[i]);
     const wrapped = i % CARD_THEMES.length;
     notes.push(
-      `theme: index ${i} is past the ${CARD_THEMES.length} curated palettes — wrapped to ${wrapped}`,
+      note(
+        "value_clamped",
+        "info",
+        "theme",
+        `theme: index ${i} is past the ${CARD_THEMES.length} curated palettes — wrapped to ${wrapped}`,
+      ),
     );
-    return CARD_THEMES[wrapped];
+    return curated(CARD_THEMES[wrapped]);
   }
-  const custom = parseCustomTheme(value, notes);
-  return custom ? custom[0] : null;
+  return parseCustomTheme(value, notes);
+}
+
+/** A curated palette states nothing — every role is ours, so provenance is empty. */
+function curated(theme: CardTheme): ThemeSpec {
+  return { theme, stated: [] };
 }
 
 /**
@@ -316,9 +382,9 @@ function parseThemes(
   themeRaw: string | null,
   moodRaw: string | null,
   count: number,
-  notes: string[],
-): CardTheme[] {
-  let sequence: CardTheme[] | null = null;
+  notes: Note[],
+): ThemeSpec[] {
+  let sequence: ThemeSpec[] | null = null;
 
   const theme = themeRaw?.trim() ?? "";
   if (theme) {
@@ -330,16 +396,21 @@ function parseThemes(
     const mood = moodRaw?.trim().toLowerCase() ?? "";
     if (mood) {
       if (isMood(mood)) {
-        sequence = themesForMood(mood as Mood);
+        sequence = themesForMood(mood as Mood).map(curated);
       } else {
         notes.push(
-          `mood: "${mood}" is not one of subtle, bold, warm, cool — using the full curated set`,
+          note(
+            "theme_fallback",
+            "warn",
+            "mood",
+            `mood: "${mood}" is not one of subtle, bold, warm, cool — using the full curated set`,
+          ),
         );
       }
     }
   }
 
-  const source = sequence ?? CARD_THEMES;
+  const source = sequence ?? CARD_THEMES.map(curated);
   return Array.from({ length: Math.max(count, 1) }, (_, i) => source[i % source.length]);
 }
 
@@ -356,18 +427,23 @@ function parseThemes(
 function parseThemesList(
   raw: string,
   count: number,
-  notes: string[],
-): CardTheme[] {
+  notes: Note[],
+): ThemeSpec[] {
   const specs = raw.split(";").map((s) => s.trim()).filter(Boolean);
   const parsed = specs.map((spec, i) => {
     const one = parseOneTheme(spec, notes);
     if (one) return one;
     notes.push(
-      `themes: palette ${i + 1} ("${spec}") had nothing usable — fell back to a curated palette`,
+      note(
+        "theme_fallback",
+        "warn",
+        `themes[${i}]`,
+        `themes: palette ${i + 1} ("${spec}") had nothing usable — fell back to a curated palette`,
+      ),
     );
-    return CARD_THEMES[i % CARD_THEMES.length];
+    return curated(CARD_THEMES[i % CARD_THEMES.length]);
   });
-  const source = parsed.length ? parsed : CARD_THEMES;
+  const source = parsed.length ? parsed : CARD_THEMES.map(curated);
   return Array.from({ length: Math.max(count, 1) }, (_, i) => source[i % source.length]);
 }
 
@@ -397,7 +473,7 @@ const THEME_ROLES = new Set([
 function parsePageChrome(
   raw: string | null,
   card: CardTheme,
-  notes: string[],
+  notes: Note[],
 ): PageChrome {
   const derived = derivePageChrome(card);
   const value = raw?.trim() ?? "";
@@ -419,11 +495,15 @@ function parsePageChrome(
     const [key, val] = part.split(":").map((s) => s?.trim() ?? "");
     const role = key.toLowerCase();
     if (role !== "bg" && role !== "fg" && role !== "muted" && role !== "accent") {
-      notes.push(`page: "${key}" is not a page role (bg, fg, muted, accent) — ignored`);
+      notes.push(
+        note("param_ignored", "info", key, `page: "${key}" is not a page role (bg, fg, muted, accent) — ignored`),
+      );
       continue;
     }
     if (!val || !HEX_RE.test(val.replace(/^#/, ""))) {
-      notes.push(`page: ${role}="${val}" is not a hex color — that role was derived instead`);
+      notes.push(
+        note("hex_invalid", "warn", role, `page: ${role}="${val}" is not a hex color — that role was derived instead`),
+      );
       continue;
     }
     partial[role] = normalizeHex(val)!;
@@ -431,7 +511,9 @@ function parsePageChrome(
   }
 
   if (!sawAny) {
-    notes.push("page: nothing usable — the viewport was derived from the cards");
+    notes.push(
+      note("theme_fallback", "warn", "page", "page: nothing usable — the viewport was derived from the cards"),
+    );
     return derived;
   }
   const { chrome, notes: n } = completePageChrome(partial, derived);
@@ -440,7 +522,18 @@ function parsePageChrome(
 }
 
 /** `bg:212121,accent:E34712` — named, never positional, and completed by our taste. */
-function parseCustomTheme(raw: string, notes: string[]): CardTheme[] | null {
+/**
+ * A parsed palette plus the roles the URL actually named. The stated set is what
+ * `/compose.json` reports as provenance: those hexes are the user's intention and
+ * render untouched, everything else we filled.
+ */
+export interface ThemeSpec {
+  theme: CardTheme;
+  /** Role names present in the URL, e.g. ["bg", "fg", "accent"]. */
+  stated: string[];
+}
+
+function parseCustomTheme(raw: string, notes: Note[]): ThemeSpec | null {
   const partial: Partial<CardTheme> = {};
   let sawAny = false;
 
@@ -450,12 +543,19 @@ function parseCustomTheme(raw: string, notes: string[]): CardTheme[] | null {
     const role = key.toLowerCase();
     if (!THEME_ROLES.has(role)) {
       notes.push(
-        `theme: "${key}" is not a color role (${[...THEME_ROLES].join(", ")}) — ignored`,
+        note(
+          "param_ignored",
+          "info",
+          key,
+          `theme: "${key}" is not a color role (${[...THEME_ROLES].join(", ")}) — ignored`,
+        ),
       );
       continue;
     }
     if (!value || !HEX_RE.test(value.replace(/^#/, ""))) {
-      notes.push(`theme: ${role}="${value}" is not a hex color — that role was derived instead`);
+      notes.push(
+        note("hex_invalid", "warn", role, `theme: ${role}="${value}" is not a hex color — that role was derived instead`),
+      );
       continue;
     }
     partial[role as keyof CardTheme] = normalizeHex(value)!;
@@ -463,12 +563,19 @@ function parseCustomTheme(raw: string, notes: string[]): CardTheme[] | null {
   }
 
   if (!sawAny) {
-    notes.push("theme: nothing usable in the custom palette — fell back to the curated set");
+    notes.push(
+      note(
+        "theme_fallback",
+        "warn",
+        "theme",
+        "theme: nothing usable in the custom palette — fell back to the curated set",
+      ),
+    );
     return null;
   }
   const { theme, notes: themeNotes } = completeTheme(partial);
   notes.push(...themeNotes);
-  return [theme];
+  return { theme, stated: Object.keys(partial) };
 }
 
 /**
@@ -522,31 +629,45 @@ export function parseComposeParams(
   params: URLSearchParams,
   resolve: FontResolver,
 ): ComposeSpec {
-  const notes: string[] = [];
+  const notes: Note[] = [];
 
   const ignored = [...new Set([...params.keys()])].filter((k) => !KNOWN_PARAMS.has(k));
   for (const key of ignored) {
-    notes.push(`"${key}" is not a compose parameter — ignored`);
+    notes.push(note("param_ignored", "info", key, `"${key}" is not a compose parameter — ignored`));
   }
 
   const pairs = parsePairs(params.get("pairs"), resolve, notes);
   if (!pairs.length) {
-    notes.push("pairs: nothing resolvable — showing the site's default direction instead");
+    notes.push(
+      note(
+        "pairs_fallback",
+        "warn",
+        "pairs",
+        "pairs: nothing resolvable — showing the site's default direction instead",
+      ),
+    );
   }
 
   const count = pairs.length || 1;
   const themesRaw = params.get("themes");
   if (themesRaw?.trim() && params.get("theme")?.trim()) {
-    notes.push("themes and theme were both given — themes (per-card) wins");
+    notes.push(
+      note(
+        "param_ignored",
+        "info",
+        "theme",
+        "themes and theme were both given — themes (per-card) wins",
+      ),
+    );
   }
   // One resolve pass over every card, whatever produced it. Curated palettes go
   // through the same door as hand-written ones, so `theme=3` gets an accent-borne
   // subtitle and a distinct paragraph exactly like `theme=bg:…,accent:…` does.
-  const themes = (
-    themesRaw?.trim()
-      ? parseThemesList(themesRaw, count, notes)
-      : parseThemes(params.get("theme"), params.get("mood"), count, notes)
-  ).map(resolveTheme);
+  const themeSpecs = themesRaw?.trim()
+    ? parseThemesList(themesRaw, count, notes)
+    : parseThemes(params.get("theme"), params.get("mood"), count, notes);
+  const themes = themeSpecs.map((t) => resolveTheme(t.theme));
+  const statedRoles = themeSpecs.map((t) => t.stated);
 
   const voice: VoiceCopy = {
     title: readText(params.get("title"), "title", notes),
@@ -591,6 +712,7 @@ export function parseComposeParams(
   const base: Omit<ComposeSpec, "canonical"> = {
     pairs,
     themes,
+    statedRoles,
     pageChrome,
     voice,
     framing,

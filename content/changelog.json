@@ -1,6 +1,33 @@
 [
   {
     "date": "2026-07-18",
+    "commit": "48e187f",
+    "title": "/compose.json — the composed page as data, with colors that say where they came from",
+    "changes": [
+      "Swap `/compose?` for `/compose.json?`, keep every param identical, and get the resolved page as JSON. This closes the revision loop: a user says 'let's go with the second one' and the agent already holds that card's fonts, palette and tokens. Previously the payload existed only as visually-hidden HTML, so consuming it meant regex over markup while stepping around the Next RSC payload.",
+      "A mirror, not a scrape. New lib/compose-resolve.ts holds the single resolved model; the page and the JSON are two serializers over it, so they cannot drift. parseComposeParams was already ~90% of this — the extraction only had to absorb param normalization, the default-direction fallback, voice defaulting, and buildHandoff.",
+      "Color provenance is the load-bearing addition and the one thing HTML could not express. Every role in cards[].colors is { hex, source }: `stated` (the user wrote it — rendered exactly, contrast bar or not), `derived` (we computed it, so it was clamped), or `from:<role>` (title from fg, subtitle/label from accent, paragraph from muted). `source` names the origin, `hex` is what rendered, and they need not match — a from:accent subtitle is routinely darker because derived values get clamped and stated ones don't. This is what tells a developer which colors are the client's and must be pinned.",
+      "Fixed the themes[0] handoff defect: buildHandoff emitted deck-wide Tailwind/CSS tokens from the first card's palette only, so a three-direction page handed off one card's colors and silently misdescribed the other two. Token builders are extracted and now run per card as well as deck-wide.",
+      "Notes are structured. All 28 push sites across compose-params.ts and card-themes.ts now emit { code, severity, target, message } with the prose byte-identical, so the rendered page is unchanged and a consumer can branch on a stable token instead of regexing English. Codes ship WITH the endpoint rather than after it — adding them later would have been a breaking change to a published contract.",
+      "Cards are numbered 01/02/03 on the page. The revision loop is spoken ('the second one') and nothing carried a number, so the human's reference and the JSON's index were related only by counting. Cards also carry requestedIndex: if a card drops for an unknown slug, render position and the order the agent asked for diverge, and both are now reported.",
+      "Deliberate deviations from the draft spec: camelCase throughout (the existing /api routes are camelCase; two conventions on one surface makes agents guess wrong); content fields are always { text, source } rather than sometimes a bare string; contrast covers every text role rather than three, since subtitle — the accent-derived, clamped one — was the notable omission; no Accept negotiation, .json path only, so a CDN never has to Vary."
+    ],
+    "files": [
+      "app/compose.json/route.ts — new; the serializer, with provenance, per-card contrast, and per-card tokens",
+      "lib/compose-resolve.ts — new; the shared resolved model behind both surfaces",
+      "lib/compose-notes.ts — new; Note type, codes, severities, statusOf/messagesOf",
+      "lib/compose-params.ts — structured notes; ThemeSpec carries stated roles; ComposePair.requestedIndex",
+      "lib/card-themes.ts — themeProvenance(); structured notes",
+      "lib/handoff.ts — extracted token builders, per-card tailwind/cssVars, requestedIndex",
+      "app/compose/page.tsx — consumes resolveCompose; renders note.message with data-code/data-severity",
+      "app/components/ComposeCard.tsx — the 01/02/03 ordinal",
+      "next.config.ts — /compose.json gets the same one-year cache as /compose",
+      "lib/compose-resolve.test.ts — new; 14 tests on provenance, per-card palettes, note codes, requestedIndex",
+      "public/agent.md, public/llms.txt, app/page.tsx — the handoff now points at /compose.json"
+    ]
+  },
+  {
+    "date": "2026-07-18",
     "commit": "7739979",
     "title": "Every painted slot takes a hex; omitted ones come from taste, not arithmetic",
     "changes": [

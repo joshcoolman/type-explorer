@@ -26,6 +26,19 @@ const nextConfig: NextConfig = {
         ],
       },
       {
+        // `/compose.json` is the same pure function of the same URL, serialized
+        // to JSON instead of HTML — so it earns the same caching for the same
+        // reasons. A separate entry, not `Vary: Accept`: the two are distinct
+        // paths precisely so a CDN never has to negotiate.
+        source: "/compose.json",
+        headers: [
+          {
+            key: "Cache-Control",
+            value: "public, s-maxage=31536000, stale-while-revalidate=86400",
+          },
+        ],
+      },
+      {
         // Served as plain text so an agent fetching the contract reads markdown
         // rather than downloading it.
         source: "/agent.md",

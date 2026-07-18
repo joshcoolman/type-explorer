@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { parseComposeParams, type FontResolver } from "./compose-params";
+import { messagesOf } from "./compose-notes";
 import type { FontFamily } from "./types";
 
 /**
@@ -52,19 +53,19 @@ describe("pairs", () => {
     const spec = parse("pairs=nonesuch+inter,gloock+inter");
     expect(spec.pairs).toHaveLength(1);
     expect(spec.pairs[0].display.family).toBe("Gloock");
-    expect(spec.notes.join(" ")).toContain("nonesuch");
+    expect(messagesOf(spec.notes).join(" ")).toContain("nonesuch");
   });
 
   it("falls back to monovoice when only the text font is unknown", () => {
     const spec = parse("pairs=gloock+nonesuch");
     expect(spec.pairs[0].text.family).toBe("Gloock");
-    expect(spec.notes.join(" ")).toMatch(/nonesuch/);
+    expect(messagesOf(spec.notes).join(" ")).toMatch(/nonesuch/);
   });
 
   it("caps at four pairs and reports the overflow", () => {
     const spec = parse("pairs=" + Array(6).fill("gloock+inter").join(","));
     expect(spec.pairs).toHaveLength(4);
-    expect(spec.notes.join(" ")).toContain("maximum");
+    expect(messagesOf(spec.notes).join(" ")).toContain("maximum");
   });
 });
 
@@ -80,13 +81,13 @@ describe("never fails", () => {
   it("clamps out-of-range overrides rather than honoring or rejecting them", () => {
     const spec = parse("pairs=gloock+inter&h1=800");
     expect(spec.sizes.h1).toBe(120);
-    expect(spec.notes.join(" ")).toContain("clamped");
+    expect(messagesOf(spec.notes).join(" ")).toContain("clamped");
   });
 
   it("reports unknown params so a typo'd key is visible", () => {
     const spec = parse("pairs=gloock+inter&colour=red");
     expect(spec.ignored).toEqual(["colour"]);
-    expect(spec.notes.join(" ")).toContain("colour");
+    expect(messagesOf(spec.notes).join(" ")).toContain("colour");
   });
 });
 
@@ -94,13 +95,13 @@ describe("free text", () => {
   it("strips URLs — our domain must not lend credibility to someone else's link", () => {
     const spec = parse("pairs=gloock+inter&title=Visit https://evil.example now");
     expect(spec.voice.title).not.toContain("evil");
-    expect(spec.notes.join(" ")).toContain("URL");
+    expect(messagesOf(spec.notes).join(" ")).toContain("URL");
   });
 
   it("truncates over-long text instead of erroring", () => {
     const spec = parse(`pairs=gloock+inter&title=${"a".repeat(400)}`);
     expect(spec.voice.title.length).toBeLessThanOrEqual(120);
-    expect(spec.notes.join(" ")).toContain("truncated");
+    expect(messagesOf(spec.notes).join(" ")).toContain("truncated");
   });
 });
 
@@ -121,8 +122,8 @@ describe("theme", () => {
     // is how the contract stays honest instead.
     const spec = parse("pairs=gloock+inter&theme=bg:212121,muted:222222");
     expect(spec.themes[0].muted).toBe("#222222");
-    expect(spec.notes.join(" ")).toContain("muted");
-    expect(spec.notes.join(" ")).toContain("rendered as written");
+    expect(messagesOf(spec.notes).join(" ")).toContain("muted");
+    expect(messagesOf(spec.notes).join(" ")).toContain("rendered as written");
   });
 
   it("still clamps a role it derived itself", () => {
@@ -207,13 +208,13 @@ describe("themes (per-card palettes)", () => {
   it("falls back to a curated palette for an unusable item, and says so", () => {
     const spec = parse(`${three}&themes=bg:1D4ED8;bg:zzz`);
     expect(spec.themes[1].bg).toMatch(/^#[0-9a-fA-F]{6}$/);
-    expect(spec.notes.join(" ")).toContain("themes");
+    expect(messagesOf(spec.notes).join(" ")).toContain("themes");
   });
 
   it("takes precedence over a simultaneously-given theme, with a note", () => {
     const spec = parse(`${three}&theme=bg:000000&themes=bg:1D4ED8`);
     expect(spec.themes[0].bg).toBe("#1d4ed8");
-    expect(spec.notes.join(" ")).toContain("themes and theme");
+    expect(messagesOf(spec.notes).join(" ")).toContain("themes and theme");
   });
 
   it("serializes to a stable canonical form across equivalent URLs", () => {
