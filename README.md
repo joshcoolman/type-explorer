@@ -223,6 +223,12 @@ _Snapshot of where the project is. Overwrite freely — it's a snapshot, not a l
 
 **Last shipped**
 
+- **The one-fetch fix** — the whole construct-a-URL contract is now inlined into
+  the home page's server-rendered HTML (and a short pointer sits on every other
+  route). A plain chat agent given only the bare domain can now compose a working
+  `/compose` link with zero further fetches; `/agent.md` + `/llms.txt` are
+  enrichment, not the critical path. Fixes the failure where the "Agent Ready"
+  badge promised a capability the first fetch didn't deliver.
 - **Agent surface V1** — the site is now usable *by* agents, not just readable.
   All four phases of [`docs/plans/agent-surface-v1.md`](docs/plans/agent-surface-v1.md)
   are in: discovery (`/llms.txt`, `/agent.md`, `/robots.txt`, sitemap), an honest
