@@ -151,7 +151,3 @@ function fallbackTail(family: FontFamily): string {
   const stack = fontStack(family);
   return stack.slice(stack.indexOf(",") + 1).trim();
 }
-
-export type { CardTheme };
-export { tokenFor };
-export const _internal = { specFor, css2ForFamilies };
