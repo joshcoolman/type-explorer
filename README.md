@@ -142,3 +142,41 @@ it, build on it freely; just keep the copyright notice.
 Google Fonts are under the SIL Open Font License or Apache License. The app embeds
 no font files — it references the Google Fonts CDN — so the project and anything
 you build from it stays licensing-clean.
+
+## Status
+
+_Snapshot of where the project is. Overwrite freely — it's a snapshot, not a log._
+
+**Last shipped**
+
+- Visual category selector on Fonts, plus a grid breakpoint fix
+- Pairing cards: paragraph support, always-on fonts, pivot to a partner
+- Per-element visibility toggles for voice elements
+
+**In flight — agent surface V1**
+
+A design plan for making the site usable *by* agents, not just readable by them:
+an agent discovers the site's capabilities unaided, queries them, and composes a
+curated page for its user at a shareable URL. Plan is vetted and committed at
+[`docs/plans/agent-surface-v1.md`](docs/plans/agent-surface-v1.md); implementation
+has not started.
+
+Load-bearing ideas, if you read nothing else:
+
+- **Assume the least-capable agent** — it can fetch a page and emit a URL. No
+  shell, no code execution, no browser. That rules out compressed payloads, since
+  the agent must hand-write the URL.
+- **Craft lives in the site, not the agent.** Because an agent usually can't see
+  its own output, it supplies choices and the site guarantees the result. Hard
+  requirement: no valid URL may produce an ugly page.
+
+**Up next**
+
+1. Phase 1 — discovery: spec-conformant `llms.txt` indexing a self-contained
+   `agent.md` contract, plus `robots.txt` / `sitemap.xml`
+2. Phase 2 — query surface: document the existing `tag` filter, return an
+   `ignored[]` array for unknown params, expose palettes and pairings as JSON
+3. Phase 3 — `/compose`, then Phase 4 — the paste-ready handoff block
+
+Backlog of smaller ideas lives in [`BACKLOG.md`](BACKLOG.md) and on the
+[/backlog](https://googlefontfinder.com/backlog) page.
