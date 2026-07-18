@@ -17,7 +17,7 @@ query surface, the palettes, the compose grammar, and a worked example.
 
 ## Compose
 
-- [Compose](https://googlefontfinder.com/compose): Render a curated direction from readable query params, e.g. `/compose?pairs=gloock+inter,dm-sans+playfair-display&mood=warm`. Server-rendered, shareable, and it reports what it did at `#agent-notes`.
+- [Compose](https://googlefontfinder.com/compose): Render a curated direction from readable query params, e.g. `/compose?pairs=gloock+inter,dm-sans+playfair-display&mood=warm`. Server-rendered and shareable. Write the URL and hand it over — it never fails, unknown params are ignored, and a near-miss font slug resolves to the nearest real family, so there is nothing to check. (For debugging a URL that came back wrong, it reports what it did at `#agent-notes`; the implementation handoff is at `#agent-specs`.)
 
 ## Pages
 

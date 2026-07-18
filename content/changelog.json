@@ -1,6 +1,31 @@
 [
   {
     "date": "2026-07-18",
+    "commit": "PENDING",
+    "title": "Near-miss font slugs resolve; the surface stops asking agents to verify",
+    "changes": [
+      "An evaluation run showed /compose working but over-processed: asked for 'three cards for a kid's party', the agent spent several sequential round-trips (query /api/fonts, query /api/pairings, fetch the composed page back to read #agent-notes) before emitting a URL. Asked afterward to hand-write one from the grammar, it produced an equally good result in zero tool calls. This closes the gap between those two runs.",
+      "New lib/font-match.ts: a slug an agent guessed from memory now resolves to the nearest real family instead of dropping its card. Four ordered tiers — exact, normalized (`Playfair_Display`), prefix expansion for a missing version suffix (`source-serif` → Source Serif 4), then Levenshtein ≤ 2 gated on a 25%-of-input ratio and a 5-character floor. The guard is as load-bearing as the match: `helvetica` still resolves to nothing, because a matcher that always finds something turns a wrong guess into a silently wrong specimen. Every substitution is named in the render notes, and the canonical URL already re-emitted resolved slugs, so a corrected URL comes back for free.",
+      "This is the real fix for latency. An agent's verification round-trip was a rational response to genuine residual risk — 'guessing is safe' covered params but not slugs. Removing the risk removes the round-trip; telling the agent not to worry would not have.",
+      "One verification stance everywhere, resolving a contradiction an agent had to arbitrate: the root quickstart said 'Do NOT fetch the URL back', agent.md's worked example said 'Fetch that URL back, confirm data-status=ok'. Fetch-back is now documented as a debugging tool, never a step. The honest exception is stated rather than papered over — #agent-specs only exists on the composed page, so a user who is going to *build* the direction does cost one fetch, for the payload, not to check the work.",
+      "agent.md gains a front-loaded 'If you read nothing else' block: the fill-in URL (byte-identical to the root quickstart's), the full param table, the slug rule, and the guessing-is-safe guarantee — enough to emit correctly from the first screen alone. The JSON endpoints are reframed as worth a round-trip only for data the agent can't recall (feeling tags, curated pairings, real axis ranges).",
+      "Fixed: `?strict=1` carried over from an /api route no longer produces a spurious 'is not a compose parameter' note on /compose (it's inert there by design). Removed `kind` from /api/pairings, which was accepted and echoed in `applied` but filtered nothing and was documented nowhere."
+    ],
+    "files": [
+      "lib/font-match.ts — new; matchSlug + a ceiling-abandoning Levenshtein, self-contained (depends only on lib/slug.ts)",
+      "lib/font-match.test.ts — new; 7 tests, half of them asserting what must NOT match",
+      "lib/font-index.ts — the resolver closure falls through to matchSlug on a miss",
+      "lib/compose-params.ts — noteNearMatch reports substitutions; `strict` added to KNOWN_PARAMS",
+      "public/agent.md — one-shot block up top, verify stance rewritten, API round-trips reframed, near-miss added to 'Nothing here fails'",
+      "app/page.tsx — quickstart: guessing-is-safe covers slugs, APIs demoted to 'only when you need data you can't recall'",
+      "public/llms.txt — compose entry: nothing to check",
+      "app/api/pairings/route.ts — dropped the no-op `kind` param",
+      "docs/agent-story.md — friction #7, the round-trip tax, and the generalizable lesson",
+      "docs/plans/agent-surface-v1.md — acceptance step 4 marked superseded"
+    ]
+  },
+  {
+    "date": "2026-07-18",
     "commit": "467f8a4",
     "title": "Per-card palettes: three distinct looks in one /compose URL",
     "changes": [

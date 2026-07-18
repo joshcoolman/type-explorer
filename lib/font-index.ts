@@ -8,6 +8,7 @@
  */
 
 import { getCatalog } from "./catalog";
+import { matchSlug } from "./font-match";
 import { slugify } from "./slug";
 import type { FontFamily } from "./types";
 
@@ -27,8 +28,15 @@ export async function getFontIndex(): Promise<Map<string, FontFamily>> {
   return index;
 }
 
-/** A resolver suitable for `parseComposeParams`. */
+/**
+ * A resolver suitable for `parseComposeParams`.
+ *
+ * Falls through to `matchSlug` on a miss, so a slug an agent guessed from memory
+ * lands on the family it meant instead of dropping the card. Callers that need to
+ * know a substitution happened compare `slugify(resolved.family)` to what they
+ * asked for.
+ */
 export async function getFontResolver(): Promise<(slug: string) => FontFamily | null> {
   const map = await getFontIndex();
-  return (slug: string) => map.get(slug.trim().toLowerCase()) ?? null;
+  return (slug: string) => matchSlug(slug, map);
 }
