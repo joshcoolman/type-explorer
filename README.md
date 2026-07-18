@@ -223,6 +223,18 @@ _Snapshot of where the project is. Overwrite freely — it's a snapshot, not a l
 
 **Last shipped**
 
+- **Near-miss slugs resolve; the surface stopped asking agents to verify.** An
+  evaluation run produced a good result but spent several sequential round-trips
+  getting there — and the same agent, asked to hand-write a URL from the grammar,
+  matched it in zero tool calls. The fix wasn't prose: its verification pass was a
+  *rational* response to real risk, since "guessing is safe" covered params but not
+  slugs, and `source-serif` silently dropped a card. `lib/font-match.ts` now
+  resolves a guessed slug (normalization, missing version suffix, edit distance ≤ 2
+  under a ratio guard) and names the substitution in the notes — while `helvetica`
+  still resolves to nothing, because a matcher that always finds *something* turns a
+  wrong guess into a silently wrong specimen. With the risk gone, one stance
+  everywhere: fetch-back is a debugging tool, never a step. `agent.md` gained a
+  front-loaded one-shot block. See friction #7 in `docs/agent-story.md`.
 - **Per-card palettes (`themes=`)** — one `/compose` URL can now show three cards
   with three distinct color looks (a `;`-separated palette list, one per card,
   same grammar as `theme`). Parser-only change; the render layer already indexed a
@@ -249,11 +261,15 @@ _Snapshot of where the project is. Overwrite freely — it's a snapshot, not a l
 /compose?pairs=space-grotesk+ibm-plex-mono,archivo+pt-serif&theme=bg:D4DCE2,fg:1E262B,accent:36596C,subtitle:A32B25&page=bg:000000
 ```
 
-An agent queries `/api/fonts`, `/api/pairings` and `/api/palettes`, then writes a
-`/compose` URL by hand. The page reports what it did at `#agent-notes` and carries
-its implementation config at `#agent-specs` — both visually hidden, both in the DOM
-so a fetch still returns them. Malformed URLs degrade and explain themselves rather
-than failing, since the agent writing the URL usually can't see the result.
+An agent writes that URL by hand, usually straight from memory, and hands it over
+— no fetch back, nothing to check. `/api/fonts`, `/api/pairings` and
+`/api/palettes` are there for the data an agent *can't* recall (feeling tags,
+curated pairings, real axis ranges), not as a required first step. The page
+reports what it did at `#agent-notes` and carries its implementation config at
+`#agent-specs` — both visually hidden, both in the DOM so a fetch still returns
+them. Malformed URLs degrade and explain themselves rather than failing, and a
+half-remembered font slug resolves to the nearest real family, since the agent
+writing the URL usually can't see the result.
 
 **Open questions**
 
