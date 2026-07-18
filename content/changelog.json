@@ -1,7 +1,7 @@
 [
   {
     "date": "2026-07-18",
-    "commit": "PENDING",
+    "commit": "48e187f",
     "title": "/compose.json — the composed page as data, with colors that say where they came from",
     "changes": [
       "Swap `/compose?` for `/compose.json?`, keep every param identical, and get the resolved page as JSON. This closes the revision loop: a user says 'let's go with the second one' and the agent already holds that card's fonts, palette and tokens. Previously the payload existed only as visually-hidden HTML, so consuming it meant regex over markup while stepping around the Next RSC payload.",
