@@ -1,7 +1,7 @@
 [
   {
     "date": "2026-07-18",
-    "commit": "PENDING",
+    "commit": "4a5639f",
     "title": "status means \"the page differs from your ask\" — not \"a note exists\"",
     "changes": [
       "Same-day fix to the note model shipped with /compose.json. Two bugs, both of which punished exactly the behavior the surface is built to encourage.",
