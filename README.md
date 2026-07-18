@@ -4,6 +4,9 @@ Browse Google Fonts as full-size specimens and discover display + text pairings 
 both hand-curated and algorithmically suggested. A calmer way to choose type than
 scrolling a wall of font names.
 
+**And a site an AI agent can actually use** — not scrape, *use*. See
+[Agent Ready](#agent-ready) below; it's the part of this repo worth stealing.
+
 **Live:** [type-explorer-pi.vercel.app](https://type-explorer-pi.vercel.app/)
 
 > **Status:** a personal project, shared publicly as a work sample. Not accepting
@@ -11,6 +14,74 @@ scrolling a wall of font names.
 > welcome to fork it and make it your own (see [Licensing](#licensing)).
 
 ![The home page — a gallery of suggested display and text pairings](docs/screenshots/home.png)
+
+## Agent Ready
+
+Most software treats an AI agent as a degraded browser — something that scrapes a
+page built for eyes and guesses. This project inverts that: **the agent is a
+first-class user**, with its own contract, its own query surface, and its own
+rendering target.
+
+Tell an agent about this site. With nothing but the ability to fetch a page and
+emit text — no install, no key, no account, no MCP server — it can:
+
+1. **Discover** the whole contract in one fetch — [`/llms.txt`](public/llms.txt)
+   indexes [`/agent.md`](public/agent.md), which is self-contained.
+2. **Query** 1,900+ families *by feel* (`calm`, `competent`, `vintage`), plus the
+   pairing library and the palettes, as JSON.
+3. **Compose** a curated page for you by writing a URL by hand:
+
+   ```
+   /compose?pairs=space-grotesk+ibm-plex-mono,archivo+pt-serif
+           &theme=bg:D4DCE2,fg:1E262B,accent:36596C,subtitle:A32B25
+           &page=bg:000000
+   ```
+
+4. **Verify** it by fetching that URL back and reading one element.
+5. **Hand off** the CSS to implement it — imports, Tailwind tokens, weights,
+   fallbacks.
+
+### The three ideas doing the work
+
+**Assume the least-capable agent.** It can fetch a page and emit a URL for you to
+click. No shell, no code execution, no browser, no screenshot loop. It might be
+Claude Code; it's just as likely a chat client helping a non-developer. That single
+assumption rules out compressed or base64 payloads — the agent has to hand-write
+the URL, token by token, and get it right — which is why every parameter is plain
+readable text.
+
+**Craft lives in the site, not the agent.** Because the agent usually can't see its
+own output, it must not be the thing deciding visual outcomes. It supplies choices;
+the site guarantees the result. Hard requirement: *no valid URL may produce an ugly
+page.* Curated palettes, derived-and-contrast-checked colors, one template,
+sensible defaults for everything omitted.
+
+**Never fail — but always say what you did.** A bad font slug drops one card. A bad
+hex derives that role instead. Over-long text truncates. Nothing blank-pages,
+because a real person is about to click that link. Every degradation is recorded in
+a machine-readable block the agent reads on fetch-back, so it self-corrects on the
+next URL without ever having seen the page.
+
+The corollary, applied in the opposite direction: `/api/*` responses return an
+`ignored[]` array naming params they didn't recognize. A data query that silently
+lies is poison; a rendering surface that refuses to render is worse than one that
+renders a little less. Same instinct, opposite rule.
+
+### How novel is this, honestly
+
+The shape isn't new — QuickChart, Kroki and Vercel OG all render from URL params,
+and their scars are inherited here (no persistence, no short links, no signed
+params, a ~2K character budget because Slack mangles longer links). `llms.txt` is a
+proposed standard almost nobody consumes.
+
+What's less common is treating the agent as the *primary* user of a design tool and
+following that through: a contract written for a reader who can't see, a render
+surface that guarantees taste rather than delegating it, and a degradation channel
+that exists solely so a blind caller can correct itself. Whether that's the right
+way to build for agents is genuinely open. It's an exploration, and the design
+reasoning is written down in [`docs/plans/agent-surface-v1.md`](docs/plans/agent-surface-v1.md)
+so it can be argued with.
+
 
 ## What it does
 
@@ -24,6 +95,8 @@ scrolling a wall of font names.
   font to see curated and algorithmic partners in a modal.
 - **Favorites** — everything you've collected, fonts and pairings, in one place.
 - **Changelog** — a running, newest-first log of changes at `/changelog`.
+- **`/compose`** — a page an agent composes for you from URL params, with a color
+  key and paste-ready CSS. See [Agent Ready](#agent-ready).
 
 Pairing suggestions are precomputed offline (see [Data & scripts](#data--scripts))
 from Google Fonts' own semantic tags plus a curated set — so the app ships with a
@@ -142,3 +215,58 @@ it, build on it freely; just keep the copyright notice.
 Google Fonts are under the SIL Open Font License or Apache License. The app embeds
 no font files — it references the Google Fonts CDN — so the project and anything
 you build from it stays licensing-clean.
+
+## Status
+
+_Snapshot of where the project is. Overwrite freely — it's a snapshot, not a log._
+
+**Last shipped**
+
+- **Agent surface V1** — the site is now usable *by* agents, not just readable.
+  All four phases of [`docs/plans/agent-surface-v1.md`](docs/plans/agent-surface-v1.md)
+  are in: discovery (`/llms.txt`, `/agent.md`, `/robots.txt`, sitemap), an honest
+  query surface (`ignored[]` + `?strict=1`, the `feeling` alias, `/api/palettes`,
+  `/api/pairings`), the `/compose` render route, and the paste-ready handoff block.
+- Visual category selector on Fonts, plus a grid breakpoint fix
+- Pairing cards: paragraph support, always-on fonts, pivot to a partner
+
+**How to see it**
+
+```
+/compose?pairs=space-grotesk+ibm-plex-mono,archivo+pt-serif&theme=bg:D4DCE2,fg:1E262B,accent:36596C,subtitle:A32B25&page=bg:000000
+```
+
+An agent queries `/api/fonts`, `/api/pairings` and `/api/palettes`, then writes a
+`/compose` URL by hand. The page reports what it did at `#agent-notes` and carries
+its implementation config at `#agent-specs` — both visually hidden, both in the DOM
+so a fetch still returns them. Malformed URLs degrade and explain themselves rather
+than failing, since the agent writing the URL usually can't see the result.
+
+**Open questions**
+
+1. **The curated palettes aren't all WCAG AA.** `/api/palettes` computes real
+   ratios, and several `muted` roles land at 3.2–4.1:1 (palette 9's `fg` is 3.55).
+   Agent-supplied palettes *are* held to 4.5:1, so the site currently applies a
+   stricter bar to strangers than to itself. `agent.md` states this plainly rather
+   than papering over it. Retuning would change the existing look, so it needs a call.
+2. **`contrast=5` can silently do nothing.** Many families cap below `wght 900`
+   (Space Grotesk stops at 700), and asking past the ceiling renders identically
+   with `data-status="ok"` and no note — the one failure mode the notes block
+   exists to prevent. The axis range is right there in the catalog; a note is cheap.
+3. **`SiteChrome` hides the nav via a pathname check**, not route groups. The clean
+   Next pattern would relocate every route under a `(site)` group; not worth a
+   mechanical change across ~1,900 pages for the same result, but it is a shortcut.
+4. **`MAX_PAIRS` is 4.** Inherited from the plan's URL-budget reasoning, which is
+   weaker than it looked — three cards with full copy is ~530 chars against a
+   ~2,000 target. 6 is probably the better cap.
+
+**Up next**
+
+- A font key to match the color key: naming the faces and sizes the way the swatch
+  row names colors, so revisions can come back as "bump the 36 to 44."
+- MCP as a fast-follow — it reuses the Phase 2 JSON endpoints verbatim.
+- Let the voice modal emit an updated `/compose` URL, closing the loop from the
+  human's edit back to their agent.
+
+Backlog of smaller ideas lives in [`BACKLOG.md`](BACKLOG.md) and on the
+[/backlog](https://googlefontfinder.com/backlog) page.

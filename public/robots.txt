@@ -1,0 +1,15 @@
+# Type Explorer
+
+User-agent: *
+Allow: /
+
+# /compose is an unbounded parameterized render route — infinite crawl space, and
+# it renders text supplied in the URL. It is kept out of the index with a noindex
+# meta tag rather than a Disallow here, deliberately: a Disallow would also block
+# the legitimate fetch-back an agent uses to verify the page it just composed.
+
+# The agent contract. Start here if you are one.
+# https://googlefontfinder.com/llms.txt
+# https://googlefontfinder.com/agent.md
+
+Sitemap: https://googlefontfinder.com/sitemap.xml

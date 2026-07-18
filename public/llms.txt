@@ -1,0 +1,27 @@
+# Type Explorer
+
+> Browse 1,900+ Google Fonts as full-size specimens, discover display + text pairings, and compose a curated type direction at a shareable URL. Built to be used by agents, not just read by them: query the catalog as JSON, then hand your user a link.
+
+Start with the agent contract. It is self-contained — one fetch gets you the full
+query surface, the palettes, the compose grammar, and a worked example.
+
+## Agent contract
+
+- [Agent contract](https://googlefontfinder.com/agent.md): The full contract — JSON endpoints, the `/compose` param grammar, palettes with hexes, the degradation-notes location, and the implementation handoff format.
+
+## API
+
+- [Fonts](https://googlefontfinder.com/api/fonts): The catalog. Filter by `q`, `category`, `feeling`/`tag`, `minWeight`; sort by popularity, trending, date, alpha.
+- [Palettes](https://googlefontfinder.com/api/palettes): The 11 curated card palettes with computed contrast ratios, plus the four moods.
+- [Pairings](https://googlefontfinder.com/api/pairings): Curated and algorithmic display + text pairings, each with a ready-to-paste `composeValue`.
+
+## Compose
+
+- [Compose](https://googlefontfinder.com/compose): Render a curated direction from readable query params, e.g. `/compose?pairs=gloock+inter,dm-sans+playfair-display&mood=warm`. Server-rendered, shareable, and it reports what it did at `#agent-notes`.
+
+## Pages
+
+- [Fonts](https://googlefontfinder.com/): The browse grid.
+- [Pairings](https://googlefontfinder.com/pairings): The pairing showcase.
+- [Colors](https://googlefontfinder.com/colors): The palettes as a rendered page.
+- [Changelog](https://googlefontfinder.com/changelog): What shipped, when.

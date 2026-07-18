@@ -1,5 +1,42 @@
 [
   {
+    "date": "2026-07-18",
+    "commit": "c4c710c",
+    "title": "Agent surface V1: the site is now usable by agents, not just readable",
+    "changes": [
+      "A cold agent can discover the whole contract in one fetch: /llms.txt indexes /agent.md, which carries the query surface, the /compose grammar, the palettes with hexes, and a worked example. Plus /robots.txt and a generated sitemap covering every pairing page.",
+      "The JSON APIs got honest. Unknown query params are still ignored (a stale URL shouldn't strand a human on an empty page), but every response now returns an `ignored` array naming them and an `applied` object echoing the filters that actually ran — so a guessed param name no longer looks identical to a broken feature. `?strict=1` opts into a 400 instead.",
+      "The feelings filter is documented and reachable as `feeling` as well as its original `tag`, and takes a `minWeight` threshold to narrow a tag to fonts that genuinely lean that way.",
+      "Two new endpoints: /api/palettes (the 11 curated palettes with computed WCAG contrast ratios and the four moods) and /api/pairings (curated + algorithmic partners, each with a ready-to-paste composeValue).",
+      "New /compose route: an agent writes a plain-query-param URL and gets a curated, server-rendered page — up to four pairing cards, a curated palette or bring-your-own hex, optional copy, and coarse dials for size, density, weight and measure. No valid URL produces an ugly page; every malformed one degrades and reports itself at #agent-notes rather than failing.",
+      "Every composed page carries a paste-ready implementation block: the css2 link and @import, a Tailwind v4 @theme block, CSS custom properties, and per-face stacks, weights and variable-axis ranges — all derived from the same catalog metadata that drove the render.",
+      "The composed page became a design surface rather than a report: no site nav or footer, no page header, and the render notes and implementation config moved into a visually-hidden block (still in the DOM as real text, so agents fetching the page still get them — HTML comments would have been stripped by the markdown conversion most fetch tools apply).",
+      "Agents now control the whole viewport, not just the cards. A new `page` param sets the field behind them; omitted, it derives from the card theme, so a light composition gets a light page and a dark one a near-black. The `for` param finally has a home as the single small line above the cards.",
+      "Per-element color overrides: `theme=title:…,subtitle:…,paragraph:…` each override one text element and fall back to the palette roles. Previously `muted` carried both the subtitle and the paragraph, so there was no way to color the deck without dragging the body copy along.",
+      "A color key below the cards shows every specified color as a labeled swatch with its hex — including the page field. It exists for the person, not the agent: it gives them the vocabulary to revise with (\"make A32B25 darker\" rather than \"the red's too bright\").",
+      "Cards are centered at any count and size themselves to it: one renders wide as the direction being refined, two or more share the width evenly, converging on the old fixed 22rem at four. The shared browse `Grid` used `auto-fill`, which left one or two cards stranded in the leftmost track.",
+      "An 'Agent-ready' note on the Fonts page announces the capability to humans — the contract that powers it is machine-readable and therefore invisible from the UI."
+    ],
+    "files": [
+      "lib/compose-params.ts — the /compose grammar: parse, validate, clamp, default, canonicalize, and collect degradation notes (pure, unit-tested)",
+      "lib/color.ts — hex parsing and WCAG luminance/contrast math, palette-agnostic",
+      "lib/card-themes.ts — MOODS (ordered subsets of CARD_THEMES) and completeTheme(), which derives and contrast-checks the roles an agent omits",
+      "lib/handoff.ts — the implementation block, built from catalog metadata via lib/css2-url.ts",
+      "lib/font-stack.ts — fontStack/fallbackFor split out of the \"use client\" font-loader so server components can call them",
+      "lib/api-params.ts — the ignored[] / ?strict=1 contract shared by the JSON routes",
+      "lib/font-index.ts — memoized slug→family lookup over the catalog",
+      "app/compose/page.tsx — the server-rendered compose route, notes block and specs block",
+      "app/components/ComposeCard.tsx — the one template; deliberately not SpecimenCard, so a viewer's saved voice/theme can't leak into a page composed for someone else",
+      "app/api/palettes/route.ts, app/api/pairings/route.ts — new endpoints",
+      "app/api/fonts/route.ts — ignored[]/applied, feeling alias, minWeight",
+      "public/llms.txt, public/agent.md, public/robots.txt, app/sitemap.ts — discovery",
+      "app/components/ComposeColorKey.tsx — the swatch key beneath a composed page",
+      "app/components/AgentInvitation.tsx — the human-facing 'agent-ready' note on Fonts",
+      "app/components/SiteChrome.tsx — hides global nav/footer on /compose",
+      "public/agent.md — contract updated for `page`, the per-element color roles, the hidden payload location, and the variable-axis ceiling caveat"
+    ]
+  },
+  {
     "date": "2026-06-17",
     "commit": "ca11b2f",
     "title": "Visual category selector on Fonts, plus a grid breakpoint fix",

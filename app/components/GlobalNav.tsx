@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { HIGHLIGHT, PAGE_THEME } from "../../lib/card-themes";
 import { Button } from "./ui";
 import { useVoice } from "./VoiceProvider";
+import AgentReadyBadge from "./AgentReadyBadge";
 
 const LINKS = [
   { href: "/", label: "Fonts" },
@@ -39,6 +40,12 @@ export default function GlobalNav() {
         );
       })}
 
+      {/* Sits with the gear, not among the page links: it describes the site, not
+          a place in it. Every page, since the capability isn't home-page-specific. */}
+      <div className="ml-auto flex items-center gap-3">
+        <AgentReadyBadge />
+      </div>
+
       <Button
         type="button"
         size="icon-sm"
@@ -47,7 +54,7 @@ export default function GlobalNav() {
         aria-pressed={open}
         title="Typographic voice"
         onClick={() => setOpen(!open)}
-        className="ml-auto border"
+        className="border"
         style={{
           borderColor: "#2A2823",
           color: active ? HIGHLIGHT : "#7D7A70",

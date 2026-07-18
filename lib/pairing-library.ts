@@ -1,5 +1,6 @@
-"use client";
-
+// Not marked "use client": nothing here touches the DOM, and `/api/pairings`
+// needs `groupedPairingsFor` on the server. Client components import it exactly
+// as before — an unmarked module is shared, not server-only.
 import type { Pairing } from "./types";
 
 /**

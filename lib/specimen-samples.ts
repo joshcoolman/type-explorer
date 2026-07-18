@@ -8,6 +8,8 @@
  * `lib/card-themes.ts`.)
  */
 
+import type { VoiceCopy } from "./types";
+
 export interface SampleCopy {
   title: string; // rendered in the heading face
   subtitle: string; // a proper subtitle, rendered in the text face
@@ -61,3 +63,21 @@ const SAMPLES: SampleCopy[] = [
 export function sampleForIndex(i: number): SampleCopy {
   return SAMPLES[i % SAMPLES.length];
 }
+
+/**
+ * The copy every card falls back to, field by field, when the voice leaves one
+ * blank. It lives here rather than in `FontSpecimenCard.tsx` (which re-exports it)
+ * because that file is `"use client"`, and `/compose` renders on the server —
+ * a client module's exports aren't callable or readable during a server render.
+ *
+ * These defaults are why the minimal compose URL is just `?pairs=...`: publishable
+ * editorial copy, not lorem ipsum, so an agent is never burdened with supplying
+ * text it has no signal about.
+ */
+export const DEFAULT_VOICE: VoiceCopy = {
+  title: "Letters That Carry the Weight",
+  subtitle:
+    "A display voice that performs, set against a text voice that endures.",
+  paragraph:
+    "A typeface reveals itself at length. In a paragraph you feel its rhythm, the way its counters hold light, how it paces a line. One specimen at reading size tells you more than a dozen names ever could.",
+};

@@ -39,7 +39,7 @@ Trivial commits (typo, dep bump, docs-only) skip all three.
 | Area | File(s) |
 |---|---|
 | Fonts browser (root `/`: browse, search, filter, voice) | `app/components/BrowseView.tsx` |
-| Specimen card | `app/components/FontSpecimenCard.tsx` (owns `VoiceCopy` + `DEFAULT_VOICE`) |
+| Specimen card | `app/components/FontSpecimenCard.tsx` (`DEFAULT_VOICE` now lives in `lib/specimen-samples.ts`, re-exported here) |
 | Voice editor | `app/components/TypographicVoiceModal.tsx` |
 | Pairings | `app/components/PairingsView.tsx` (per-font grid), `PairingCard.tsx`, `SuggestedPairings.tsx` (showcase) |
 | Favorites | `app/components/FavoritesView.tsx`, `lib/favorites.ts` |
@@ -48,6 +48,7 @@ Trivial commits (typo, dep bump, docs-only) skip all three.
 | Font loading | `lib/font-loader.ts`, `lib/css2-url.ts` |
 | Static data | `lib/catalog.ts`, `lib/pairing-library.ts`, `lib/specimen-samples.ts` |
 | Fonts API | `app/api/fonts/route.ts` |
+| **Agent surface** | `public/agent.md` (the contract), `app/compose/page.tsx`, `lib/compose-params.ts` (grammar), `lib/handoff.ts`, `lib/color.ts`, `lib/api-params.ts` |
 | Routes / shell | `app/page.tsx` (Fonts, root), `app/pairings/page.tsx` + `app/pairings/[slug]/page.tsx` (SSG), `app/favorites/page.tsx`, `app/explorer/page.tsx` (→ `/`), `app/layout.tsx`, `app/components/GlobalNav.tsx` |
 | URL slugs | `lib/slug.ts` (font-name ↔ slug, single source of truth) |
 | Changelog | `content/changelog.json`, `app/changelog/page.tsx` |
@@ -64,6 +65,7 @@ key-file map above doesn't).
 | the backlog page (status tags, open/closed) | `docs/backlog.md` |
 | font data / build scripts (catalog, libraries) | `docs/data-pipeline.md` |
 | design system / theming | `docs/design-system.md` |
+| the agent surface (`/compose`, the JSON APIs, `agent.md`) | `docs/plans/agent-surface-v1.md` + `public/agent.md` |
 
 ## Gotchas
 
@@ -72,6 +74,15 @@ key-file map above doesn't).
 - Overlays (e.g. the voice editor) share a pattern: fixed overlay, Escape + backdrop to close, body scroll lock — copy `TypographicVoiceModal.tsx`. Pairings are a route now, not an overlay.
 - Favorites / voice persist to `localStorage`; hydrate after mount to avoid SSR mismatch (`readVoice` in `BrowseView.tsx`).
 - `theme-light` class (`globals.css`) flips a self-contained surface to warm-cream light mode; the site itself stays dark.
+- **`/compose` reads no viewer state.** It deliberately does *not* use `SpecimenCard`
+  or `PAGE_THEME` — both resolve through `CardThemeProvider`/`VoiceProvider`, i.e.
+  the viewer's localStorage. A composed URL must render identically for everyone it
+  is sent to, so everything arrives as props. Keep it that way.
+- Server components can't call into `"use client"` modules (exports become client
+  references). That's why `fontStack` lives in `lib/font-stack.ts` and
+  `DEFAULT_VOICE` in `lib/specimen-samples.ts`.
+- Changing `/compose` params or behavior means updating `public/agent.md` in the
+  same commit — that doc *is* the product surface for its primary user.
 
 ## Product direction
 
