@@ -1,7 +1,7 @@
 [
   {
     "date": "2026-07-18",
-    "commit": "",
+    "commit": "5b779e5",
     "title": "The one-fetch fix: the agent contract now lives in the root response",
     "changes": [
       "The bug: a coding agent that could fetch /agent.md composed links fine, but a plain chat agent given only the site URL failed cold — it saw the 'Agent Ready' badge, couldn't make the second hop to the grammar, and gave up. The badge promised a capability the first (and often only) reliable fetch didn't deliver.",
