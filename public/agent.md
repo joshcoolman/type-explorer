@@ -104,7 +104,8 @@ yourself with supplying text you have no signal about.
 |---|---|---|
 | `pairs` | `display+text,display+text` | font slugs; **max 4** pairs. A lone slug (`pairs=fraunces`) is a valid one-font card. |
 |  |  | Card width follows the count: one card renders wide (a single direction to iterate on), two or more share the width evenly. |
-| `theme` | `3` or `bg:212121,accent:E34712` | curated index, or bring-your-own hex |
+| `theme` | `3` or `bg:212121,accent:E34712` | curated index, or bring-your-own hex — one look the whole deck walks |
+| `themes` | `bg:1D4ED8;bg:DC2626;bg:2563EB` | **per-card** palettes, `;`-separated, one per card; each item is the same grammar as `theme`. Wins over `theme`/`mood`. |
 | `page` | `FAF7F0` or `bg:FAF7F0,fg:2C2824` | the viewport behind the cards; derived from the cards if omitted |
 | `mood` | `subtle` `bold` `warm` `cool` | site picks from the curated set; cards walk the subset |
 | `for` | free text, ≤150 chars | frames the page title |
@@ -142,8 +143,23 @@ body copy with it.
 theme=bg:D4DCE2,fg:1E262B,accent:36596C,subtitle:A32B25
 ```
 
-Note `subtitle` means two different things by position: `subtitle=Some words` is
-the text, `theme=subtitle:A32B25` is its color. Same for `title` and `paragraph`.
+**Two facets per element.** Each of `title`, `subtitle`, `paragraph` has a *text*
+facet and a *color* facet, told apart by position: `subtitle=Some words` sets the
+copy (a top-level param); `subtitle:A32B25` inside a `theme=`/`themes=` value sets
+its color (a role). Same word, same element, two facets — never a collision.
+
+**Per-card palettes.** `theme=` and `mood=` set one look the whole deck walks. To
+give each card its *own* palette — three distinct looks in a single URL — use
+`themes=` instead: a `;`-separated list, one spec per card, each spec the same
+grammar as `theme` (a curated index or named `bg:…,fg:…` roles). One spec applies
+to every card; N map by card index; fewer than the card count cycle; an unusable
+spec falls back to a curated palette with a note. `themes` wins over
+`theme`/`mood`. Because the cards now diverge, set an explicit neutral `page=` so
+the field sits behind all of them rather than being derived from just the first.
+
+```
+themes=bg:1D4ED8,fg:FFFFFF,accent:FACC15;bg:DC2626,fg:FFF7ED,accent:FACC15;bg:2563EB,fg:FFFFFF,accent:F59E0B
+```
 
 **The page field.** `page` sets the viewport behind the cards, and reaches the
 whole surface. Omit it and it is derived from the first card theme — a light
@@ -170,9 +186,14 @@ user needs guaranteed AA, supply your own `bg`/`fg` and let the rest derive.
 
 ---
 
-## Verifying what you composed
+## Verifying what you composed (optional)
 
-Fetch your own composed URL back and read **`#agent-notes`**. It is always present.
+If you *can* re-fetch a URL you just built, read **`#agent-notes`** on it — but
+this is optional, never a required step. The page never fails, so a link you
+can't verify is still safe to hand your user. Many agents are sandboxed to a
+single fetch and can't do this at all; that's fine by design.
+
+`#agent-notes` is always present.
 
 It is **visually hidden** — present in the DOM as real text, rendered nowhere. It
 is addressed to you, not to the person you sent the link to, so it does not appear
@@ -201,6 +222,11 @@ text truncates. An unknown param is ignored. The page always renders, and always
 tells you what it did. So a malformed URL costs you a note, not a broken link in
 front of your user — but do read the notes, because your user sees the result
 either way.
+
+Because of this, **guessing is safe and encouraged.** Unsure whether a param
+exists or what it's called? Try it — an unknown key lands in the notes and the
+page still renders. A cheap guess that degrades cleanly beats silently dropping
+what your user asked for.
 
 ---
 

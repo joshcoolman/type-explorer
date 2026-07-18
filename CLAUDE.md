@@ -71,6 +71,7 @@ key-file map above doesn't).
 | font data / build scripts (catalog, libraries) | `docs/data-pipeline.md` |
 | design system / theming | `docs/design-system.md` |
 | the agent surface (`/compose`, the JSON APIs, `agent.md`) | `docs/plans/agent-surface-v1.md` + `public/agent.md` |
+| why the agent surface looks the way it does (a real cold-agent run) | `docs/agent-story.md` |
 
 ## Gotchas
 

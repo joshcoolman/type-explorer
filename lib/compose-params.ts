@@ -113,6 +113,7 @@ const OVERRIDE_BOUNDS = {
 const KNOWN_PARAMS = new Set([
   "pairs",
   "theme",
+  "themes",
   "page",
   "mood",
   "for",
@@ -267,6 +268,28 @@ function parsePairs(
 }
 
 /**
+ * Parse a single theme spec — a curated index (`3`) or named custom roles
+ * (`bg:212121,accent:E34712`). Returns null when the spec holds nothing usable,
+ * so the caller can fall back. This is the shared unit behind both the single
+ * `theme=` param and each item of the `themes=` per-card list.
+ */
+function parseOneTheme(spec: string, notes: string[]): CardTheme | null {
+  const value = spec.trim();
+  if (!value) return null;
+  if (/^\d+$/.test(value)) {
+    const i = Number(value);
+    if (i < CARD_THEMES.length) return CARD_THEMES[i];
+    const wrapped = i % CARD_THEMES.length;
+    notes.push(
+      `theme: index ${i} is past the ${CARD_THEMES.length} curated palettes — wrapped to ${wrapped}`,
+    );
+    return CARD_THEMES[wrapped];
+  }
+  const custom = parseCustomTheme(value, notes);
+  return custom ? custom[0] : null;
+}
+
+/**
  * Resolve the palette sequence the cards walk. Three ways in, in precedence
  * order: an explicit bring-your-own theme, a curated index, a mood. Anything
  * unrecognized falls through to the full curated set, which is also the default.
@@ -281,20 +304,8 @@ function parseThemes(
 
   const theme = themeRaw?.trim() ?? "";
   if (theme) {
-    if (/^\d+$/.test(theme)) {
-      const i = Number(theme);
-      if (i < CARD_THEMES.length) {
-        sequence = [CARD_THEMES[i]];
-      } else {
-        const wrapped = i % CARD_THEMES.length;
-        notes.push(
-          `theme: index ${i} is past the ${CARD_THEMES.length} curated palettes — wrapped to ${wrapped}`,
-        );
-        sequence = [CARD_THEMES[wrapped]];
-      }
-    } else {
-      sequence = parseCustomTheme(theme, notes);
-    }
+    const one = parseOneTheme(theme, notes);
+    if (one) sequence = [one];
   }
 
   if (!sequence) {
@@ -311,6 +322,34 @@ function parseThemes(
   }
 
   const source = sequence ?? CARD_THEMES;
+  return Array.from({ length: Math.max(count, 1) }, (_, i) => source[i % source.length]);
+}
+
+/**
+ * Per-card palettes: `themes=<spec>;<spec>;…`, one palette per pairing card, so
+ * three cards can carry three distinct looks in a single URL. `;` separates the
+ * list; `,` stays role-internal, and each spec is the identical grammar as a
+ * single `theme=` value.
+ *
+ * Same never-fail contract as everything else: one spec applies to every card, N
+ * map by card index, fewer-than-cards cycle, and an unusable spec falls back to a
+ * curated palette with a note. `themes=` takes precedence over `theme=`/`mood=`.
+ */
+function parseThemesList(
+  raw: string,
+  count: number,
+  notes: string[],
+): CardTheme[] {
+  const specs = raw.split(";").map((s) => s.trim()).filter(Boolean);
+  const parsed = specs.map((spec, i) => {
+    const one = parseOneTheme(spec, notes);
+    if (one) return one;
+    notes.push(
+      `themes: palette ${i + 1} ("${spec}") had nothing usable — fell back to a curated palette`,
+    );
+    return CARD_THEMES[i % CARD_THEMES.length];
+  });
+  const source = parsed.length ? parsed : CARD_THEMES;
   return Array.from({ length: Math.max(count, 1) }, (_, i) => source[i % source.length]);
 }
 
@@ -421,6 +460,7 @@ function canonicalize(
   spec: Omit<ComposeSpec, "canonical">,
   dials: { scale: number; density: number; contrast: number; measure: number },
   overrides: { h1: number | null; h2: number | null; p: number | null },
+  themesRaw: string | null,
   themeRaw: string | null,
   moodRaw: string | null,
 ): string {
@@ -436,7 +476,8 @@ function canonicalize(
         .join(","),
     );
   }
-  if (themeRaw?.trim()) add("theme", themeRaw.trim());
+  if (themesRaw?.trim()) add("themes", themesRaw.trim());
+  else if (themeRaw?.trim()) add("theme", themeRaw.trim());
   else if (moodRaw?.trim().toLowerCase() && isMood(moodRaw.trim().toLowerCase())) {
     add("mood", moodRaw.trim().toLowerCase());
   }
@@ -473,12 +514,15 @@ export function parseComposeParams(
     notes.push("pairs: nothing resolvable — showing the site's default direction instead");
   }
 
-  const themes = parseThemes(
-    params.get("theme"),
-    params.get("mood"),
-    pairs.length || 1,
-    notes,
-  );
+  const count = pairs.length || 1;
+  const themesRaw = params.get("themes");
+  if (themesRaw?.trim() && params.get("theme")?.trim()) {
+    notes.push("themes and theme were both given — themes (per-card) wins");
+  }
+  const themes =
+    themesRaw?.trim()
+      ? parseThemesList(themesRaw, count, notes)
+      : parseThemes(params.get("theme"), params.get("mood"), count, notes);
 
   const voice: VoiceCopy = {
     title: readText(params.get("title"), "title", notes),
@@ -537,6 +581,7 @@ export function parseComposeParams(
       base,
       dials,
       overrides,
+      params.get("themes"),
       params.get("theme"),
       params.get("mood"),
     ),

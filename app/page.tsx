@@ -121,6 +121,15 @@ function AgentQuickstart() {
           <code>subtitle=Some+words</code> is copy.
         </li>
         <li>
+          <code>themes</code> (plural) — <strong>per-card</strong> palettes for
+          three distinct looks in one URL. A <code>;</code>-separated list, one
+          spec per card, each spec the same grammar as <code>theme</code>:{" "}
+          <code>themes=bg:1D4ED8;bg:DC2626;bg:2563EB</code>. One spec applies to
+          all cards; N map by card index; it wins over <code>theme</code>. Set an
+          explicit neutral <code>page=</code> so the field sits behind all the
+          cards.
+        </li>
+        <li>
           <code>page</code> — the viewport behind the cards, a bare hex (
           <code>page=0B0E11</code>) or named roles (
           <code>page=bg:0B0E11,fg:E8EDF2</code>). Derived from the cards if
@@ -165,6 +174,23 @@ function AgentQuickstart() {
         <a href="https://googlefontfinder.com/compose?pairs=space-grotesk+ibm-plex-mono,manrope+ibm-plex-mono&theme=bg:14181D,fg:E8EDF2,accent:6EA0C0&page=0B0E11&for=calm+dev+docs,+dark&measure=4">
           https://googlefontfinder.com/compose?pairs=space-grotesk+ibm-plex-mono,manrope+ibm-plex-mono&amp;theme=bg:14181D,fg:E8EDF2,accent:6EA0C0&amp;page=0B0E11&amp;for=calm+dev+docs,+dark&amp;measure=4
         </a>
+      </p>
+
+      <h3>Three distinct looks in one page</h3>
+      <p>
+        Use <code>themes=</code> (plural) to give each card its own palette. This
+        one shows a kid&rsquo;s comic-book party in three looks — hero blue, pop
+        red, blue-orange — with one personalized message and one link:
+      </p>
+      <p>
+        <a href="https://googlefontfinder.com/compose?pairs=bangers+nunito,bungee+poppins,luckiest-guy+quicksand&themes=bg:1D4ED8,fg:FFFFFF,accent:FACC15,subtitle:FDE68A;bg:DC2626,fg:FFF7ED,accent:FACC15,subtitle:FECACA;bg:2563EB,fg:FFFFFF,accent:F59E0B,subtitle:BFDBFE&page=bg:0B1220&title=Super+Kids+Party&subtitle=Capes,+Cake+and+Comic-Book+Chaos&paragraph=Fly+in+for+the+birthday+of+the+year.+Heroes+assemble+Saturday+at+2.">
+          https://googlefontfinder.com/compose?pairs=bangers+nunito,bungee+poppins,luckiest-guy+quicksand&amp;themes=bg:1D4ED8,fg:FFFFFF,accent:FACC15,subtitle:FDE68A;bg:DC2626,fg:FFF7ED,accent:FACC15,subtitle:FECACA;bg:2563EB,fg:FFFFFF,accent:F59E0B,subtitle:BFDBFE&amp;page=bg:0B1220&amp;title=Super+Kids+Party&amp;subtitle=Capes,+Cake+and+Comic-Book+Chaos&amp;paragraph=Fly+in+for+the+birthday+of+the+year.+Heroes+assemble+Saturday+at+2.
+        </a>
+      </p>
+      <p>
+        Guessing is safe: an unknown or misspelled param is ignored and the page
+        still renders — so attempt an uncertain one rather than dropping what your
+        user asked for.
       </p>
 
       <h3>The full contract (optional enrichment)</h3>
