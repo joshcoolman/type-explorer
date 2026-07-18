@@ -89,3 +89,42 @@ body {
   scrollbar-width: thin;
   scrollbar-color: var(--border) transparent;
 }
+
+/*
+ * The Agent Ready badge: tilted, and it wobbles once on load.
+ *
+ * A badge claiming a standard nobody has heard of has to earn a glance — a sticker
+ * slapped on slightly crooked reads as a claim with personality, where a tidy
+ * horizontal pill reads as chrome and gets skipped. It settles back to its resting
+ * tilt rather than to level, so the crookedness looks deliberate.
+ */
+@keyframes badge-wobble {
+  0%   { transform: rotate(-3deg) scale(1); }
+  12%  { transform: rotate(5deg) scale(1.06); }
+  26%  { transform: rotate(-6deg) scale(1.04); }
+  40%  { transform: rotate(4deg) scale(1.02); }
+  54%  { transform: rotate(-4deg) scale(1.01); }
+  68%  { transform: rotate(2deg) scale(1); }
+  84%  { transform: rotate(-3.6deg) scale(1); }
+  100% { transform: rotate(-3deg) scale(1); }
+}
+
+.badge-agent-ready {
+  transform: rotate(-3deg);
+  animation: badge-wobble 1.15s cubic-bezier(0.36, 0.07, 0.19, 0.97) 0.45s 1 both;
+}
+
+/* Straightens on hover — the tilt is decoration, the click target shouldn't feel loose. */
+.badge-agent-ready:hover {
+  transform: rotate(0deg) scale(1.03);
+  transition: transform 180ms ease-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .badge-agent-ready,
+  .badge-agent-ready:hover {
+    animation: none;
+    transition: none;
+    transform: rotate(-3deg);
+  }
+}

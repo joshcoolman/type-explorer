@@ -5,20 +5,19 @@ import { useEffect, useRef, useState } from "react";
 import type { FontFamily, VoiceCopy } from "@/lib/types";
 import { fontStack, loadPreviewFont } from "@/lib/font-loader";
 import { feelingLabel, feelingSlug } from "@/lib/feelings";
+import { DEFAULT_VOICE } from "@/lib/specimen-samples";
 import { slugify } from "@/lib/slug";
 import SpecimenCard from "./SpecimenCard";
 
 /** Top feeling tags to surface as pills on a card. */
 const MAX_FEELINGS = 5;
 
-/** Shown on every card until the user overrides a field in the voice panel. */
-export const DEFAULT_VOICE: VoiceCopy = {
-  title: "Letters That Carry the Weight",
-  subtitle:
-    "A display voice that performs, set against a text voice that endures.",
-  paragraph:
-    "A typeface reveals itself at length. In a paragraph you feel its rhythm, the way its counters hold light, how it paces a line. One specimen at reading size tells you more than a dozen names ever could.",
-};
+/**
+ * Shown on every card until the user overrides a field in the voice panel.
+ * Defined in `lib/specimen-samples.ts` (a server-safe module) and re-exported here
+ * so the many existing `from "./FontSpecimenCard"` imports keep working.
+ */
+export { DEFAULT_VOICE };
 
 interface FontSpecimenCardProps {
   family: FontFamily;

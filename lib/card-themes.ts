@@ -11,11 +11,36 @@
  * edit the `C` palette and the `CARD_THEMES` array here — nothing else.
  */
 
+import type { Rgb } from "./color";
+import {
+  ensureContrast,
+  isDark,
+  luminance,
+  mix,
+  parseHex,
+  toHex,
+} from "./color";
+
 export interface CardTheme {
   bg: string; // solid card field
   fg: string; // title (display font)
   muted: string; // subtitle (text font)
   accent: string; // pairing label at the bottom
+  /**
+   * Per-element color overrides, used only by `/compose`.
+   *
+   * The four palette roles are a *palette*, not a type spec: `fg` carries the
+   * title and `muted` carries both the subtitle and the paragraph. That collapses
+   * three typographic roles into two color slots, so "make the subheads red"
+   * has no expressible answer without dragging the body copy along.
+   *
+   * These three name the elements directly and default to the palette roles above,
+   * so a theme that sets none renders exactly as before. Optional throughout —
+   * no curated theme sets them.
+   */
+  title?: string;
+  subtitle?: string;
+  paragraph?: string;
 }
 
 /** The limited source palette. Named hexes, reused across themes. */
@@ -132,3 +157,218 @@ export const PAGE_CHROME_DEFAULTS = {
 
 /** The page-chrome role keys, in editor display order. */
 export type PageChromeKey = keyof typeof PAGE_CHROME_DEFAULTS;
+
+export interface PageChrome {
+  bg: string;
+  fg: string;
+  muted: string;
+  accent: string;
+  /** Hairlines and panel borders. */
+  rule: string;
+}
+
+/**
+ * Page chrome for `/compose` — resolved per-URL, deliberately NOT `PAGE_THEME`.
+ *
+ * `PAGE_THEME` resolves to `var(--page-*)`, which `CardThemeProvider` overwrites
+ * from the *viewer's* localStorage. That's right for the app's own pages and wrong
+ * for a composed one: the whole promise of a composed URL is that the person you
+ * send it to sees what you saw.
+ *
+ * The default is *derived from the cards* rather than fixed. A fixed black field
+ * makes a light composition impossible — an agent asked for "show me this as a
+ * light theme" could change the cards and be stranded with a black viewport around
+ * them. Deriving means the page is coherent with the cards by default, and the
+ * `page` param exists for when the agent wants something else.
+ */
+export function derivePageChrome(card: CardTheme): PageChrome {
+  const cardBg = parseHex(card.bg)!;
+  const dark = isDark(cardBg);
+
+  // Cards should read as raised panels: the field goes *away* from the card, so a
+  // dark composition sits on near-black and a light one on a soft grey. Tinted
+  // toward the card's own hue rather than neutral, so the page never looks like a
+  // different design system from the thing sitting on it.
+  const pole: Rgb = dark ? { r: 0, g: 0, b: 0 } : { r: 20, g: 18, b: 16 };
+  const bg = mix(cardBg, pole, dark ? 0.55 : 0.08);
+
+  const fgSeed = parseHex(card.fg)!;
+  const fg = ensureContrast(fgSeed, bg, 4.5);
+  const muted = ensureContrast(mix(fg, bg, 0.45), bg, 4.5);
+  const accent = ensureContrast(parseHex(card.accent)!, bg, 3);
+
+  return {
+    bg: toHex(bg),
+    fg: toHex(fg),
+    muted: toHex(muted),
+    accent: toHex(accent),
+    // A hairline that reads as a seam, not a border: a small step off the field.
+    rule: toHex(mix(bg, fg, 0.14)),
+  };
+}
+
+/**
+ * Complete an agent-supplied page palette, deriving whatever it left out and
+ * contrast-checking the rest — the same contract as `completeTheme` for cards.
+ */
+export function completePageChrome(
+  partial: Partial<PageChrome>,
+  fallback: PageChrome,
+): { chrome: PageChrome; notes: string[] } {
+  const notes: string[] = [];
+  const bgHex = partial.bg ?? fallback.bg;
+  const bg = parseHex(bgHex)!;
+
+  let fg = partial.fg ? parseHex(partial.fg)! : null;
+  if (!fg) fg = parseHex(isDark(bg) ? C.cream : C.ink)!;
+
+  const accent = partial.accent
+    ? parseHex(partial.accent)!
+    : parseHex(fallback.accent)!;
+  const muted = partial.muted ? parseHex(partial.muted)! : mix(fg, bg, 0.45);
+
+  const nudge = (role: keyof PageChrome, value: Rgb, target: number): Rgb => {
+    const fixed = ensureContrast(value, bg, target);
+    if (toHex(fixed) !== toHex(value) && partial[role]) {
+      notes.push(
+        `page: ${role} ${toHex(value)} fell short of ${target}:1 on the page background — adjusted to ${toHex(fixed)}`,
+      );
+    }
+    return fixed;
+  };
+
+  const resolvedFg = nudge("fg", fg, 4.5);
+  return {
+    chrome: {
+      bg: toHex(bg),
+      fg: toHex(resolvedFg),
+      muted: toHex(nudge("muted", muted, 4.5)),
+      accent: toHex(nudge("accent", accent, 3)),
+      rule: toHex(mix(bg, resolvedFg, 0.14)),
+    },
+    notes,
+  };
+}
+
+// ---------------------------------------------------------------------------
+// Agent surface: moods and bring-your-own palettes
+// ---------------------------------------------------------------------------
+
+/**
+ * A mood is an *ordered subset* of `CARD_THEMES`, not a new palette. An agent
+ * that knows the feel it wants but not our indices says `mood=warm`; the cards
+ * then walk that subset, so a multi-card page still varies instead of repeating
+ * one field. Every value here is an index into `CARD_THEMES` above — moods can
+ * never introduce an unvetted color.
+ */
+export const MOODS = {
+  subtle: [5, 8, 4, 2],
+  bold: [7, 3, 0, 6],
+  warm: [1, 3, 10, 7],
+  cool: [2, 4, 8, 6],
+} as const;
+
+export type Mood = keyof typeof MOODS;
+
+export function isMood(value: string): value is Mood {
+  return Object.prototype.hasOwnProperty.call(MOODS, value);
+}
+
+/** The theme sequence a page cycles through, given an optional mood. */
+export function themesForMood(mood: Mood | null): CardTheme[] {
+  if (!mood) return CARD_THEMES;
+  return MOODS[mood].map((i) => CARD_THEMES[i]);
+}
+
+/**
+ * Complete a partially-specified palette, routing bring-your-own color *through*
+ * our taste rather than around it.
+ *
+ * The rules encode where hand-built palettes actually fail. People know their
+ * background and their brand accent; nobody knows their "muted" — so muted is
+ * derived by default, and it is validated at 4.5:1 because it renders at body
+ * sizes (the classic derived-palette failure is a muted that looks fine in a
+ * swatch and is unreadable in a paragraph). Accent only needs 3:1 because it is
+ * used at display sizes and on the footer meta line.
+ *
+ * Every nudge is reported, so `/compose` can tell the agent what it changed.
+ */
+export function completeTheme(partial: Partial<CardTheme>): {
+  theme: CardTheme;
+  notes: string[];
+} {
+  const notes: string[] = [];
+  const bgHex = partial.bg ?? PAGE_THEME_DEFAULT.bg;
+  const bg = parseHex(bgHex)!;
+
+  // fg: given, or the legible pole of the field.
+  let fg = partial.fg ? parseHex(partial.fg)! : null;
+  if (!fg) fg = parseHex(isDark(bg) ? C.cream : C.ink)!;
+
+  // accent: given, or borrowed from the curated theme whose field is closest in
+  // lightness — so an unspecified accent still comes from a hand-tuned pair.
+  let accent = partial.accent ? parseHex(partial.accent)! : null;
+  if (!accent) accent = parseHex(nearestCuratedTheme(bgHex).accent)!;
+
+  // muted: given, or fg dialed back toward the field until it is quiet but still
+  // clears body-text contrast.
+  let muted = partial.muted ? parseHex(partial.muted)! : null;
+  if (!muted) muted = mix(fg, bg, 0.42);
+
+  const nudge = (
+    role: keyof CardTheme,
+    value: Rgb,
+    target: number,
+  ): Rgb => {
+    const fixed = ensureContrast(value, bg, target);
+    if (toHex(fixed) !== toHex(value) && partial[role]) {
+      notes.push(
+        `theme: ${role} ${toHex(value)} fell short of ${target}:1 on the background — adjusted to ${toHex(fixed)}`,
+      );
+    }
+    return fixed;
+  };
+
+  /**
+   * Per-element overrides, each held to the bar its own size earns. The title
+   * renders at 36px+ bold — WCAG "large text", so 3:1. The subtitle runs ~20px
+   * regular and the paragraph ~14px: both under the large-text threshold, so both
+   * owe the full 4.5:1.
+   */
+  const element = (role: "title" | "subtitle" | "paragraph", target: number) =>
+    partial[role] ? toHex(nudge(role, parseHex(partial[role])!, target)) : undefined;
+
+  const overrides = {
+    title: element("title", 3),
+    subtitle: element("subtitle", 4.5),
+    paragraph: element("paragraph", 4.5),
+  };
+
+  return {
+    theme: {
+      bg: toHex(bg),
+      fg: toHex(nudge("fg", fg, 4.5)),
+      muted: toHex(nudge("muted", muted, 4.5)),
+      accent: toHex(nudge("accent", accent, 3)),
+      ...Object.fromEntries(
+        Object.entries(overrides).filter(([, v]) => v !== undefined),
+      ),
+    },
+    notes,
+  };
+}
+
+/** The curated theme whose field is closest in luminance to `bgHex`. */
+function nearestCuratedTheme(bgHex: string): CardTheme {
+  const target = luminance(parseHex(bgHex)!);
+  let best = CARD_THEMES[0];
+  let bestDelta = Infinity;
+  for (const theme of CARD_THEMES) {
+    const delta = Math.abs(luminance(parseHex(theme.bg)!) - target);
+    if (delta < bestDelta) {
+      best = theme;
+      bestDelta = delta;
+    }
+  }
+  return best;
+}

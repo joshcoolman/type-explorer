@@ -41,27 +41,8 @@ export function loadFontByName(name: string, weights: number[] = [400, 700]): vo
   );
 }
 
-/** A quoted CSS font-family value from a bare family name. */
-export function fontStackByName(name: string): string {
-  return `"${name}", system-ui, sans-serif`;
-}
-
-/** The CSS `font-family` value to apply (quoted to handle spaces). */
-export function fontStack(family: FontFamily): string {
-  return `"${family.family}", ${fallbackFor(family.category)}`;
-}
-
-function fallbackFor(category: FontFamily["category"]): string {
-  switch (category) {
-    case "serif":
-      return "Georgia, 'Times New Roman', serif";
-    case "monospace":
-      return "ui-monospace, 'SFMono-Regular', Menlo, monospace";
-    case "handwriting":
-    case "display":
-      return "system-ui, sans-serif";
-    case "sans-serif":
-    default:
-      return "system-ui, -apple-system, sans-serif";
-  }
-}
+// `fontStack` / `fontStackByName` / `fallbackFor` moved to `lib/font-stack.ts` so
+// server components (`/compose`) can call them — a `"use client"` module's exports
+// become client references and aren't callable during a server render. Re-exported
+// here so existing client imports keep working.
+export { fontStack, fontStackByName, fallbackFor } from "./font-stack";

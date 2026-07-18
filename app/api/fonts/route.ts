@@ -1,9 +1,21 @@
 import { NextRequest, NextResponse } from "next/server";
+import { checkParams } from "@/lib/api-params";
 import { getCatalog } from "@/lib/catalog";
 import { feelingFromSlug, feelingSlug } from "@/lib/feelings";
 import type { FontFamily } from "@/lib/types";
 
 export const runtime = "nodejs";
+
+const KNOWN_PARAMS = [
+  "q",
+  "category",
+  "sort",
+  "limit",
+  "offset",
+  "tag",
+  "feeling",
+  "minWeight",
+] as const;
 
 type SortKey = "popularity" | "trending" | "date" | "alpha";
 
@@ -52,14 +64,23 @@ export async function GET(req: NextRequest) {
   }
 
   const sp = req.nextUrl.searchParams;
+  const { ignored, strictError } = checkParams(sp, KNOWN_PARAMS);
+  if (strictError) return strictError;
+
   const q = (sp.get("q") ?? "").trim().toLowerCase();
   const category = sp.get("category") ?? "";
   const sort = (sp.get("sort") ?? "popularity") as SortKey;
   const limit = Math.min(Number(sp.get("limit") ?? 60) || 60, 500);
   const offset = Math.max(Number(sp.get("offset") ?? 0) || 0, 0);
   // A `tag` is a /Expressive feeling slug ("cute"). Validate against the known 20
-  // so junk params just no-op rather than returning an empty grid.
-  const feeling = feelingFromSlug(sp.get("tag") ?? "");
+  // so junk params just no-op rather than returning an empty grid — a stale URL
+  // shouldn't strand a human on an empty page. Agents get the truth via `ignored`.
+  // `feeling` is an accepted alias: it's the word an agent reaches for first, and
+  // the cold probe's misdiagnosis came from guessing exactly that name.
+  const feeling = feelingFromSlug(sp.get("tag") ?? sp.get("feeling") ?? "");
+  // Feelings carry a 0-100 weight; `minWeight` narrows a tag to fonts that really
+  // lean that way rather than merely carrying the label.
+  const minWeight = Math.max(Number(sp.get("minWeight") ?? 0) || 0, 0);
 
   let families = catalog.families.filter((f) => !isIconFont(f));
   if (q) families = families.filter((f) => f.family.toLowerCase().includes(q));
@@ -69,7 +90,9 @@ export async function GET(req: NextRequest) {
   if (feeling) {
     const slug = feelingSlug(feeling);
     families = families.filter((f) =>
-      f.feelings?.some((t) => feelingSlug(t.name) === slug),
+      f.feelings?.some(
+        (t) => feelingSlug(t.name) === slug && t.weight >= minWeight,
+      ),
     );
     // A focused feeling view reads best strongest-first, not by popularity.
     families = [...families].sort(
@@ -87,6 +110,16 @@ export async function GET(req: NextRequest) {
     total,
     offset,
     limit,
+    /** Params we didn't recognize. Always check this — see /agent.md. */
+    ignored,
+    /** Echo of the filters actually applied, so a caller can confirm intent. */
+    applied: {
+      q: q || null,
+      category: category || null,
+      feeling: feeling ?? null,
+      minWeight: minWeight || null,
+      sort: feeling ? "feeling-weight" : sort,
+    },
     families: page,
   });
 }

@@ -149,34 +149,51 @@ _Snapshot of where the project is. Overwrite freely — it's a snapshot, not a l
 
 **Last shipped**
 
+- **Agent surface V1** — the site is now usable *by* agents, not just readable.
+  All four phases of [`docs/plans/agent-surface-v1.md`](docs/plans/agent-surface-v1.md)
+  are in: discovery (`/llms.txt`, `/agent.md`, `/robots.txt`, sitemap), an honest
+  query surface (`ignored[]` + `?strict=1`, the `feeling` alias, `/api/palettes`,
+  `/api/pairings`), the `/compose` render route, and the paste-ready handoff block.
 - Visual category selector on Fonts, plus a grid breakpoint fix
 - Pairing cards: paragraph support, always-on fonts, pivot to a partner
-- Per-element visibility toggles for voice elements
 
-**In flight — agent surface V1**
+**How to see it**
 
-A design plan for making the site usable *by* agents, not just readable by them:
-an agent discovers the site's capabilities unaided, queries them, and composes a
-curated page for its user at a shareable URL. Plan is vetted and committed at
-[`docs/plans/agent-surface-v1.md`](docs/plans/agent-surface-v1.md); implementation
-has not started.
+```
+/compose?pairs=space-grotesk+ibm-plex-mono,archivo+pt-serif&theme=bg:D4DCE2,fg:1E262B,accent:36596C,subtitle:A32B25&page=bg:000000
+```
 
-Load-bearing ideas, if you read nothing else:
+An agent queries `/api/fonts`, `/api/pairings` and `/api/palettes`, then writes a
+`/compose` URL by hand. The page reports what it did at `#agent-notes` and carries
+its implementation config at `#agent-specs` — both visually hidden, both in the DOM
+so a fetch still returns them. Malformed URLs degrade and explain themselves rather
+than failing, since the agent writing the URL usually can't see the result.
 
-- **Assume the least-capable agent** — it can fetch a page and emit a URL. No
-  shell, no code execution, no browser. That rules out compressed payloads, since
-  the agent must hand-write the URL.
-- **Craft lives in the site, not the agent.** Because an agent usually can't see
-  its own output, it supplies choices and the site guarantees the result. Hard
-  requirement: no valid URL may produce an ugly page.
+**Open questions**
+
+1. **The curated palettes aren't all WCAG AA.** `/api/palettes` computes real
+   ratios, and several `muted` roles land at 3.2–4.1:1 (palette 9's `fg` is 3.55).
+   Agent-supplied palettes *are* held to 4.5:1, so the site currently applies a
+   stricter bar to strangers than to itself. `agent.md` states this plainly rather
+   than papering over it. Retuning would change the existing look, so it needs a call.
+2. **`contrast=5` can silently do nothing.** Many families cap below `wght 900`
+   (Space Grotesk stops at 700), and asking past the ceiling renders identically
+   with `data-status="ok"` and no note — the one failure mode the notes block
+   exists to prevent. The axis range is right there in the catalog; a note is cheap.
+3. **`SiteChrome` hides the nav via a pathname check**, not route groups. The clean
+   Next pattern would relocate every route under a `(site)` group; not worth a
+   mechanical change across ~1,900 pages for the same result, but it is a shortcut.
+4. **`MAX_PAIRS` is 4.** Inherited from the plan's URL-budget reasoning, which is
+   weaker than it looked — three cards with full copy is ~530 chars against a
+   ~2,000 target. 6 is probably the better cap.
 
 **Up next**
 
-1. Phase 1 — discovery: spec-conformant `llms.txt` indexing a self-contained
-   `agent.md` contract, plus `robots.txt` / `sitemap.xml`
-2. Phase 2 — query surface: document the existing `tag` filter, return an
-   `ignored[]` array for unknown params, expose palettes and pairings as JSON
-3. Phase 3 — `/compose`, then Phase 4 — the paste-ready handoff block
+- A font key to match the color key: naming the faces and sizes the way the swatch
+  row names colors, so revisions can come back as "bump the 36 to 44."
+- MCP as a fast-follow — it reuses the Phase 2 JSON endpoints verbatim.
+- Let the voice modal emit an updated `/compose` URL, closing the loop from the
+  human's edit back to their agent.
 
 Backlog of smaller ideas lives in [`BACKLOG.md`](BACKLOG.md) and on the
 [/backlog](https://googlefontfinder.com/backlog) page.
