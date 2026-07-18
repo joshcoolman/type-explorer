@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { themeProvenance } from "./card-themes";
 import { parseComposeParams, type FontResolver } from "./compose-params";
+import { statusOf } from "./compose-notes";
 import type { FontFamily } from "./types";
 
 /**
@@ -103,6 +104,44 @@ describe("card identity survives a drop", () => {
     const spec = parse("pairs=gloock+inter,nope-nothing+inter,inter+gloock");
     expect(spec.pairs).toHaveLength(2);
     expect(spec.pairs.map((p) => p.requestedIndex)).toEqual([0, 2]);
+  });
+});
+
+describe("status reflects whether the page differs from the ask", () => {
+  const status = (qs: string) => statusOf(parse(qs).notes);
+
+  it("stays ok when a stated color renders below AA untouched", () => {
+    // The whole point of hex freedom: the page IS what was asked for, so this is
+    // advisory. Calling it degraded teaches an agent to stop stating colors.
+    const spec = parse("pairs=gloock+inter&theme=bg:12203A,fg:EAF2FF,subtitle:E23B3B");
+    const contrast = spec.notes.find((n) => n.code === "contrast_below_bar");
+    expect(contrast?.severity).toBe("info");
+    expect(spec.themes[0].subtitle).toBe("#e23b3b"); // rendered as written
+    expect(statusOf(spec.notes)).toBe("ok");
+  });
+
+  it("stays ok for an ignored param", () => {
+    expect(status("pairs=gloock+inter&bogus=1")).toBe("ok");
+  });
+
+  it("stays ok for a slug we resolved to what they meant", () => {
+    expect(status("pairs=gloock+inter&scale=99")).toBe("ok");
+  });
+
+  it("goes degraded when a card is dropped", () => {
+    expect(status("pairs=nope-nothing-here+inter")).toBe("degraded");
+  });
+
+  it("goes degraded when copy is cut", () => {
+    expect(status(`pairs=gloock+inter&title=${"x".repeat(200)}`)).toBe("degraded");
+  });
+
+  it("separates a color we moved from one we left alone", () => {
+    // Same subject, opposite outcomes — so they cannot share a code, or a
+    // consumer can't tell whether its hex survived.
+    const left = parse("pairs=gloock+inter&theme=bg:12203A,fg:EAF2FF,subtitle:E23B3B");
+    expect(left.notes.map((n) => n.code)).toContain("contrast_below_bar");
+    expect(left.notes.map((n) => n.code)).not.toContain("contrast_adjusted");
   });
 });
 

@@ -353,7 +353,7 @@ export function completePageChrome(
     if (toHex(fixed) !== toHex(value) && partial[role]) {
       notes.push(
         note(
-          "contrast_below_bar",
+          "contrast_adjusted",
           "warn",
           role,
           `page: ${role} ${toHex(value)} fell short of ${target}:1 on the page background — adjusted to ${toHex(fixed)}`,
@@ -461,9 +461,12 @@ export function completeTheme(partial: Partial<CardTheme>): {
     if (toHex(fixed) === toHex(value)) return value;
     if (partial[role]) {
       notes.push(
+        // Advisory, not a warning: we changed nothing, so the page IS the ask.
+        // Marking a deliberate brand color as a fault would teach an agent to
+        // stop stating colors, which is the opposite of the point.
         note(
           "contrast_below_bar",
-          "warn",
+          "info",
           role,
           `theme: ${role} ${toHex(value)} sits at ${contrastRatio(value, bg).toFixed(2)}:1 on this background, under the ${target}:1 bar — rendered as written`,
         ),

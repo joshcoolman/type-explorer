@@ -286,9 +286,22 @@ HTML-to-markdown conversion most fetch tools apply, and hidden text survives it.
 <section id="agent-notes" data-status="ok" data-note-count="0">
 ```
 
-- `data-status="ok"` — every parameter was used as written.
-- `data-status="degraded"` — something was dropped, clamped, or substituted. Each
-  `<li data-note>` inside says what, in plain language.
+**`status` answers exactly one question: does the rendered page differ from what
+you asked for?**
+
+- `"ok"` — it does not. There may still be notes; they're advisory.
+- `"degraded"` — it does. A card was dropped, copy was cut, a color was moved.
+
+Every note carries a `severity` to match: `warn` for the second case, `info` for
+the first. `status` is `degraded` when any note is a `warn` — not merely when
+notes exist.
+
+The distinction that matters most: **a color you stated that renders below the
+contrast bar is `info`, and `status` stays `ok`.** You get a
+`contrast_below_bar` note recording the ratio, but nothing was changed, so
+nothing is degraded. A brand color at 3.8:1 is a choice, not a fault — don't
+avoid stating colors to keep this field clean. If a color *was* moved, that's the
+separate `contrast_adjusted` code, and it is a `warn`.
 
 The block also prints the **canonical** form of your URL — resolved slugs, fixed
 key order, defaults omitted. Prefer it in revisions: it's the form the CDN caches,
