@@ -4,6 +4,13 @@ A cold-agent friction log, kept because feeding a real agent's experience back
 into the surface is how `/compose` gets better. This is the run that drove the
 per-card `themes=` work and the one-fetch root quickstart.
 
+> **This log spans two sessions — read it as a before/after, not one trace.**
+> The friction points below are the *pre-fix* cold failure. Where a later run
+> "worked," that smoothness was carryover — the `/compose` grammar was already in
+> the agent's context from earlier fixes, not something a genuinely cold agent
+> would have reached (see friction #2). The one-fetch quickstart exists precisely
+> to make the cold path succeed on its own.
+
 ## The scenario
 
 A non-technical parent pastes only the live site URL and says: *"My kid's
