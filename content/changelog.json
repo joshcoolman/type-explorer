@@ -1,6 +1,22 @@
 [
   {
     "date": "2026-07-18",
+    "commit": "",
+    "title": "The one-fetch fix: the agent contract now lives in the root response",
+    "changes": [
+      "The bug: a coding agent that could fetch /agent.md composed links fine, but a plain chat agent given only the site URL failed cold — it saw the 'Agent Ready' badge, couldn't make the second hop to the grammar, and gave up. The badge promised a capability the first (and often only) reliable fetch didn't deliver.",
+      "The fix: the whole construct-a-URL contract is now inlined into the home page's server-rendered HTML — the /compose grammar, the real param names (title/subtitle/paragraph, not body), the slug rule, a dark starting palette, a worked example URL, and an explicit 'hand it to the user, don't fetch it back, nothing here fails' instruction. One fetch of the bare domain is now enough; /agent.md and /llms.txt stay as enrichment for agents that can follow a link, never the critical path.",
+      "Every route (not just the home page) now carries a short agent pointer in its markup, so whatever URL a user pastes, the agent learns the contract exists and where the full quickstart is.",
+      "Both blocks are present in the DOM as real, text-extractable content but aria-hidden and visually clipped — silent to screen readers, invisible on screen, and surviving the HTML-to-text conversion most fetch tools apply. This replaces the old sr-only pointer, which was both incomplete (a prose 'go fetch /agent.md' with no grammar) and read aloud to screen-reader users who wanted fonts, not a css2 URL."
+    ],
+    "files": [
+      "app/page.tsx — replaced the thin sr-only /agent.md pointer with a full, self-contained AgentQuickstart block inlined into the root response",
+      "app/layout.tsx — a site-wide, text-extractable agent pointer on every route",
+      "content/changelog.json — this entry"
+    ]
+  },
+  {
+    "date": "2026-07-18",
     "commit": "c4c710c",
     "title": "Agent surface V1: the site is now usable by agents, not just readable",
     "changes": [
