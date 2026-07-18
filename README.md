@@ -223,6 +223,18 @@ _Snapshot of where the project is. Overwrite freely — it's a snapshot, not a l
 
 **Last shipped**
 
+- **Every painted slot takes a hex; omitted ones come from taste, not arithmetic.**
+  A composed page came back flat — subtitle and paragraph the same dull grey, an
+  explicit accent doing no visible work. Three causes: the two roles were identical
+  *by construction* (both fell back to `muted`), `muted` was `mix(fg, bg, 0.42)` and
+  averages trend to grey, and a stated `accent:EF5DA8` shipped as `E358A0` because
+  everything was silently walked to 4.5:1. Now: `rule` and `label` join the roles so
+  nothing on the card is off-limits to a hex; a hex you *state* renders exactly (with
+  a note if it's under the bar) while values we *derive* are still clamped; and
+  omitted roles come from curated relationships — subtitle takes the accent, so
+  `bg` + `fg` + `accent` is enough for a page with a point of view. The color key
+  now puts one palette-column under each card. **Caveat: a fully-specified palette
+  can now be made unreadable** — that's the accepted cost of hex freedom.
 - **Near-miss slugs resolve; the surface stopped asking agents to verify.** An
   evaluation run produced a good result but spent several sequential round-trips
   getting there — and the same agent, asked to hand-write a URL from the grammar,
