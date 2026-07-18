@@ -223,6 +223,16 @@ _Snapshot of where the project is. Overwrite freely — it's a snapshot, not a l
 
 **Last shipped**
 
+- **`/compose.json` — the composed page as data.** Swap `/compose?` for
+  `/compose.json?`, same params, and get the resolved model: per-card palettes,
+  faces with axis ranges, paste-ready tokens, and `status`/`notes` with stable
+  codes. A mirror, not a scrape — `lib/compose-resolve.ts` is the single model and
+  the page and JSON are two serializers over it. The load-bearing addition is
+  **color provenance**: every role is `{ hex, source }` where source is `stated`
+  (the user's hex, rendered exactly) / `derived` (ours, clamped) / `from:<role>`,
+  so a developer knows which colors to pin and which to regenerate. Also fixes the
+  `themes[0]` handoff defect, and numbers the cards `01/02/03` so the spoken
+  "second one" and the JSON's `index` are the same thing.
 - **Every painted slot takes a hex; omitted ones come from taste, not arithmetic.**
   A composed page came back flat — subtitle and paragraph the same dull grey, an
   explicit accent doing no visible work. Three causes: the two roles were identical
