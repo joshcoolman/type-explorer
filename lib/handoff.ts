@@ -11,7 +11,7 @@
  * URL strings are never hand-rolled here — `lib/css2-url.ts` owns that grammar.
  */
 
-import type { CardTheme } from "./card-themes";
+import type { ResolvedCardTheme } from "./card-themes";
 import type { ComposePair } from "./compose-params";
 import { familyParam, parseVariants, pairingCss2Url, familyFullUrl } from "./css2-url";
 import { fontStack } from "./font-stack";
@@ -34,7 +34,7 @@ export interface FontSpec {
 export interface CardHandoff {
   role: "display" | "text" | "both";
   fonts: FontSpec[];
-  theme: CardTheme;
+  theme: ResolvedCardTheme;
   /** One css2 URL covering every face this card uses. */
   css2: string;
 }
@@ -93,7 +93,7 @@ function dedupe(families: FontFamily[]): FontFamily[] {
   return out;
 }
 
-export function buildHandoff(pairs: ComposePair[], themes: CardTheme[]): Handoff {
+export function buildHandoff(pairs: ComposePair[], themes: ResolvedCardTheme[]): Handoff {
   const cards: CardHandoff[] = pairs.map((pair, i) => ({
     role: pair.monovoice ? "both" : "display",
     fonts: pair.monovoice
@@ -117,6 +117,11 @@ export function buildHandoff(pairs: ComposePair[], themes: CardTheme[]): Handoff
           `  --color-card-fg: ${themes[0].fg};`,
           `  --color-card-muted: ${themes[0].muted};`,
           `  --color-card-accent: ${themes[0].accent};`,
+          `  --color-card-title: ${themes[0].title};`,
+          `  --color-card-subtitle: ${themes[0].subtitle};`,
+          `  --color-card-paragraph: ${themes[0].paragraph};`,
+          `  --color-card-rule: ${themes[0].rule};`,
+          `  --color-card-label: ${themes[0].label};`,
         ]
       : []),
     "}",
@@ -131,6 +136,11 @@ export function buildHandoff(pairs: ComposePair[], themes: CardTheme[]): Handoff
           `  --card-fg: ${themes[0].fg};`,
           `  --card-muted: ${themes[0].muted};`,
           `  --card-accent: ${themes[0].accent};`,
+          `  --card-title: ${themes[0].title};`,
+          `  --card-subtitle: ${themes[0].subtitle};`,
+          `  --card-paragraph: ${themes[0].paragraph};`,
+          `  --card-rule: ${themes[0].rule};`,
+          `  --card-label: ${themes[0].label};`,
         ]
       : []),
     "}",

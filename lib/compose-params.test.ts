@@ -113,11 +113,56 @@ describe("theme", () => {
     expect(theme.muted).toMatch(/^#[0-9a-f]{6}$/);
   });
 
-  it("nudges a supplied role that would be illegible, and says so", () => {
-    // #222 muted on a #212121 field is invisible; it must come back legible.
+  it("renders a supplied role exactly, even when illegible, and says so", () => {
+    // #222 muted on a #212121 field is very nearly invisible — and it still
+    // renders as written. A hex an agent typed is an intention (a brand color, a
+    // palette from a reference); silently walking it toward legibility meant a
+    // stated color shipped as a different one with no way to tell why. The note
+    // is how the contract stays honest instead.
     const spec = parse("pairs=gloock+inter&theme=bg:212121,muted:222222");
-    expect(spec.themes[0].muted).not.toBe("#222222");
+    expect(spec.themes[0].muted).toBe("#222222");
     expect(spec.notes.join(" ")).toContain("muted");
+    expect(spec.notes.join(" ")).toContain("rendered as written");
+  });
+
+  it("still clamps a role it derived itself", () => {
+    // Nobody stated `muted` here, so there is no intention to honor and the
+    // legibility floor applies. This is the other half of the same rule.
+    const spec = parse("pairs=gloock+inter&theme=bg:F5F0E8");
+    const t = spec.themes[0];
+    expect(t.muted).toMatch(/^#[0-9a-f]{6}$/);
+    expect(t.muted).not.toBe(t.bg);
+  });
+
+  it("gives the subtitle and the paragraph different colors", () => {
+    // The defect this replaced: both fell back to `muted`, so they were
+    // identical by construction and the accent did no work on the page.
+    const spec = parse("pairs=gloock+inter&theme=bg:FFF3E0,fg:34302B,accent:EF5DA8");
+    const t = spec.themes[0];
+    expect(t.subtitle).not.toBe(t.paragraph);
+    // The subtitle carries the accent hue rather than a neutral. It is not the
+    // accent verbatim: nobody stated a subtitle, so this value is derived and
+    // therefore clamped to stay readable at deck size — the accent itself, being
+    // explicit, renders untouched on the label.
+    expect(t.subtitle).not.toBe(t.muted);
+    expect(t.accent).toBe("#ef5da8");
+    const [r, g, b] = [1, 3, 5].map((i) => parseInt(t.subtitle.slice(i, i + 2), 16));
+    expect(r).toBeGreaterThan(g); // still pink, not grey
+    expect(b).toBeGreaterThan(g);
+  });
+
+  it("fills every paintable slot, including the ancillary chrome", () => {
+    const spec = parse("pairs=gloock+inter&theme=bg:212121");
+    const t = spec.themes[0];
+    for (const slot of ["title", "subtitle", "paragraph", "rule", "label"] as const) {
+      expect(t[slot]).toMatch(/^#[0-9a-f]{6}$/);
+    }
+  });
+
+  it("accepts an explicit hex for the ancillary slots too", () => {
+    const spec = parse("pairs=gloock+inter&theme=bg:212121,rule:FF0000,label:00FF00");
+    expect(spec.themes[0].rule).toBe("#ff0000");
+    expect(spec.themes[0].label).toBe("#00ff00");
   });
 
   it("falls back to the curated set when a custom theme has nothing usable", () => {
