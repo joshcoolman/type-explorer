@@ -9,6 +9,57 @@ Lightweight idea tracker. Status tags: `idea` · `ready` · `in progress` · `pa
 
 ---
 
+## Auto-fill the changelog commit hash `idea`
+
+Small papercut in the commit ritual.
+
+A `content/changelog.json` entry carries a `commit` field, but the hash does not exist until the commit is made — so the entry gets written with `"commit": "pending"` and then needs an amend to fill it in. Easy to forget, and a wrong or missing hash makes the entry harder to trace back later.
+
+**Fix:** a tiny script (~10 lines) that rewrites the newest entry’s `commit` to `HEAD`, run either as a `post-commit` hook or as an explicit `pnpm changelog:stamp` followed by `git commit --amend --no-edit`.
+
+**Watch out:** amending in a hook rewrites history mid-commit, which is fiddly and can surprise. The explicit script is probably the safer shape even though it is one more step.
+
+Smallest of the three changelog issues; also the least important.
+
+[#16](https://github.com/joshcoolman/type-explorer/issues/16)
+
+---
+
+## Changelog consistency check (a lint, not a generator) `idea`
+
+Warn when the changelog has drifted behind the work, without generating any of it.
+
+**Why not generate:** the changelog is the one artifact here that should stay hand-written. Its value is the framing — a recent entry reads "Cards are centered at any count and size themselves to it," where `git log` for the same work gives "fix grid centering." Entries span dozens of commits and are written as user-visible outcomes, not commits; `files[]` carries *why* each file matters, which `CLAUDE.md` leans on as recent-work memory. Deriving from commits or PR titles produces something strictly worse that then needs fixing by hand.
+
+**So: catch the forgetting, not the writing.** A check that warns when:
+
+- HEAD has moved more than N commits past the newest `content/changelog.json` entry, or
+- a commit closed issues but added no entry.
+
+**Where it runs:** a `pnpm changelog:check` is the obvious first cut. A pre-push hook or CI step is the version that actually catches things, but it should warn and never block — a docs-only or typo commit legitimately skips the ritual (per `CLAUDE.md`).
+
+Pairs with the cross-link issue.
+
+[#15](https://github.com/joshcoolman/type-explorer/issues/15)
+
+---
+
+## Cross-link the changelog and the backlog `idea`
+
+Now that closed issues are real backlog history, `/changelog` and `/backlog` could point at each other.
+
+**The idea:** a changelog entry records which issues it closed. `/changelog` then links "shipped via" to the issue; `/backlog` links a closed item to the entry that shipped it. A reader arriving at either one can get to the other — the discussion and the outcome stop being separate archives.
+
+**Shape:** an optional `closes: [8, 13]` field on a `content/changelog.json` entry. Optional because plenty of work closes nothing, and the changelog should never be blocked on issue hygiene.
+
+**Why this and not auto-generation:** see #-- (the consistency-check issue). The changelog is editorial and should stay hand-written; this only adds a reference, it does not derive the prose.
+
+**Open question:** should it be the other direction instead — the issue gets a comment linking the changelog entry when it ships? That is a write to GitHub rather than a field in the repo, so it breaks the "repo is the artifact" property the backlog sync deliberately preserves. Probably prefer the field.
+
+[#14](https://github.com/joshcoolman/type-explorer/issues/14)
+
+---
+
 ## Three-font pairings (spike) `idea`
 
 Explore whether pairings should support a third font — typically a body/reading face distinct from both the display and the secondary text font.
