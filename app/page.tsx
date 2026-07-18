@@ -71,14 +71,38 @@ function AgentQuickstart() {
         <code>https://googlefontfinder.com</code>.
       </p>
 
+      <h3>Fastest path: start from this fully-formed URL</h3>
       <p>
-        Build:{" "}
-        <code>
-          https://googlefontfinder.com/compose?pairs=&lt;display-slug&gt;+&lt;text-slug&gt;
-        </code>
+        Every parameter below is filled in with a real, working value. To answer
+        your user, take this URL, change the values to match what they asked for,
+        delete any parameter you don&rsquo;t need, and hand the result to them.
+        You do not have to build a URL from scratch or understand every knob —
+        editing this one is enough.
+      </p>
+      <p>
+        <a href="https://googlefontfinder.com/compose?pairs=space-grotesk+ibm-plex-mono,manrope+ibm-plex-mono&theme=bg:14181D,fg:E8EDF2,muted:9AA6B2,accent:6EA0C0&page=bg:0B0E11,fg:E8EDF2&title=Agents+that+ship+while+you+sleep&subtitle=A+calm,+legible+surface+for+long-running+coding+sessions&paragraph=Monospace+for+every+identifier,+a+humanist+sans+for+the+prose+around+it,+and+contrast+tuned+low+enough+to+read+for+an+hour.&for=agentic-coding+docs,+dark&scale=3&density=3&contrast=3&measure=4">
+          https://googlefontfinder.com/compose?pairs=space-grotesk+ibm-plex-mono,manrope+ibm-plex-mono&amp;theme=bg:14181D,fg:E8EDF2,muted:9AA6B2,accent:6EA0C0&amp;page=bg:0B0E11,fg:E8EDF2&amp;title=Agents+that+ship+while+you+sleep&amp;subtitle=A+calm,+legible+surface+for+long-running+coding+sessions&amp;paragraph=Monospace+for+every+identifier,+a+humanist+sans+for+the+prose+around+it,+and+contrast+tuned+low+enough+to+read+for+an+hour.&amp;for=agentic-coding+docs,+dark&amp;scale=3&amp;density=3&amp;contrast=3&amp;measure=4
+        </a>
+      </p>
+      <p>
+        That is the floor — swap in your user&rsquo;s copy and colors and you have
+        a working page. To do better than the default fonts, pick faces that
+        genuinely fit the request instead of reusing the two above: query{" "}
+        <a href="https://googlefontfinder.com/api/fonts?feeling=calm&category=serif&minWeight=60">
+          <code>/api/fonts?feeling=calm</code>
+        </a>{" "}
+        (any of 20 feelings: <code>calm</code>, <code>competent</code>,{" "}
+        <code>sophisticated</code>, <code>business</code>, <code>playful</code>,
+        &hellip;) for candidate families, then{" "}
+        <a href="https://googlefontfinder.com/api/pairings?font=source-serif-4">
+          <code>/api/pairings?font=&lt;slug&gt;</code>
+        </a>{" "}
+        for a display partner — each result carries a ready-to-paste{" "}
+        <code>composeValue</code> you drop straight into <code>pairs=</code>.
+        Everything else in the template can stay as it is.
       </p>
 
-      <h3>Parameters</h3>
+      <h3>Parameters (reference — only if you need to hand-tune a value)</h3>
       <ul>
         <li>
           <code>pairs</code> — one or more <code>display+text</code> font-slug
