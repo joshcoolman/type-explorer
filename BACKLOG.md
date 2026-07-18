@@ -4,6 +4,29 @@ Lightweight idea tracker. Status tags: `idea` · `ready` · `in progress` · `pa
 
 ---
 
+## `/compose`: a "Tweak it" sidebar `idea`
+
+A UI affordance on a composed page — something like **"Tweak it"** — that opens a sidebar exposing every element of the composition as a direct control: sliders for the dials (`scale`, `density`, `contrast`, `measure`) and the absolute overrides (`h1`, `h2`, `p`), palette pickers for every color role (`bg`, `title`, `subtitle`, `paragraph`, `accent`, and the `page` field). Tweak to your heart's content without going back through the agent.
+
+**Stretch, explicitly not important:** font selection in the same sidebar.
+
+**Why it fits:**
+The color key already runs human → agent rather than agent → human — it gives a person the exact vocabulary to revise with ("make `A32B25` darker" instead of "the red's too bright"). A sidebar is the next step along that axis: skip the round trip entirely for changes faster to *do* than to *describe*. The plumbing largely exists — every control listed is already a validated, clamped, contrast-checked param in `lib/compose-params.ts`, so this is a control surface over a grammar that's already designed.
+
+**The question worth settling first:**
+What does a tweak *produce*? If the sidebar only mutates local state, the result is unshareable and invisible to the agent — which breaks the property that makes composed pages work at all (the URL *is* the entire state). It should almost certainly rewrite the URL as you tweak, leaving a link you can hand straight back: *"I adjusted it, here's where I landed, keep going."* That closes the loop in both directions. This is the difference between a toy and a loop, so decide it before building.
+
+**Constraints to respect:**
+- `/compose` reads no viewer state, deliberately — a composed URL must render identically for everyone it's sent to (see `CLAUDE.md`). A sidebar must not become a localStorage preference that silently changes what *other* people see at that link.
+- Contrast validation lives in `completeTheme` / `completePageChrome`. A picker should surface those nudges, not bypass them, or someone can hand-pick something illegible that the URL path would have caught.
+- Keep it invisible to the recipient. The composed page is a design surface; the affordance should be quiet.
+
+**Prior art in-repo:** `TypographicVoiceModal.tsx` (overlay pattern), `ColorsView.tsx` (swatch/picker treatment), `ComposeColorKey.tsx` (already names every effective color — the natural place to hang "click a swatch to edit").
+
+Related: `docs/plans/agent-surface-v1.md`, V2 candidates.
+
+---
+
 ## Learn: a typography one-pager `idea`
 
 A single `/learn` page that covers everything someone needs to know about type to use the app well.
